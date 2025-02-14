@@ -7,8 +7,8 @@ assignees: ''
 
 ---
 
-## 📖 Fix Description
+## 📌 관련 이슈
 
-## 🎯 To do
-- [ ]
-- [ ]
+## ✨ 작업 내용
+
+## 📚 기타
