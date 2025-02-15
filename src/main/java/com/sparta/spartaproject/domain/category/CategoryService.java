@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -28,7 +29,7 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public CategoryDto getCategory(Long id) {
+    public CategoryDto getCategory(UUID id) {
         return categoryMapper.toCategoryDto(
             getCategoryById(id)
         );
@@ -47,25 +48,29 @@ public class CategoryService {
     }
 
     @Transactional
-    public void updateCategory(Long id, UpdateCategoryRequestDto update) {
+    public void updateCategory(UUID id, UpdateCategoryRequestDto update) {
         if (existsCategoryByName(update.name())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 존재하는 카테고리입니다.");
         }
 
         Category category = getCategoryById(id);
         category.update(update);
+
+        log.info("카테고리: {}, 수정: {}", id, update.name());
     }
 
     @Transactional
-    public void deleteCategory(Long id) {
+    public void deleteCategory(UUID id) {
         // TODO: 사용중인 카테고리인지 검사 - 사용중이면 삭제 X
 
         Category category = getCategoryById(id);
         categoryRepository.delete(category);
+
+        log.info("카테고리: {}, 삭제", id);
     }
 
 
-    public Category getCategoryById(Long id) {
+    public Category getCategoryById(UUID id) {
         // TODO: 카테고리 에러 메시지 적용, 404
         return categoryRepository.findById(id)
             .orElseThrow();

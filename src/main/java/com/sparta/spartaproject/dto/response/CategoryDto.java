@@ -1,7 +1,9 @@
 package com.sparta.spartaproject.dto.response;
 
+import java.util.UUID;
+
 public record CategoryDto(
-    Long id,
+    UUID id,
     String name
 ) {
 }

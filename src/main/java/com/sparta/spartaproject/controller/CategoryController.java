@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class CategoryController {
         "카테고리 상세 조회"
     )
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryDto> getCategory(@PathVariable Long id) {
+    public ResponseEntity<CategoryDto> getCategory(@PathVariable UUID id) {
         return ResponseEntity.ok(categoryService.getCategory(id));
     }
 
@@ -46,7 +47,7 @@ public class CategoryController {
         "카테고리 수정"
     )
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateCategory(@PathVariable Long id, @RequestBody UpdateCategoryRequestDto update) {
+    public ResponseEntity<Void> updateCategory(@PathVariable UUID id, @RequestBody UpdateCategoryRequestDto update) {
         categoryService.updateCategory(id, update);
         return ResponseEntity.ok().build();
     }
@@ -55,7 +56,7 @@ public class CategoryController {
         "카테고리 삭제"
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable UUID id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.ok().build();
     }
