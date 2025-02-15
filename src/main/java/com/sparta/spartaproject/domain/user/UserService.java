@@ -109,6 +109,9 @@ public class UserService {
 
         user.successLogin();
 
+        Cache cache = cacheManager.getCache("loginUser");
+        cache.put(user.getId(), user); // 캐시 저장
+
         log.info("사용자:{}, 로그인 성공", user.getId());
         return jwtUtils.generateToken(user);
     }
