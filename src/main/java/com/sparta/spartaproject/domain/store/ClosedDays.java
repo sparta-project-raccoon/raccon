@@ -17,5 +17,4 @@ public enum ClosedDays {
     ClosedDays(String description) {
         this.description = description;
     }
-
 }

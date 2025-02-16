@@ -23,72 +23,55 @@ import java.util.UUID;
 @Table(name = "p_stores")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Store extends BaseEntity {
-
     @Id
-    private UUID id;  // 음식점 ID (PK)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;  // 가게 주인 (User 테이블과 연결)
+    private User owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
-    private Category category;  // 카테고리 (Category 테이블과 연결)
+    private Category category;
 
     @Column(
         nullable = false,
         length = 50
     )
-    private String name;  // 음식점 이름
+    private String name;
 
     @Column(
         nullable = false,
         length = 300
     )
-    private String address;  // 음식점 주소
+    private String address;
 
     @Column(
         nullable = false,
         length = 20
     )
     @Enumerated(EnumType.STRING)
-    private Status status;  // BEFORE_OPEN, OPEN, CLOSE, BREAK_TIME
+    private Status status;
 
     @Column(
         nullable = false,
         length = 20
     )
-    private String tel;  // 전화번호
+    private String tel;
 
     @Column(length = 255)
-    private String description;  // 음식점 상세 소개
+    private String description;
 
     @Column(nullable = false)
-    private LocalTime openTime;  // 오픈 시간
+    private LocalTime openTime;
 
     @Column(nullable = false)
-    private LocalTime closeTime;  // 마감 시간
+    private LocalTime closeTime;
 
     @Column(length = 20)
     @Enumerated(EnumType.STRING)
-    private ClosedDays closedDays; // 휴무일
-
-
-    public void update(UpdateStoreRequestDto update, Category category) {
-        this.category = category;
-        this.name = update.name();
-        this.address = update.address();
-        this.status = update.status();
-        this.tel = update.tel();
-        this.description = update.description();
-        this.openTime = update.openTime();
-        this.closeTime = update.closeTime();
-        this.closedDays = update.closedDays();
-    }
-
-    public void updateStatus(Status status) {
-        this.status = status;
-    }
+    private ClosedDays closedDays;
 
     @PrePersist
     public void prePersist() {
@@ -97,4 +80,41 @@ public class Store extends BaseEntity {
         }
     }
 
+    public void update(UpdateStoreRequestDto update, Category category) {
+        if (category != null) {
+            this.category = category;
+        }
+
+        if (update.address() != null) {
+            this.address = update.address();
+        }
+
+        if (update.status() != null) {
+            this.status = update.status();
+        }
+
+        if (update.tel() != null) {
+            this.tel = update.tel();
+        }
+
+        if (update.description() != null) {
+            this.description = update.description();
+        }
+
+        if (update.openTime() != null) {
+            this.openTime = update.openTime();
+        }
+
+        if (update.closeTime() != null) {
+            this.closeTime = update.closeTime();
+        }
+
+        if (update.closedDays() != null) {
+            this.closedDays = update.closedDays();
+        }
+    }
+
+    public void updateStatus(Status status) {
+        this.status = status;
+    }
 }
