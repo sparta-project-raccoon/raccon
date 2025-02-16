@@ -1,6 +1,7 @@
 package com.sparta.spartaproject.domain.order;
 
 import com.sparta.spartaproject.domain.BaseEntity;
+import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,8 +11,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.UUID;
 
 @Getter
@@ -19,7 +18,7 @@ import java.util.UUID;
 @SuperBuilder
 @DynamicInsert
 @DynamicUpdate
-@Table(name = "orders")
+@Table(name = "p_order")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseEntity {
 
@@ -27,15 +26,19 @@ public class Order extends BaseEntity {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User userId;
-    // todo 음식점 연결
-    private UUID store_id;
+    private User user;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private Store store;
 
     @Column(nullable = false)
-    private BigDecimal total_price;
+    private int total_price;
 
+    @Column(nullable = false)
     private OrderMethod orderMethod;
+    @Column(nullable = false)
     private OrderStatus orderStatus;
+    @Column(nullable = false)
     private PaymentMethod paymentMethod;
 
     @Column(nullable = false, length = 255)

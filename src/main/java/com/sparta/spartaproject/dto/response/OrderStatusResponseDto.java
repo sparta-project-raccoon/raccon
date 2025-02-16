@@ -1,4 +1,4 @@
-package com.sparta.spartaproject.domain.order;
+package com.sparta.spartaproject.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;

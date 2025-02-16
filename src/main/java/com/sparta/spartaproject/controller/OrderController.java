@@ -1,13 +1,15 @@
 package com.sparta.spartaproject.controller;
 
-import com.sparta.spartaproject.domain.order.OrderRequestDto;
-import com.sparta.spartaproject.domain.order.OrderService;
-import com.sparta.spartaproject.domain.order.OrderStatusRequestDto;
-import com.sparta.spartaproject.domain.order.OrderStatusResponseDto;
+import com.sparta.spartaproject.domain.order.*;
+import com.sparta.spartaproject.dto.request.OrderRequestDto;
+import com.sparta.spartaproject.dto.request.OrderStatusRequestDto;
+import com.sparta.spartaproject.dto.response.OrderResponseDto;
+import com.sparta.spartaproject.dto.response.OrderStatusResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -17,6 +19,9 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    /**
+     *  주문하기
+     */
     @PostMapping
     public ResponseEntity<Void> createOrder(@RequestBody OrderRequestDto dto){
         orderService.createOrder(dto);
@@ -30,11 +35,13 @@ public class OrderController {
         return ResponseEntity.ok("주문이 취소되었습니다.");
     }
 
-    // 주문 상태 변경
+    /**
+     * 주문 상태 변경
+     */
     @PatchMapping("/status")
     public ResponseEntity<String> updateStatus(@RequestBody OrderStatusRequestDto request) {
         orderService.updateStatus(request);
-        return ResponseEntity.ok("주문 상태가 변경되었습니다.");
+        return ResponseEntity.ok("주문 상태가 " + request.getOrderStatus() + "로 변경되었습니다");
     }
 
     // todo 주문 상태 조회 -> 나중에 여러 개 조회할 수 있으니
@@ -60,6 +67,13 @@ public class OrderController {
 
     // 아래 애들은 주문내역 테이블 만들고 나서
     // todo 주문 내역 확인
+    @GetMapping
+    public ResponseEntity<List<OrderResponseDto>> getAllOrders() {
+
+        List<OrderResponseDto> result = orderService.getAllOrders();
+
+        return ResponseEntity.ok(result);
+    }
     // todo 주문 내역 상세 조회
 
 }

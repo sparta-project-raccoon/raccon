@@ -1,5 +1,7 @@
-package com.sparta.spartaproject.domain.order;
+package com.sparta.spartaproject.dto.request;
 
+import com.sparta.spartaproject.domain.order.OrderMethod;
+import com.sparta.spartaproject.domain.order.OrderStatus;
 import lombok.Getter;
 
 import java.util.UUID;
@@ -10,7 +12,7 @@ public class OrderRequestDto {
     private UUID store_id;
 
     // todo 음식 추가
-//    List<Food> foods = new ArrayList<>();
+    // List<Food> foods = new ArrayList<>();
     int totalPrice;
 
     private OrderStatus status;

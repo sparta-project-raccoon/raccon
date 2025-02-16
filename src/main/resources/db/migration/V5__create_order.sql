@@ -1,18 +1,18 @@
-create extension if not exists "uuid-ossp";
+create
+extension if not exists "uuid-ossp";
 
-create table dev."orders"
+create table dev.p_order
 (
-    id UUID PRIMARY KEY uuid_generate_v4(),
-    user_id             bigserial        not null,
-    store_id            uuid uuid_generate_v4 ()        not null,
-    total_price         numeric(10,2)         not null,
-    order_method        varchar(10)           not null,
-    request             varchar(300),
-    pay_method          varchar(10)           not null,
-    address             varchar(300)          not null,
-    role                varchar(10),
-    status              varchar(10),
-    deleted_at          timestamp,
-    created_at          timestamp,
-    updated_at          timestamp
+    id           uuid default uuid_generate_v4() constraint p_order_pk primary key,
+    user_id      BIGINT         NOT NULL,
+    store_id     UUID           NOT NULL,
+    total_price  INT NOT NULL,
+    request      varchar(300),
+    order_method varchar(10)    NOT NULL,
+    pay_method   varchar(10)    NOT NULL,
+    address      varchar(300)   NOT NULL,
+    status       varchar(10)    NOT NULL,
+    deleted_at   timestamp,
+    created_at   timestamp,
+    updated_at   timestamp
 );
