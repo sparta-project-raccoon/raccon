@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/stores")
 @RequiredArgsConstructor
+@RequestMapping("/api/stores")
 public class StoreController {
     private final StoreService storeService;
 
@@ -80,5 +80,4 @@ public class StoreController {
     public ResponseEntity<Page<StoreSummaryDto>> searchStores(@RequestParam String searchWord, Pageable pageable){
         return ResponseEntity.ok(storeService.searchStores(searchWord, pageable));
     }
-
 }
