@@ -23,6 +23,10 @@ public enum ErrorCode {
     LOGIN_INPUT_INVALID(HttpStatus.BAD_REQUEST, "Member-002", "비밀번호 혹은 아이디가 일치하지 않습니다."),
     NOT_EXIST_USER(HttpStatus.NOT_FOUND, "Member-003", "존재하지 않는 회원입니다."),
 
+    //Order
+    ORDER_NOT_EXIST(HttpStatus.NOT_FOUND,"Order-001","해당하는 주문이 없습니다."),
+    INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST,"Order-002","유효하지 않은 주문 상태입니다."),
+
     //room Validation
 
 
