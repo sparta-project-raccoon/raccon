@@ -19,4 +19,3 @@ CREATE TABLE dev.p_stores (
       updated_at    TIMESTAMP,
       updated_by    BIGINT
 );
-
