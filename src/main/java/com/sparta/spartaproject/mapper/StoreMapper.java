@@ -9,11 +9,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface StoreMapper {
 
-    @Mapping(target = "categoryName", source = "category.name")
+//    @Mapping(target = "categoryName", source = "category.name")
     StoreDetailDto toStoreDetailDto(Store store);
 
     @Mapping(target = "storeId", source = "id")
-    @Mapping(target = "categoryName", source = "category.name")
+//    @Mapping(target = "categoryName", source = "category.name")
     StoreSummaryDto toStoreSummaryDto(Store store);
 
 }

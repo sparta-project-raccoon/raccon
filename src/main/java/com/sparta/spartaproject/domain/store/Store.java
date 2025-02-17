@@ -31,9 +31,9 @@ public class Store extends BaseEntity {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "category_id", nullable = false)
+//    private Category category;
 
     @Column(
         nullable = false,
@@ -81,9 +81,9 @@ public class Store extends BaseEntity {
     }
 
     public void update(UpdateStoreRequestDto update, Category category) {
-        if (category != null) {
-            this.category = category;
-        }
+//        if (category != null) {
+//            this.category = category;
+//        }
 
         if (update.address() != null) {
             this.address = update.address();

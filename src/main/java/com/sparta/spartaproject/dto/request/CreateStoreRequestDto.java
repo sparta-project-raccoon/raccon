@@ -7,7 +7,7 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 public record CreateStoreRequestDto(
-        UUID categoryId,
+//        UUID categoryId,
         String name,
         String address,
         Status status,

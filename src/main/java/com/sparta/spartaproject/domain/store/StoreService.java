@@ -4,6 +4,7 @@ import com.sparta.spartaproject.domain.category.Category;
 import com.sparta.spartaproject.domain.category.CategoryService;
 import com.sparta.spartaproject.domain.user.Role;
 import com.sparta.spartaproject.domain.user.User;
+import com.sparta.spartaproject.domain.user.UserRepository;
 import com.sparta.spartaproject.domain.user.UserService;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
@@ -32,19 +33,20 @@ public class StoreService {
     private final StoreMapper storeMapper;
     private final StoreRepository storeRepository;
     private final CategoryService categoryService;
+    private final UserRepository userRepository;
 
     @Transactional
     @CacheEvict(value = "stores", allEntries = true) // 전체 캐시 삭제
     public void createStore(CreateStoreRequestDto request) {
-        User user = userService.loginUser();
-
-        validateUserRole(user);
-
-        Category category = categoryService.getCategoryById(request.categoryId());
+//        User user = userService.loginUser();
+//
+//        validateUserRole(user);
+        User user = userRepository.findById(5L).orElseThrow(); // 테스트용
+//        Category category = categoryService.getCategoryById(request.categoryId());
 
         Store store = Store.builder()
             .owner(user)
-            .category(category)
+//            .category(category)
             .name(request.name())
             .address(request.address())
             .status(request.status())
@@ -58,7 +60,7 @@ public class StoreService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "store", key = "#storeId")
+    @Cacheable(value = "store", key = "#p0")
     public StoreDetailDto getStore(UUID storeId) {
         Store store = getStoreById(storeId);
 
@@ -73,15 +75,15 @@ public class StoreService {
         );
     }
 
-    @Cacheable(value = "stores")
-    @Transactional(readOnly = true)
-    public Page<StoreSummaryDto> getAllStoresByCategoryId(UUID categoryId, Pageable pageable) {
-        Category category = categoryService.getCategoryById(categoryId);
-
-        return storeRepository.findByCategory(category, pageable).map(
-            storeMapper::toStoreSummaryDto
-        );
-    }
+//    @Cacheable(value = "stores")
+//    @Transactional(readOnly = true)
+//    public Page<StoreSummaryDto> getAllStoresByCategoryId(UUID categoryId, Pageable pageable) {
+//        Category category = categoryService.getCategoryById(categoryId);
+//
+//        return storeRepository.findByCategory(category, pageable).map(
+//            storeMapper::toStoreSummaryDto
+//        );
+//    }
 
     @Transactional(readOnly = true)
     public Page<StoreSummaryDto> getMyStores(Pageable pageable) {
@@ -144,12 +146,6 @@ public class StoreService {
     public Store getStoreById(UUID id) {
         return storeRepository.findById(id)
             .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
-    }
-
-    public Store getStoreById(UUID storeId) {
-        return storeRepository.findById(storeId)
-                .orElseThrow();
-
     }
 
     // TODO:  @PreAuthorize 으로 인증 처리 대체 예정
