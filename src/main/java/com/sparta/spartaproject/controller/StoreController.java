@@ -1,11 +1,9 @@
 package com.sparta.spartaproject.controller;
 
 import com.sparta.spartaproject.domain.store.Status;
-import com.sparta.spartaproject.domain.store.StoreImageService;
 import com.sparta.spartaproject.domain.store.StoreService;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
-import com.sparta.spartaproject.dto.response.ImageInfoDto;
 import com.sparta.spartaproject.dto.response.StoreDetailDto;
 import com.sparta.spartaproject.dto.response.StoreSummaryDto;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +17,8 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/stores")
 @RequiredArgsConstructor
+@RequestMapping("/api/stores")
 public class StoreController {
     private final StoreService storeService;
     private final StoreImageService storeImageService;

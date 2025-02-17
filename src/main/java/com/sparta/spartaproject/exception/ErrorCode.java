@@ -29,7 +29,13 @@ public enum ErrorCode {
     //...등
 
     // 찜
-    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "Like-001", "찜 목록이 존재하지 않습니다.");
+    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "Like-001", "찜 목록이 존재하지 않습니다."),
+
+    // 리뷰
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "Review-001", "리뷰가 존재하지 않습니다."),
+
+    // 가게
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "Store-001", "가게 정보가 존재하지 않습니다.");
 
     private final HttpStatus status; // http 상태코드
     private final String code;//에러코드

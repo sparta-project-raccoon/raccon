@@ -13,6 +13,5 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
 
     Page<Store> findByOwner(User owner, Pageable pageable);
 
-    Page<Store> findByNameContainingOrDescriptionContaining(String searchWord1, String searchWord2, Pageable pageable);
-
+    Page<Store> findByNameContaining(Pageable pageable, String searchWord);
 }
