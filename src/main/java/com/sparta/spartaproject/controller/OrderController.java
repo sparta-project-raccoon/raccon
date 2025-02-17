@@ -1,8 +1,9 @@
 package com.sparta.spartaproject.controller;
 
 import com.sparta.spartaproject.domain.order.*;
-import com.sparta.spartaproject.dto.request.OrderRequestDto;
-import com.sparta.spartaproject.dto.request.OrderStatusRequestDto;
+import com.sparta.spartaproject.dto.request.CreateOrderRequestDto;
+import com.sparta.spartaproject.dto.request.UpdateOrderStatusRequestDto;
+import com.sparta.spartaproject.dto.response.OrderDetailResponseDto;
 import com.sparta.spartaproject.dto.response.OrderResponseDto;
 import com.sparta.spartaproject.dto.response.OrderStatusResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -21,17 +22,18 @@ public class OrderController {
 
     /**
      *  주문하기
+     *  todo 예외처리
      */
     @PostMapping
-    public ResponseEntity<Void> createOrder(@RequestBody OrderRequestDto dto){
+    public ResponseEntity<Void> createOrder(@RequestBody CreateOrderRequestDto dto){
         orderService.createOrder(dto);
         return ResponseEntity.ok().build();
     }
 
-    // todo 주문 취소 - 등록 후 5분 전까지 가능, 지나면 시간 지나서 안된다고 알려주기
+    // 주문 취소
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteOrder(@PathVariable UUID id) {
-        orderService.deleteOrder(id);
+    public ResponseEntity<String> cancelOrder(@PathVariable UUID id) {
+        orderService.cancelOrder(id);
         return ResponseEntity.ok("주문이 취소되었습니다.");
     }
 
@@ -39,19 +41,19 @@ public class OrderController {
      * 주문 상태 변경
      */
     @PatchMapping("/status")
-    public ResponseEntity<String> updateStatus(@RequestBody OrderStatusRequestDto request) {
+    public ResponseEntity<String> updateStatus(@RequestBody UpdateOrderStatusRequestDto request) {
         orderService.updateStatus(request);
         return ResponseEntity.ok("주문 상태가 " + request.getOrderStatus() + "로 변경되었습니다");
     }
 
-    // todo 주문 상태 조회 -> 나중에 여러 개 조회할 수 있으니
+    // 주문 상태 조회
     @GetMapping("/{id}/status")
     public ResponseEntity<OrderStatusResponseDto> getStatus(@PathVariable UUID id) {
         OrderStatusResponseDto result = orderService.getStatus(id);
         return ResponseEntity.ok(result);
     }
 
-    // todo 주문 받기 - 사장님인지 판단
+    // 주문 받기
     @PatchMapping("/{id}/accept")
     public ResponseEntity<String> acceptOrder(@PathVariable UUID id) {
         orderService.acceptOrder(id);
@@ -68,12 +70,19 @@ public class OrderController {
     // 아래 애들은 주문내역 테이블 만들고 나서
     // todo 주문 내역 확인
     @GetMapping
-    public ResponseEntity<List<OrderResponseDto>> getAllOrders() {
+    public ResponseEntity<List<OrderResponseDto>> getAllOrders(@RequestParam(required = false, defaultValue = "1") int page) {
 
-        List<OrderResponseDto> result = orderService.getAllOrders();
+        List<OrderResponseDto> result = orderService.getAllOrders(page);
 
         return ResponseEntity.ok(result);
     }
+
     // todo 주문 내역 상세 조회
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDetailResponseDto> getOrderDetail(@PathVariable UUID id) {
+        OrderDetailResponseDto result = orderService.getOrderDetail(id);
+
+        return ResponseEntity.ok(result);
+    }
 
 }

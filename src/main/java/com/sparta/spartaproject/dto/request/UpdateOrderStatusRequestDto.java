@@ -8,7 +8,7 @@ import lombok.Getter;
 import java.util.UUID;
 
 @Getter
-public class OrderStatusRequestDto {
+public class UpdateOrderStatusRequestDto {
     private UUID orderId;
 
     @JsonDeserialize(using = OrderStatusDeserializer.class)

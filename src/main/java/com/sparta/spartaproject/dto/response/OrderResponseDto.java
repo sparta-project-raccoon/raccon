@@ -12,12 +12,7 @@ import java.util.UUID;
 @Builder
 public class OrderResponseDto {
     private UUID orderId;
-    private OrderStatus orderStatus;
-    private int totalPrice;
+    private OrderStatus status;
+    private int total_price;
     private String storeName;
-
-//    private OrderMethod orderMethod;
-//    private PaymentMethod paymentMethod;
-//    private String address;
-//    private String request;
 }

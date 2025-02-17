@@ -22,5 +22,5 @@ public class PayHistory extends BaseEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private PaymentMethod paymentMethod;
+    private PaymentMethod payMethod;
 }

@@ -1,6 +1,7 @@
 package com.sparta.spartaproject.domain.order;
 
 import com.sparta.spartaproject.domain.BaseEntity;
+import com.sparta.spartaproject.domain.BaseTimeEntity;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import jakarta.persistence.*;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @DynamicUpdate
 @Table(name = "p_order")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Order extends BaseEntity {
+public class Order extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -35,11 +36,16 @@ public class Order extends BaseEntity {
     private int total_price;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private OrderMethod orderMethod;
+
     @Column(nullable = false)
-    private OrderStatus orderStatus;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+
     @Column(nullable = false)
-    private PaymentMethod paymentMethod;
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod payMethod;
 
     @Column(nullable = false, length = 255)
     private String address;
@@ -47,7 +53,9 @@ public class Order extends BaseEntity {
     @Column(nullable = false, length = 255)
     private String request;
 
+    private Boolean isDeleted;
+
     public void changeOrderStatus(OrderStatus orderStatus) {
-        this.orderStatus = orderStatus;
+        this.status = orderStatus;
     }
 }

@@ -22,10 +22,12 @@ public enum ErrorCode {
     EMAIL_DUPLICATION(HttpStatus.BAD_REQUEST, "중복 이메일입니다."),
     LOGIN_INPUT_INVALID(HttpStatus.BAD_REQUEST, "비밀번호 혹은 아이디가 일치하지 않습니다."),
     NOT_EXIST_USER(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, " 권한이 없습니다."),
 
     //Order
     ORDER_NOT_EXIST(HttpStatus.NOT_FOUND, "해당하는 주문이 없습니다."),
     INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 주문 상태입니다."),
+    CAN_NOT_CANCEL_ORDER(HttpStatus.BAD_REQUEST,"주문 후 5분이 지나 취소할 수 없습니다."),
 
     //room Validation
 
@@ -36,7 +38,10 @@ public enum ErrorCode {
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "찜 목록이 존재하지 않습니다."),
 
     // 리뷰
-    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰가 존재하지 않습니다.");
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰가 존재하지 않습니다."),
+
+    // 가게
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND,"가게 정보가 존재하지 않습니다.");
 
     private final HttpStatus status; // http 상태코드
     private final String message;//에러메시지
