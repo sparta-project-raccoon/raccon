@@ -1,9 +1,11 @@
 package com.sparta.spartaproject.controller;
 
 import com.sparta.spartaproject.domain.store.Status;
+import com.sparta.spartaproject.domain.store.StoreImageService;
 import com.sparta.spartaproject.domain.store.StoreService;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
+import com.sparta.spartaproject.dto.response.ImageInfoDto;
 import com.sparta.spartaproject.dto.response.StoreDetailDto;
 import com.sparta.spartaproject.dto.response.StoreSummaryDto;
 import lombok.RequiredArgsConstructor;
@@ -43,11 +45,11 @@ public class StoreController {
         return ResponseEntity.ok(storeService.getAllStores(pageable));
     }
 
-    // 카테고리 별 조회
-    @GetMapping(params = "categoryId")
-    public ResponseEntity<Page<StoreSummaryDto>> getAllStoresByCategoryId(@RequestParam UUID categoryId, Pageable pageable){
-        return ResponseEntity.ok(storeService.getAllStoresByCategoryId(categoryId, pageable));
-    }
+//    // 카테고리 별 조회
+//    @GetMapping(params = "categoryId")
+//    public ResponseEntity<Page<StoreSummaryDto>> getAllStoresByCategoryId(@RequestParam UUID categoryId, Pageable pageable){
+//        return ResponseEntity.ok(storeService.getAllStoresByCategoryId(categoryId, pageable));
+//    }
 
 
     // 내 음식점 조회 (권한 check)
@@ -87,20 +89,20 @@ public class StoreController {
     // 음식점 이미지 저장 (권한 : 해당 음식점 사장님, 관리자)
     @PostMapping("/image/{storeId}")
     public ResponseEntity<List<ImageInfoDto>> saveStoreImages(
-            @PathVariable UUID storeId,
+            @PathVariable(name="storeId") UUID storeId,
             @RequestParam("images") List<MultipartFile> images) {
         return ResponseEntity.ok(storeImageService.saveStoreImages(storeId, images));
     }
 
     // 음식점 이미지 조회
     @GetMapping("/image/{storeId}")
-    public ResponseEntity<List<ImageInfoDto>> getStoreImages(@PathVariable UUID storeId) {
+    public ResponseEntity<List<ImageInfoDto>> getStoreImages(@PathVariable(name="storeId") UUID storeId) {
         return ResponseEntity.ok(storeImageService.getStoreImages(storeId));
     }
 
     // 이미지 삭제 (권한 : 해당 음식점 사장님, 관리자)
     @DeleteMapping("/image/{imageId}")
-    public ResponseEntity<Void> deleteImage(@PathVariable UUID imageId) {
+    public ResponseEntity<Void> deleteImage(@PathVariable(name="imageId") UUID imageId) {
         storeImageService.deleteImage(imageId);
         return ResponseEntity.noContent().build();
     }
