@@ -7,6 +7,7 @@ import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.domain.user.UserService;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
+import com.sparta.spartaproject.dto.response.ImageInfoDto;
 import com.sparta.spartaproject.dto.response.StoreDetailDto;
 import com.sparta.spartaproject.dto.response.StoreSummaryDto;
 import com.sparta.spartaproject.mapper.StoreMapper;
@@ -19,8 +20,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -147,6 +151,12 @@ public class StoreService {
     public Page<StoreSummaryDto> searchStores(String searchWord, Pageable pageable) {
         return storeRepository.findByNameContainingOrDescriptionContaining(searchWord, searchWord, pageable)
                 .map(storeMapper::toStoreSummaryDto) ;
+    }
+
+    public Store getStoreById(UUID storeId) {
+        return storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 음식점입니다."));
+
     }
 
     // TODO:  @PreAuthorize 으로 인증 처리 대체 예정

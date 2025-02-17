@@ -1,7 +1,6 @@
-package com.sparta.spartaproject.domain.image.store;
+package com.sparta.spartaproject.domain.store;
 
 import com.sparta.spartaproject.domain.BaseTimeEntity;
-import com.sparta.spartaproject.domain.store.Store;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,6 +10,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -32,6 +32,11 @@ public class StoreImage extends BaseTimeEntity {
 
     @Column(nullable = false, length = 500)
     private String path;  // 이미지 파일 경로
+
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
+
+    private LocalDateTime deleteAt;
 
     @PrePersist
     public void prePersist() {

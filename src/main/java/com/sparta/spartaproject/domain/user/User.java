@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @DynamicInsert
 @DynamicUpdate
-@Table(name = "\"user\"")
+//@Table(name = "\"user\"")
+@Table(name = "p_user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
     @Id
