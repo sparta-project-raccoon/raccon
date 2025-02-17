@@ -10,7 +10,8 @@ public enum ClosedDays {
     THURSDAY("목요일"),
     FRIDAY("금요일"),
     SATURDAY("토요일"),
-    SUNDAY("일요일");
+    SUNDAY("일요일"),
+    AllDay("연중무휴");
 
     private final String description;
 

@@ -1,9 +1,9 @@
 package com.sparta.spartaproject.domain.store;
 
 import com.sparta.spartaproject.domain.BaseEntity;
-import com.sparta.spartaproject.domain.category.Category;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
+import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,7 +12,10 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -30,10 +33,6 @@ public class Store extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
 
     @Column(
         nullable = false,
@@ -60,7 +59,6 @@ public class Store extends BaseEntity {
     )
     private String tel;
 
-    @Column(length = 255)
     private String description;
 
     @Column(nullable = false)
@@ -73,6 +71,17 @@ public class Store extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ClosedDays closedDays;
 
+    @Column(
+        nullable = false,
+        columnDefinition = "boolean default false"
+    )
+    private Boolean isDeleted;
+
+    private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<StoreCategory> storeCategories = new ArrayList<>();
+
     @PrePersist
     public void prePersist() {
         if (id == null) {
@@ -80,11 +89,7 @@ public class Store extends BaseEntity {
         }
     }
 
-    public void update(UpdateStoreRequestDto update, Category category) {
-        if (category != null) {
-            this.category = category;
-        }
-
+    public void update(UpdateStoreRequestDto update) {
         if (update.address() != null) {
             this.address = update.address();
         }
@@ -114,7 +119,7 @@ public class Store extends BaseEntity {
         }
     }
 
-    public void updateStatus(Status status) {
-        this.status = status;
+    public void updateStatus(UpdateStoreStatusRequestDto update) {
+        this.status = update.status();
     }
 }

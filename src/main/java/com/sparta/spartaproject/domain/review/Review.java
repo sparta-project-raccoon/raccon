@@ -48,7 +48,7 @@ public class Review extends BaseEntity {
 
     @Column(
         nullable = false,
-        columnDefinition = "booolean default false"
+        columnDefinition = "boolean default false"
     )
     private Boolean isDeleted;
 

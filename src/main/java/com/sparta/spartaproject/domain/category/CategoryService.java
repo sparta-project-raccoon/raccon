@@ -3,6 +3,8 @@ package com.sparta.spartaproject.domain.category;
 import com.sparta.spartaproject.dto.request.CreateCategoryRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateCategoryRequestDto;
 import com.sparta.spartaproject.dto.response.CategoryDto;
+import com.sparta.spartaproject.exception.BusinessException;
+import com.sparta.spartaproject.exception.ErrorCode;
 import com.sparta.spartaproject.mapper.CategoryMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +75,7 @@ public class CategoryService {
     public Category getCategoryById(UUID id) {
         // TODO: 카테고리 에러 메시지 적용, 404
         return categoryRepository.findById(id)
-            .orElseThrow();
+            .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
     }
 
     public Boolean existsCategoryByName(String name) {
