@@ -32,7 +32,6 @@ public class StoreImageService {
 
     // 음식점 이미지 저장
     @Transactional
-//    @PreAuthorize("hasAnyRole( 'OWNER', 'MANAGER', 'MASTER')")
     public List<ImageInfoDto> saveStoreImages(UUID storeId, List<MultipartFile> images) {
         // 음식점 사장 확인
         User user = userService.loginUser();
@@ -66,7 +65,6 @@ public class StoreImageService {
 
     // 이미지 삭제
     @Transactional
-//    @PreAuthorize("hasAnyRole( 'OWNER', 'MANAGER', 'MASTER')")
     public void deleteImage(UUID imageId) {
         // DB에서 음식점 이미지 조회
         StoreImage storeImage = getStoreImageById(imageId);
