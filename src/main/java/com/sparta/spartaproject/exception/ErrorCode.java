@@ -35,7 +35,11 @@ public enum ErrorCode {
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "Review-001", "리뷰가 존재하지 않습니다."),
 
     // 가게
-    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "Store-001", "가게 정보가 존재하지 않습니다.");
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "Store-001", "가게 정보가 존재하지 않습니다."),
+    STORE_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Store-002", "가게 정보에 대한 권한이 존재하지 않습니다."),
+
+    // 카테고리
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "Category-001", "카테고리 정보가 존재하지 않습니다.");
 
     private final HttpStatus status; // http 상태코드
     private final String code;//에러코드

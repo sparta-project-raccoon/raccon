@@ -5,13 +5,15 @@ import com.sparta.spartaproject.domain.store.StoreImageService;
 import com.sparta.spartaproject.domain.store.StoreService;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
+import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
+import com.sparta.spartaproject.dto.response.StoreByCategoryDto;
 import com.sparta.spartaproject.dto.response.ImageInfoDto;
 import com.sparta.spartaproject.dto.response.StoreDetailDto;
-import com.sparta.spartaproject.dto.response.StoreSummaryDto;
+import com.sparta.spartaproject.dto.response.StoreDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,65 +27,83 @@ public class StoreController {
     private final StoreService storeService;
     private final StoreImageService storeImageService;
 
-
-    // 음식점 등록 (권한 check)
+    @Description(
+        "음식점 생성하기"
+    )
     @PostMapping
-    public ResponseEntity<String> createStore(@RequestBody CreateStoreRequestDto request) {
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    public ResponseEntity<Void> createStore(@RequestBody CreateStoreRequestDto request) {
         storeService.createStore(request);
-        return ResponseEntity.ok("가게 등록 완료");
-    }
-
-    // 음식점 상세 조회
-    @GetMapping("/{storeId}")
-    public ResponseEntity<StoreDetailDto> getStore(@PathVariable UUID storeId) {
-        return ResponseEntity.ok(storeService.getStore(storeId));
-    }
-
-    // 전체 음식점 조회
-    @GetMapping
-    public ResponseEntity<Page<StoreSummaryDto>> getAllStores(Pageable pageable) {
-        return ResponseEntity.ok(storeService.getAllStores(pageable));
-    }
-
-//    // 카테고리 별 조회
-//    @GetMapping(params = "categoryId")
-//    public ResponseEntity<Page<StoreSummaryDto>> getAllStoresByCategoryId(@RequestParam UUID categoryId, Pageable pageable){
-//        return ResponseEntity.ok(storeService.getAllStoresByCategoryId(categoryId, pageable));
-//    }
-
-
-    // 내 음식점 조회 (권한 check)
-    @GetMapping("/my")
-    public ResponseEntity<Page<StoreSummaryDto>> getMyStores(Pageable pageable){
-        return ResponseEntity.ok(storeService.getMyStores(pageable));
-    }
-
-
-    // 음식점 정보 수정 (권한 check)
-    @PutMapping("/{storeId}")
-    public ResponseEntity<String> updateStore(@PathVariable UUID storeId, @RequestBody UpdateStoreRequestDto update){
-        storeService.updateStore(storeId, update);
-        return ResponseEntity.ok("가게 정보 수정 완료");
-    }
-
-    // 음식점 상태 변경 (권한 check)
-    @PatchMapping("/{storeId}/status")
-    public ResponseEntity<String> updateStoreStatus(@PathVariable UUID storeId, @RequestParam Status status){
-        storeService.updateStoreStatus(storeId, status);
-        return ResponseEntity.ok("가게 상태 정보 수정 완료");
-    }
-
-    // 음식점 삭제 (권한 check)
-    @DeleteMapping("/{storeId}")
-    public ResponseEntity<String> deleteStore(@PathVariable UUID storeId){
-        storeService.deleteStore(storeId);
         return ResponseEntity.ok().build();
     }
 
-    // 음식점 검색
-    @GetMapping(params ="searchWord")
-    public ResponseEntity<Page<StoreSummaryDto>> searchStores(@RequestParam String searchWord, Pageable pageable){
-        return ResponseEntity.ok(storeService.searchStores(searchWord, pageable));
+    @Description(
+        "음식점 전체 조회하기"
+    )
+    @GetMapping
+    public ResponseEntity<StoreDto> getStores(
+        @RequestParam(required = false, defaultValue = "1") int page,
+        @RequestParam(required = false, defaultValue = "") String name
+    ) {
+        return ResponseEntity.ok(storeService.getStores(page, name));
+    }
+
+    @Description(
+        "음식점 상세 조회하기"
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<StoreDetailDto> getStore(@PathVariable UUID id) {
+        return ResponseEntity.ok(storeService.getStore(id));
+    }
+
+    @Description(
+        "카테고리별 음식점 조회"
+    )
+    @GetMapping("/categories/{categoryId}")
+    public ResponseEntity<StoreByCategoryDto> getStoresByCategory(
+        @PathVariable UUID categoryId,
+        @RequestParam(required = false, defaultValue = "1") int page
+    ) {
+        return ResponseEntity.ok(storeService.getStoresByCategory(page, categoryId));
+    }
+
+    @Description(
+        "내 음식점 조회하기"
+    )
+    @GetMapping("/my")
+    @PreAuthorize("hasAuthority('OWNER')")
+    public ResponseEntity<List<StoreDetailDto>> getMyStores() {
+        return ResponseEntity.ok(storeService.getMyStores());
+    }
+
+    @Description(
+        "가게 정보 수정하기"
+    )
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    public ResponseEntity<Void> updateStore(@PathVariable UUID id, @RequestBody UpdateStoreRequestDto update) {
+        storeService.updateStore(id, update);
+        return ResponseEntity.ok().build();
+    }
+
+    @Description(
+        "가게 상태 변경하기 - 영업 시작, 영업 종료, 브레이크 타임"
+    )
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    public ResponseEntity<Void> updateStoreStatus(@PathVariable UUID id, @RequestBody UpdateStoreStatusRequestDto update) {
+        storeService.updateStoreStatus(id, update);
+        return ResponseEntity.ok().build();
+    }
+
+    @Description(
+        "가게 삭제하기"
+    )
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    public ResponseEntity<String> deleteStore(@PathVariable UUID id) {
+        storeService.deleteStore(id);
+        return ResponseEntity.ok().build();
     }
 
     // 음식점 이미지 저장 (권한 : 해당 음식점 사장님, 관리자)

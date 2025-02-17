@@ -1,9 +1,11 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE p_store_image (
-    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    store_id    UUID                    NOT NULL,
-    path        TEXT                    NOT NULL,
-    is_delete   BOOLEAN  DEFAULT FALSE  NOT NULL ,
-    deleted_at  TIMESTAMP,
-    created_at  TIMESTAMP,
-    updated_at  TIMESTAMP,
+   id          uuid default uuid_generate_v4() not null constraint p_store_image_pk primary key,
+   store_id    uuid                    NOT NULL,
+   path        text                    NOT NULL,
+   is_delete   bool default false      NOT NULL ,
+   deleted_at  timestamp,
+   created_at  timestamp,
+   updated_at  timestamp
 );
