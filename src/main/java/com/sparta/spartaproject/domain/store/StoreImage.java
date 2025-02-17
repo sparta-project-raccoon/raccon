@@ -19,7 +19,7 @@ import java.util.UUID;
 @SuperBuilder
 @DynamicInsert
 @DynamicUpdate
-@Table(name = "p_store_images")
+@Table(name = "p_store_image")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StoreImage extends BaseTimeEntity {
     @Id
@@ -30,10 +30,15 @@ public class StoreImage extends BaseTimeEntity {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
-    @Column(nullable = false, length = 500)
-    private String path;  // 이미지 파일 경로
+    @Column(
+            length = 500,
+            nullable = false
+    )
+    private String path;
 
-    @Column(nullable = false)
+    @Column(
+            nullable = false
+    )
     private Boolean isDeleted = false;
 
     private LocalDateTime deleteAt;
