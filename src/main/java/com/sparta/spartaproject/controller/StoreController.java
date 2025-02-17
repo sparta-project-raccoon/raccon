@@ -108,6 +108,7 @@ public class StoreController {
 
     // 음식점 이미지 저장 (권한 : 해당 음식점 사장님, 관리자)
     @PostMapping("/image/{storeId}")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<List<ImageInfoDto>> saveStoreImages(
             @PathVariable(name="storeId") UUID storeId,
             @RequestParam("images") List<MultipartFile> images) {
@@ -122,6 +123,7 @@ public class StoreController {
 
     // 이미지 삭제 (권한 : 해당 음식점 사장님, 관리자)
     @DeleteMapping("/image/{imageId}")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> deleteImage(@PathVariable(name="imageId") UUID imageId) {
         storeImageService.deleteImage(imageId);
         return ResponseEntity.noContent().build();
