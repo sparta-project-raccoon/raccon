@@ -7,149 +7,190 @@ import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.domain.user.UserService;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
+import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
+import com.sparta.spartaproject.dto.response.OnlyStoreDto;
+import com.sparta.spartaproject.dto.response.StoreByCategoryDto;
 import com.sparta.spartaproject.dto.response.StoreDetailDto;
-import com.sparta.spartaproject.dto.response.StoreSummaryDto;
+import com.sparta.spartaproject.dto.response.StoreDto;
 import com.sparta.spartaproject.exception.BusinessException;
 import com.sparta.spartaproject.exception.ErrorCode;
+import com.sparta.spartaproject.mapper.CategoryMapper;
+import com.sparta.spartaproject.mapper.StoreCategoryMapper;
 import com.sparta.spartaproject.mapper.StoreMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class StoreService {
-    private final UserService userService;
     private final StoreMapper storeMapper;
+    private final UserService userService;
+    private final CategoryMapper categoryMapper;
     private final StoreRepository storeRepository;
     private final CategoryService categoryService;
+    private final StoreCategoryMapper storeCategoryMapper;
+    private final StoreCategoryService storeCategoryService;
+    private final StoreCategoryRepository storeCategoryRepository;
+
+    private final Integer size = 10;
 
     @Transactional
-    @CacheEvict(value = "stores", allEntries = true) // 전체 캐시 삭제
     public void createStore(CreateStoreRequestDto request) {
         User user = userService.loginUser();
 
-        validateUserRole(user);
+        Store newStore = storeMapper.toStore(request, user);
+        storeRepository.save(newStore);
 
-        Category category = categoryService.getCategoryById(request.categoryId());
+        ArrayList<StoreCategory> newStoreCategoryList = new ArrayList<>();
 
-        Store store = Store.builder()
-            .owner(user)
-            .category(category)
-            .name(request.name())
-            .address(request.address())
-            .status(request.status())
-            .tel(request.tel())
-            .description(request.description())
-            .openTime(request.openTime())
-            .closeTime(request.closeTime())
-            .closedDays(request.closedDays())
-            .build();
-        storeRepository.save(store);
+        for (UUID categoryId : request.categoriesId()) {
+            Category category = categoryService.getCategoryById(categoryId);
+
+            StoreCategory newStoreCategory = storeCategoryMapper.toStoreCategory(newStore, category);
+            newStoreCategoryList.add(newStoreCategory);
+        }
+
+        storeCategoryRepository.saveAll(newStoreCategoryList);
+        log.info("카테고리 : {} 개 - 가게 생성 완료", newStoreCategoryList.size());
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "store", key = "#storeId")
-    public StoreDetailDto getStore(UUID storeId) {
-        Store store = getStoreById(storeId);
+    public StoreDto getStores(int page, String name) {
+        Pageable pageable = PageRequest.of(page - 1, size);
 
-        return storeMapper.toStoreDetailDto(store);
-    }
+        List<Store> storeList = storeRepository.findAllStoreList(pageable, name);
 
-    @Transactional(readOnly = true)
-    @Cacheable(value = "stores", key = "'all'")
-    public Page<StoreSummaryDto> getAllStores(Pageable pageable) {
-        return storeRepository.findAll(pageable).map(
-            storeMapper::toStoreSummaryDto
+        int totalStoreCount = storeList.size();
+
+        return storeMapper.toStoreDto(
+            storeList.stream().map(
+                store -> storeMapper.toStoreDetailDto(
+                    storeCategoryService.getCategoriesByStore(store).stream().map(
+                        categoryMapper::toCategoryDto
+                    ).toList(),
+                    store
+                )
+            ).toList(),
+            page,
+            (int) Math.ceil((double) totalStoreCount / size),
+            totalStoreCount
         );
     }
 
-    @Cacheable(value = "stores")
     @Transactional(readOnly = true)
-    public Page<StoreSummaryDto> getAllStoresByCategoryId(UUID categoryId, Pageable pageable) {
+    @Cacheable(value = "store", key = "#id")
+    public StoreDetailDto getStore(UUID id) {
+        Store store = getStoreById(id);
+
+        return storeMapper.toStoreDetailDto(
+            storeCategoryService.getCategoriesByStore(store).stream().map(
+                categoryMapper::toCategoryDto
+            ).toList(),
+            store
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public StoreByCategoryDto getStoresByCategory(int page, UUID categoryId) {
+        Pageable pageable = PageRequest.of(page - 1, size);
         Category category = categoryService.getCategoryById(categoryId);
 
-        return storeRepository.findByCategory(category, pageable).map(
-            storeMapper::toStoreSummaryDto
+        List<OnlyStoreDto> storeList = storeCategoryService.getStoresByCategory(pageable, category).stream().map(
+            storeMapper::toOnlyStoreDto
+        ).toList();
+
+        int totalStoreCount = storeList.size();
+
+        return storeMapper.toStoreByCategoryDto(
+            storeList,
+            page,
+            (int) Math.ceil((double) totalStoreCount / size),
+            totalStoreCount
         );
     }
 
     @Transactional(readOnly = true)
-    public Page<StoreSummaryDto> getMyStores(Pageable pageable) {
+    public List<StoreDetailDto> getMyStores() {
         User user = userService.loginUser();
 
-        validateUserRole(user);
+        List<Store> stores = storeRepository.findAllStoreListByOwner(user);
 
-        return storeRepository.findByOwner(user, pageable).map(
-            storeMapper::toStoreSummaryDto
-        );
+        return stores.stream().map(
+            store -> storeMapper.toStoreDetailDto(
+                storeCategoryService.getCategoriesByStore(store).stream().map(
+                    categoryMapper::toCategoryDto
+                ).toList(),
+                store
+            )
+        ).toList();
     }
 
     @Transactional
-    @CacheEvict(value = {"store", "stores"}, key = "#storeId") // 개별 가게 및 전체 가게 리스트 캐시 삭제
-    public void updateStore(UUID storeId, UpdateStoreRequestDto update) {
+    @CacheEvict(value = "store", key = "#id")
+    public void updateStore(UUID id, UpdateStoreRequestDto update) {
         User user = userService.loginUser();
 
-        validateUserRole(user);
+        Store store = getStoreById(id);
 
-        Store store = getStoreById(storeId);
+        if (user.getRole() == Role.OWNER && !user.getId().equals(store.getOwner().getId())) {
+            throw new BusinessException(ErrorCode.STORE_UNAUTHORIZED);
+        }
 
-        Category category = categoryService.getCategoryById(update.categoryId());
+        store.update(update);
 
-        store.update(update, category);
-        log.info("음식점: {}, 수정 완료", storeId);
+        List<Category> category = storeCategoryService.getCategoriesByStore(store);
+
+        // TODO: 카테고리 변경하는 로직 생각하기
+
+        log.info("음식점: {}, 수정 완료", id);
     }
 
-    @CacheEvict(value = {"store", "stores"}, key = "#storeId")
     @Transactional
-    public void updateStoreStatus(UUID storeId, Status status) {
+    @CacheEvict(value = "store", key = "#id")
+    public void updateStoreStatus(UUID id, UpdateStoreStatusRequestDto update) {
         User user = userService.loginUser();
 
-        validateUserRole(user);
+        Store store = getStoreById(id);
 
-        Store store = getStoreById(storeId);
+        if (user.getRole() == Role.OWNER && !user.getId().equals(store.getOwner().getId())) {
+            throw new BusinessException(ErrorCode.STORE_UNAUTHORIZED);
+        }
 
-        store.updateStatus(status);
+        store.updateStatus(update);
+        log.info("가게: {}, 상태, {} - 변경 완료", id, update.status());
     }
 
-    @CacheEvict(value = {"store", "stores"}, key = "#storeId")
+    @CacheEvict(value = "store", key = "#id")
     @Transactional
-    public void deleteStore(UUID storeId) {
+    public void deleteStore(UUID id) {
         User user = userService.loginUser();
 
-        validateUserRole(user);
+        Store store = getStoreById(id);
 
-        Store store = getStoreById(storeId);
+        if (user.getRole() == Role.OWNER && !user.getId().equals(store.getOwner().getId())) {
+            throw new BusinessException(ErrorCode.STORE_UNAUTHORIZED);
+        }
+
+        // TODO: 완료된 주문이 있을 경우, 가게 삭제 X
 
         storeRepository.delete(store);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<StoreSummaryDto> searchStores(String searchWord, Pageable pageable) {
-        return storeRepository.findByNameContaining(pageable, searchWord).map(
-            storeMapper::toStoreSummaryDto
-        );
+        log.info("가게: {}, 삭제 완료", id);
     }
 
 
     public Store getStoreById(UUID id) {
         return storeRepository.findById(id)
             .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
-    }
-
-    // TODO:  @PreAuthorize 으로 인증 처리 대체 예정
-    private void validateUserRole(User user) {
-        if (!(user.getRole() == Role.MANAGER || user.getRole() == Role.OWNER)) {
-            throw new AccessDeniedException("권한이 없습니다.");
-        }
     }
 }

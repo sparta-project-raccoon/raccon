@@ -1,14 +1,14 @@
-package com.sparta.spartaproject.dto.request;
+package com.sparta.spartaproject.dto.response;
 
 import com.sparta.spartaproject.domain.store.ClosedDays;
 import com.sparta.spartaproject.domain.store.Status;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.UUID;
 
-public record UpdateStoreRequestDto(
-    List<UUID> categoriesId,
+public record OnlyStoreDto(
+    UUID id,
     String name,
     String address,
     Status status,
@@ -16,6 +16,10 @@ public record UpdateStoreRequestDto(
     String description,
     LocalTime openTime,
     LocalTime closeTime,
-    ClosedDays closedDays
+    ClosedDays closedDays,
+    LocalDateTime createdAt,
+    Long createdBy,
+    LocalDateTime updatedAt,
+    Long updatedBy
 ) {
 }
