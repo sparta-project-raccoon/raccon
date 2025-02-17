@@ -38,11 +38,16 @@ public class StoreImage extends BaseTimeEntity {
 
     private LocalDateTime deleteAt;
 
+    // 삭제 여부 값 변경 및 삭제 일시 생성
+    public void delete() {
+        isDeleted = true;
+        deleteAt = LocalDateTime.now();
+    }
+
     @PrePersist
     public void prePersist() {
         if (id == null) {
             id = UUID.randomUUID();  // UUID 자동 생성
         }
     }
-
 }

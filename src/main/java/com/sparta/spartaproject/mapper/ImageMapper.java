@@ -11,6 +11,6 @@ public interface ImageMapper {
     @Mapping(target = "imageId", source = "id")
     ImageInfoDto toImageInfoDtoFromStore(StoreImage storeImage);
 
-    @Mapping(target = "imageId", source = "id")
-    ImageInfoDto toImageInfoDtoFromReview(ReviewImage reviewImage);
+//    @Mapping(target = "imageId", source = "id")
+//    ImageInfoDto toImageInfoDtoFromReview(ReviewImage reviewImage);
 }

@@ -86,7 +86,7 @@ public class StoreController {
         return ResponseEntity.ok(storeService.searchStores(searchWord, pageable));
     }
 
-    // 음식점 이미지 저장 (다중) (권한 : 해당 음식점 사장님, 관리자)
+    // 음식점 이미지 저장 (권한 : 해당 음식점 사장님, 관리자)
     @PostMapping("/image/{storeId}")
     public ResponseEntity<List<ImageInfoDto>> saveStoreImages(
             @PathVariable UUID storeId,
@@ -100,7 +100,7 @@ public class StoreController {
         return ResponseEntity.ok(storeImageService.getStoreImages(storeId));
     }
 
-    // 이미지 삭제 (권한 : 해당 음식점 사장님, 리뷰 작성자, 관리자)
+    // 이미지 삭제 (권한 : 해당 음식점 사장님, 관리자)
     @DeleteMapping("/image/{imageId}")
     public ResponseEntity<Void> deleteImage(@PathVariable UUID imageId) {
         storeImageService.deleteImage(imageId);
