@@ -8,6 +8,7 @@ import com.sparta.spartaproject.dto.request.UpdatePasswordRequestDto;
 import com.sparta.spartaproject.dto.response.FindUsernameDto;
 import com.sparta.spartaproject.dto.response.TokenDto;
 import com.sparta.spartaproject.dto.response.UserInfoDto;
+import com.sparta.spartaproject.exception.BusinessException;
 import com.sparta.spartaproject.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import static com.sparta.spartaproject.exception.ErrorCode.LOGIN_INPUT_INVALID;
+import static com.sparta.spartaproject.exception.ErrorCode.NOT_EXIST_USER;
 
 @Slf4j
 @Service
@@ -46,7 +50,7 @@ public class UserService {
 
         // 캐시된 유저가 없으면 DB 에서 조회 후 캐시 저장
         User user = userRepository.findById(userId)
-            .orElseThrow();
+                .orElseThrow();
 
         cache.put(userId, user); // 캐시 저장
         log.info("{} - {}, 로그인 유저 캐시 저장", cache.getName(), userId);
@@ -62,17 +66,17 @@ public class UserService {
         }
 
         User newUser = User.builder()
-            .username(request.username())
-            .password(passwordEncoder.encode(request.password()))
-            .email(request.email())
-            .name(request.name())
-            .phone(request.phone())
-            .address(request.address())
-            .role(Role.CUSTOMER)
-            .status(Status.WAITING)
-            .isDeleted(false)
-            .loginFailCount(0)
-            .build();
+                .username(request.username())
+                .password(passwordEncoder.encode(request.password()))
+                .email(request.email())
+                .name(request.name())
+                .phone(request.phone())
+                .address(request.address())
+                .role(Role.CUSTOMER)
+                .status(Status.WAITING)
+                .isDeleted(false)
+                .loginFailCount(0)
+                .build();
 
         userRepository.save(newUser);
         log.info("ID: {}, 회원가입 완료", newUser.getUsername());
@@ -84,7 +88,7 @@ public class UserService {
 
         // TODO: 유저가 없을 경우 에러 메시지 적용하기
         User user = userRepository.findByUsername(request.username())
-            .orElseThrow();
+                .orElseThrow(() -> new BusinessException(NOT_EXIST_USER));
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             log.error("사용자 로그인 오류");
@@ -95,7 +99,7 @@ public class UserService {
                 user.updateStatusStopped();
             }
 
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호가 일치하지 않습니다.");
+            throw new BusinessException(LOGIN_INPUT_INVALID);
         }
 
 //         TODO: 이메일 인증 단계 추가 후, 활성화
@@ -105,6 +109,9 @@ public class UserService {
 
         user.successLogin();
 
+        Cache cache = cacheManager.getCache("loginUser");
+        cache.put(user.getId(), user); // 캐시 저장
+
         log.info("사용자:{}, 로그인 성공", user.getId());
         return jwtUtils.generateToken(user);
     }
@@ -113,7 +120,7 @@ public class UserService {
     public FindUsernameDto findUsername(FindUsernameRequestDto request) {
         // TODO: 유저가 없을 경우 에러 메시지 적용하기
         User user = userRepository.findByEmailAndName(request.email(), request.name())
-            .orElseThrow();
+                .orElseThrow();
 
         return userMapper.toFindUsernameDto(user);
     }

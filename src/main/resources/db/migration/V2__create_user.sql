@@ -1,4 +1,4 @@
-create table dev."user"
+create table dev.p_user
 (
     id                  bigserial constraint user_pk primary key,
     username            varchar(10)           not null,
