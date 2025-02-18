@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface OrderRepository extends JpaRepository<Order, UUID> {
-
     List<Order> findAllByUserAndIsDeletedFalse(Pageable pageable, User user);
 
     Optional<Order> findByIdAndIsDeletedFalse(UUID orderId);

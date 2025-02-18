@@ -2,6 +2,7 @@ package com.sparta.spartaproject.domain;
 
 import com.sparta.spartaproject.domain.food.FoodService;
 import com.sparta.spartaproject.domain.mail.MailService;
+import com.sparta.spartaproject.domain.order.OrderService;
 import com.sparta.spartaproject.domain.store.StoreService;
 import com.sparta.spartaproject.domain.user.CustomUserDetailsService;
 import com.sparta.spartaproject.domain.user.UserService;
@@ -15,23 +16,26 @@ import org.springframework.stereotype.Component;
 public class CircularService {
     private final UserService userService;
     private final MailService mailService;
-    private final VerifyService verifyService;
     private final StoreService storeService;
+    private final OrderService orderService;
+    private final VerifyService verifyService;
     private final FoodService foodService;
     private final CustomUserDetailsService customUserDetailsService;
 
     public CircularService(
         @Lazy UserService userService,
         @Lazy MailService mailService,
-        @Lazy VerifyService verifyService,
         @Lazy StoreService storeService,
+        @Lazy OrderService orderService,
+        @Lazy VerifyService verifyService,
         @Lazy FoodService foodService,
         @Lazy CustomUserDetailsService customUserDetailsService
     ) {
         this.userService = userService;
         this.mailService = mailService;
-        this.verifyService = verifyService;
         this.storeService = storeService;
+        this.orderService = orderService;
+        this.verifyService = verifyService;
         this.foodService = foodService;
         this.customUserDetailsService = customUserDetailsService;
     }

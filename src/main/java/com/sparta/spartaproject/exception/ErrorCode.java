@@ -37,9 +37,12 @@ public enum ErrorCode {
 
     // 찜
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "찜 목록이 존재하지 않습니다."),
+    LIKE_FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다."),
 
     // 리뷰
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰가 존재하지 않습니다."),
+    STORE_OWNER_CANNOT_REVIEW_OWN_STORE(HttpStatus.BAD_REQUEST, "가게 사장은 자신의 가게에 리뷰를 작성할 수 없습니다."),
+    ALREADY_WRITE_REVIEW(HttpStatus.BAD_REQUEST, "이미 작성된 리뷰입니다."),
 
     // 가게
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "가게 정보가 존재하지 않습니다."),
