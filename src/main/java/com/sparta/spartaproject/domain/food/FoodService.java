@@ -4,7 +4,6 @@ import com.sparta.spartaproject.common.utils.FileUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
-import com.sparta.spartaproject.domain.user.UserRepository;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
 import com.sparta.spartaproject.dto.response.FoodInfoDto;
@@ -12,7 +11,6 @@ import com.sparta.spartaproject.mapper.FoodMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,14 +28,12 @@ public class FoodService {
     private final FoodRepository foodRepository;
     private final CircularService circularService;
     private final FoodMapper foodMapper;
-    private final UserRepository userRepository;
 
     // 음식 등록 및 음식 이미지 저장
     @Transactional
     public FoodInfoDto createFoodWithImage(CreateFoodRequestDto request, MultipartFile image) {
         // 음식점 사장 확인
-//        User user = circularService.getUserService().loginUser();
-        User user = userRepository.findById(5L).get();
+        User user = circularService.getUserService().loginUser();
         Store store = circularService.getStoreService().getStoreById(request.storeId());
 
         if (!user.getId().equals(store.getOwner().getId())) {
@@ -72,8 +68,7 @@ public class FoodService {
         Food food = getFoodById(id);
 
         // 음식점 사장 확인
-//        User user = circularService.getUserService().loginUser();
-        User user = userRepository.findById(5L).get();
+        User user = circularService.getUserService().loginUser();
         Store store = food.getStore();
 
         if (!user.getId().equals(store.getOwner().getId())) {
@@ -104,8 +99,7 @@ public class FoodService {
         Food food = getFoodById(id);
 
         // 음식점 사장 확인
-//        User user = circularService.getUserService().loginUser();
-        User user = userRepository.findById(5L).get();
+        User user = circularService.getUserService().loginUser();
         Store store = food.getStore();
 
         if (!user.getId().equals(store.getOwner().getId())) {
@@ -118,6 +112,21 @@ public class FoodService {
         return foodMapper.toFoodInfoDto(food);
     }
 
+    // 음식 표시 상태 변경
+    public boolean updateFoodDisplay(UUID id) {
+        Food food = getFoodById(id);
+
+        // 음식점 사장 확인
+        User user = circularService.getUserService().loginUser();
+        Store store = food.getStore();
+        if (!user.getId().equals(store.getOwner().getId())) {
+            throw new AccessDeniedException("현재 로그인한 사용자와 업주가 일치하지 않습니다.");
+        }
+
+        // 음식 표시 상태 변경
+        return food.toggleIsDisplayed(); // 변경된 상태 반환
+    }
+
     // 음식 삭제
     @Transactional
     public void deleteFoodWithImage(UUID id) {
@@ -125,8 +134,7 @@ public class FoodService {
         Food food = getFoodById(id);
 
         // 음식점 사장 확인
-//        User user = circularService.getUserService().loginUser();
-        User user = userRepository.findById(5L).get();
+        User user = circularService.getUserService().loginUser();
         Store store = food.getStore();
 
         if (!user.getId().equals(store.getOwner().getId())) {
@@ -175,4 +183,5 @@ public class FoodService {
         return foodRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("해당 음식점을 찾을 수 없습니다."));
     }
+
 }

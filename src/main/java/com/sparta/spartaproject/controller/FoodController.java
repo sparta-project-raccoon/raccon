@@ -26,7 +26,7 @@ public class FoodController {
         "음식 등록"
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<FoodInfoDto> createFood(
         @RequestPart(value = "data") CreateFoodRequestDto request,
         @RequestPart(value = "image")MultipartFile image) {
@@ -37,7 +37,7 @@ public class FoodController {
         "음식 수정"
     )
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<FoodInfoDto> updateFood(
         @PathVariable("id") UUID id,
         @RequestPart(value = "data") UpdateFoodRequestDto update,
@@ -49,19 +49,30 @@ public class FoodController {
         "음식 상태 수정"
     )
     @PatchMapping("/{id}")
-//    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<FoodInfoDto> updateFoodStatus(
             @PathVariable("id") UUID id,
             @RequestParam("status") Status status) {
         return ResponseEntity.ok(foodService.updateFoodStatus(id, status));
     }
 
+    @Description("음식 표시 상태 변경")
+    @PatchMapping("/{id}/display")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    public ResponseEntity<String> toggleFoodDisplay(@PathVariable("id") UUID id) {
+
+        boolean updatedStatus = foodService.updateFoodDisplay(id);
+
+        String responseMessage = updatedStatus ? "isDisplayed: true" : "isDisplayed: false";
+
+        return ResponseEntity.ok(responseMessage);
+    }
 
     @Description(
         "음식 삭제"
     )
     @DeleteMapping("/{id}")
-//    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> deleteFood(@PathVariable("id") UUID id) {
         foodService.deleteFoodWithImage(id);
         return ResponseEntity.noContent().build();
