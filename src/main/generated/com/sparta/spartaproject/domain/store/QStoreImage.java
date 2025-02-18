@@ -27,11 +27,11 @@ public class QStoreImage extends EntityPathBase<StoreImage> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
-    public final DateTimePath<java.time.LocalDateTime> deleteAt = createDateTime("deleteAt", java.time.LocalDateTime.class);
+    public final DateTimePath<java.time.LocalDateTime> deletedAt = createDateTime("deletedAt", java.time.LocalDateTime.class);
 
     public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
 
-    public final BooleanPath isDeleted = createBoolean("isDeleted");
+    public final BooleanPath isDelete = createBoolean("isDelete");
 
     public final StringPath path = createString("path");
 

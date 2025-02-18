@@ -6,5 +6,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface StoreImageRepository extends JpaRepository<StoreImage, UUID> {
-    List<StoreImage> findByStoreAndIsDeletedIsFalseOrderByCreatedAtAsc(Store store);
+    List<StoreImage> findByStoreAndIsDeleteIsFalseOrderByCreatedAtAsc(Store store);
 }
