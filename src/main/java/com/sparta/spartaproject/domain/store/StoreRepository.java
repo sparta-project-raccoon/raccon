@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface StoreRepository extends JpaRepository<Store, UUID> {
@@ -30,4 +31,6 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
     List<Store> findAllStoreListByOwner(
         @Param("owner") User owner
     );
+
+    Optional<Store> findByIdAndIsDeletedIsFalse(UUID id);
 }

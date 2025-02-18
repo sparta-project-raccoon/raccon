@@ -1,6 +1,7 @@
 package com.sparta.spartaproject.domain.like;
 
 import com.sparta.spartaproject.domain.BaseTimeEntity;
+import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -28,8 +29,8 @@ public class Like extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    // TODO: Store 커밋되면 수정해야함
-    private UUID storeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Store store;
 
     @Column(
         nullable = false,
