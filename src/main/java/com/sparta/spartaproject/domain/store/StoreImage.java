@@ -39,14 +39,14 @@ public class StoreImage extends BaseTimeEntity {
     @Column(
             nullable = false
     )
-    private Boolean isDeleted = false;
+    private Boolean isDelete = false;
 
-    private LocalDateTime deleteAt;
+    private LocalDateTime deletedAt;
 
     // 삭제 여부 값 변경 및 삭제 일시 생성
     public void delete() {
-        isDeleted = true;
-        deleteAt = LocalDateTime.now();
+        isDelete = true;
+        deletedAt = LocalDateTime.now();
     }
 
     @PrePersist
