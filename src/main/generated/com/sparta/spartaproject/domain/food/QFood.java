@@ -40,6 +40,8 @@ public class QFood extends EntityPathBase<Food> {
 
     public final BooleanPath isDeleted = createBoolean("isDeleted");
 
+    public final BooleanPath isDisplayed = createBoolean("isDisplayed");
+
     public final StringPath name = createString("name");
 
     public final NumberPath<Integer> price = createNumber("price", Integer.class);

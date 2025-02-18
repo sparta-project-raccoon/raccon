@@ -61,7 +61,7 @@ public class FoodController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<String> toggleFoodDisplay(@PathVariable("id") UUID id) {
 
-        boolean updatedStatus = foodService.updateFoodDisplay(id);
+        boolean updatedStatus = foodService.toggleIsDisplayed(id);
 
         String responseMessage = updatedStatus ? "isDisplayed: true" : "isDisplayed: false";
 

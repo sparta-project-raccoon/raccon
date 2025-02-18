@@ -53,6 +53,7 @@ public class FoodService {
                 .description(request.description())
                 .imagePath(foodImagePath)
                 .status(request.status())
+                .isDisplayed(true)
                 .isDeleted(false)
                 .build()
         );
@@ -92,10 +93,9 @@ public class FoodService {
         return foodMapper.toFoodInfoDto(food);
     }
 
-    // 음식 상태 수정
+    // 음식 상태(준비중, 판매중, 품절) 수정
     @Transactional
     public FoodInfoDto updateFoodStatus(UUID id, Status newStatus) {
-        // 음식 확인
         Food food = getFoodById(id);
 
         // 음식점 사장 확인
@@ -112,8 +112,8 @@ public class FoodService {
         return foodMapper.toFoodInfoDto(food);
     }
 
-    // 음식 표시 상태 변경
-    public boolean updateFoodDisplay(UUID id) {
+    // 음식 표시 상태(숨김(false), 표시(true)) 변경
+    public boolean toggleIsDisplayed(UUID id) {
         Food food = getFoodById(id);
 
         // 음식점 사장 확인
@@ -130,7 +130,6 @@ public class FoodService {
     // 음식 삭제
     @Transactional
     public void deleteFoodWithImage(UUID id) {
-        // 음식 확인
         Food food = getFoodById(id);
 
         // 음식점 사장 확인
