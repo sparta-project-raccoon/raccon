@@ -58,7 +58,7 @@ public class StoreImageService {
     @Transactional(readOnly = true)
     public List<ImageInfoDto> getStoreImages(UUID storeId) {
         Store store = storeService.getStoreById(storeId);
-        return storeImageRepository.findByStoreAndIsDeletedIsFalseOrderByCreatedAtAsc(store).stream().map(
+        return storeImageRepository.findByStoreAndIsDeleteIsFalseOrderByCreatedAtAsc(store).stream().map(
                         imageMapper::toImageInfoDtoFromStore
                 ).collect((Collectors.toList()));
     }
@@ -79,7 +79,7 @@ public class StoreImageService {
 
         // DB의 삭제관련 변수 변경 및 파일 시스템에서 삭제
         storeImage.delete(); // 삭제 여부 변경, 삭제 일시 추가
-        log.info("삭제 여부 변경 및 삭제 일시 생성 : {},{}", storeImage.getIsDeleted(), storeImage.getDeleteAt());
+        log.info("삭제 여부 변경 및 삭제 일시 생성 : {},{}", storeImage.getIsDelete(), storeImage.getDeletedAt());
 
         FileUtils.deleteFile(storeImage.getPath()); // 파일 시스템에서 삭제
     }
@@ -90,7 +90,7 @@ public class StoreImageService {
                 StoreImage.builder()
                         .store(store)
                         .path(imagePath)
-                        .isDeleted(false)
+                        .isDelete(false)
                         .build()
         );
     }
