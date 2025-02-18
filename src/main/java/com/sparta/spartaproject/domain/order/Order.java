@@ -57,4 +57,8 @@ public class Order extends BaseTimeEntity {
     public void changeOrderStatus(OrderStatus orderStatus) {
         this.status = orderStatus;
     }
+
+    public void updateTotalPrice(Integer totalPrice) {
+        this.totalPrice = totalPrice;
+    }
 }
