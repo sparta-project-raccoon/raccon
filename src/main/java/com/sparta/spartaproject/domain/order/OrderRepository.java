@@ -13,9 +13,9 @@ import java.util.UUID;
 public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     @Query("SELECT o FROM Order o WHERE o.status != :status and o.id = :id")
-    Optional<Order> findByIdStatusNot(@Param("id") UUID id, @Param("status") OrderStatus status);
+    Optional<Order> findById(@Param("id") UUID id, @Param("status") OrderStatus status);
 
     @Query("SELECT o FROM Order o where o.status != :status and o.user = :user")
-    List<Order> findAllByUserStatusNot(Pageable pageable, @Param("user") User user, @Param("status") OrderStatus status);
+    List<Order> findAllByUser(Pageable pageable, @Param("user") User user, @Param("status") OrderStatus status);
 
 }

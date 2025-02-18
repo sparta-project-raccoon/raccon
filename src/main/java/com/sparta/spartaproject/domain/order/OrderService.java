@@ -43,9 +43,10 @@ public class OrderService {
     private Integer size = 10;
 
     public void updateStatus(UpdateOrderStatusRequestDto request) {
-        Order findedOrder = orderRepository.findByIdStatusNot(request.getOrderId(), DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order findedOrder = orderRepository.findById(request.getOrderId(), DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
         User user = getUser();
 
+        // todo 가게 사장인지 체크
         if (isManager(user)) {
             findedOrder.changeOrderStatus(request.getOrderStatus());
             orderRepository.save(findedOrder);
@@ -54,14 +55,14 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public OrderStatusResponseDto getStatus(UUID orderId) {
-        Order findedOrder = orderRepository.findByIdStatusNot(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order findedOrder = orderRepository.findById(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderStatusResponseDto(findedOrder);
     }
 
 
     public void cancelOrder(UUID orderId) {
-        Order order = orderRepository.findByIdStatusNot(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order order = orderRepository.findById(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime cancellationDeadline = now.minusMinutes(5);
@@ -75,7 +76,7 @@ public class OrderService {
     }
 
     public void rejectOrder(UUID orderId) {
-        Order findedOrder = orderRepository.findByIdStatusNot(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order findedOrder = orderRepository.findById(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
         User user = getUser();
         if (isManager(user)) {
             findedOrder.changeOrderStatus(REFUSE);
@@ -83,7 +84,7 @@ public class OrderService {
     }
 
     public void acceptOrder(UUID orderId) {
-        Order findedOrder = orderRepository.findByIdStatusNot(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order findedOrder = orderRepository.findById(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
         User user = getUser();
 
         if (isManager(user)) {
@@ -112,7 +113,8 @@ public class OrderService {
         User user = getUser();
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        List<Order> orders = orderRepository.findAllByUserStatusNot(pageable, user, DELETED);
+        // todo
+        List<Order> orders = orderRepository.findAllByUser(pageable, user, DELETED);
 
         return orders.stream()
                 .map(orderMapper::toOrderResponseDto)
@@ -122,7 +124,7 @@ public class OrderService {
 
     public OrderDetailResponseDto getOrderDetail(UUID id) {
 
-        Order order = orderRepository.findByIdStatusNot(id, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order order = orderRepository.findById(id, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderDetailResponseDto(order);
     }
@@ -134,7 +136,7 @@ public class OrderService {
 
     private Boolean isManager(User user) {
         if (!(user.getRole() == Role.MANAGER || user.getRole() == Role.OWNER)) {
-            throw new BusinessException(FORBIDDEN);
+            throw new BusinessException(HANDLE_ACCESS_DENIED);
         }
 
         return true;
