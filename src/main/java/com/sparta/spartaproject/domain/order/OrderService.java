@@ -33,19 +33,19 @@ import static com.sparta.spartaproject.exception.ErrorCode.*;
 @Slf4j
 public class OrderService {
     // todo 중복되는 코드 처리하기
-    private final OrderRepository orderRepository;
-    private final OrderHistoryRepository orderHistoryRepository;
-    private final StoreRepository storeRepository;
     private final UserService userService;
     private final OrderMapper orderMapper;
+    private final OrderRepository orderRepository;
+    private final StoreRepository storeRepository;
     private final OrderHistoryMapper orderHistoryMapper;
+    private final OrderHistoryRepository orderHistoryRepository;
 
-    private Integer size = 10;
+    private final Integer size = 10;
 
     @Transactional
     public void updateStatus(UpdateOrderStatusRequestDto request) {
         Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(request.orderId())
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+            .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         User user = getUser();
 
@@ -57,7 +57,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderStatusDto getStatus(UUID orderId) {
         Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+            .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderStatusResponseDto(findedOrder);
     }
@@ -65,7 +65,7 @@ public class OrderService {
     @Transactional
     public void cancelOrder(UUID orderId) {
         Order order = orderRepository.findByIdAndIsDeletedFalse(orderId)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+            .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(5))) {
             throw new BusinessException(CAN_NOT_CANCEL_ORDER);
@@ -78,7 +78,7 @@ public class OrderService {
     @Transactional
     public void rejectOrder(UUID orderId) {
         Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+            .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         User user = getUser();
 
@@ -90,7 +90,7 @@ public class OrderService {
     @Transactional
     public void acceptOrder(UUID orderId) {
         Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+            .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         User user = getUser();
 
@@ -103,7 +103,7 @@ public class OrderService {
     public void createOrder(CreateOrderRequestDto request) {
         User user = getUser();
         Store store = storeRepository.findById(request.storeId())
-                .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
+            .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
 
         Order order = orderMapper.toOrder(request, user, store);
 
@@ -124,21 +124,27 @@ public class OrderService {
         // todo
         List<Order> orders = orderRepository.findAllByUserAndIsDeletedFalse(pageable, user);
 
-        return orders.stream()
-                .map(orderMapper::toOrderDto)
-                .toList();
+        return orders.stream().map(
+            orderMapper::toOrderDto
+        ).toList();
     }
 
     @Transactional
     public OrderDetailDto getOrderDetail(UUID id) {
 
         Order order = orderRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+            .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderDetailResponseDto(order);
     }
 
+
     private User getUser() {
         return userService.loginUser();
+    }
+
+    public Order getOrderByIdAndIsDeletedIsFalse(UUID id) {
+        return orderRepository.findByIdAndIsDeletedFalse(id)
+            .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
     }
 }

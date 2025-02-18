@@ -1,4 +1,4 @@
-package com.sparta.spartaproject.common.utils;
+package com.sparta.spartaproject.common;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,14 +15,15 @@ public class FileUtils {
 
     /**
      * 이미지를 파일 시스템에 저장하는 메서드
-     * @param file 저장할 이미지
+     *
+     * @param file       저장할 이미지
      * @param folderName 저장할 폴더 명 (ex: "store", "review")
      * @return 파일 전체 경로 (path)
      */
     public static String saveFile(MultipartFile file, String folderName) {
         try {
             // 폴더 경로
-            String folderPath = BASE_PATH+"/"+folderName;
+            String folderPath = BASE_PATH + "/" + folderName;
 
             // 폴더가 존재하지 않으면 생성
             File folder = new File(folderPath);

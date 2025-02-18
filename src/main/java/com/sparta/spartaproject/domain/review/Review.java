@@ -1,6 +1,8 @@
 package com.sparta.spartaproject.domain.review;
 
 import com.sparta.spartaproject.domain.BaseEntity;
+import com.sparta.spartaproject.domain.order.Order;
+import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.UpdateReviewRequestDto;
 import jakarta.persistence.*;
@@ -29,11 +31,11 @@ public class Review extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    // TODO: store 연동 시, 변경
-    private UUID storeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Store store;
 
-    // TODO: order 연동 시, 변경
-    private UUID orderId;
+    @OneToOne(fetch = FetchType.LAZY)
+    private Order order;
 
     @Column(
         length = 200
