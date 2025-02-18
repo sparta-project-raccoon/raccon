@@ -11,6 +11,7 @@ import com.sparta.spartaproject.dto.response.UserInfoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,7 +24,7 @@ public class UserController {
         "회원가입"
     )
     @PostMapping("/signup")
-    public ResponseEntity<Void> signUp(@RequestBody SignUpRequestDto request) {
+    public ResponseEntity<Void> signUp(@Validated @RequestBody SignUpRequestDto request) {
         userService.signUp(request);
         return ResponseEntity.ok().build();
     }

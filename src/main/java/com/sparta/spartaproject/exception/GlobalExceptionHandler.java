@@ -19,28 +19,30 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException e) {
+        MethodArgumentNotValidException e) {
         log.warn("handleMethodArgumentNotValidException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE,
-                e.getBindingResult());
+            e.getBindingResult());
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
+
     /*
     enum type이 일치하지 않아 binding 못할경우 발생
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
-            MethodArgumentTypeMismatchException e) {
+        MethodArgumentTypeMismatchException e) {
         log.error("handleMethodArgumentTypeMismatchException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(e);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
+
     /*
     지원하지 않은 Http Method방식으로 호출할 경우 발생
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
-            HttpRequestMethodNotSupportedException e) {
+        HttpRequestMethodNotSupportedException e) {
         log.error("handleHttpRequestMethodNotSupportedException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
