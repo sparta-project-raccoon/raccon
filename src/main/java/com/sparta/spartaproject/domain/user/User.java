@@ -77,10 +77,6 @@ public class User extends BaseTimeEntity {
         this.loginFailCount++;
     }
 
-    public void updateStatusStopped() {
-        this.status = Status.STOPPED;
-    }
-
     public void successLogin() {
         this.loginFailCount = 0;
     }
@@ -88,5 +84,9 @@ public class User extends BaseTimeEntity {
     public void updatePassword(String password) {
         this.password = password;
         this.passwordChangedAt = LocalDateTime.now();
+    }
+
+    public void updateStatus(Status status) {
+        this.status = status;
     }
 }

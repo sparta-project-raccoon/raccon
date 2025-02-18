@@ -19,10 +19,10 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException e) {
+        MethodArgumentNotValidException e) {
         log.warn("handleMethodArgumentNotValidException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE,
-                e.getBindingResult());
+            e.getBindingResult());
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
-            MethodArgumentTypeMismatchException e) {
+        MethodArgumentTypeMismatchException e) {
         log.error("handleMethodArgumentTypeMismatchException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(e);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
-            HttpRequestMethodNotSupportedException e) {
+        HttpRequestMethodNotSupportedException e) {
         log.error("handleHttpRequestMethodNotSupportedException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
