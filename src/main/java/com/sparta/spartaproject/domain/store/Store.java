@@ -122,4 +122,9 @@ public class Store extends BaseEntity {
     public void updateStatus(UpdateStoreStatusRequestDto update) {
         this.status = update.status();
     }
+
+    public void delete() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+    }
 }
