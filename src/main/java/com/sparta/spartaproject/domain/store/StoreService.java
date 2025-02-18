@@ -184,10 +184,9 @@ public class StoreService {
 
         // TODO: 완료된 주문이 있을 경우, 가게 삭제 X
 
-        storeRepository.delete(store);
+        store.delete();
         log.info("가게: {}, 삭제 완료", id);
     }
-
 
     public Store getStoreById(UUID id) {
         return storeRepository.findById(id)
