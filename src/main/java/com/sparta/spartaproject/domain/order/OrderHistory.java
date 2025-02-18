@@ -1,10 +1,11 @@
 package com.sparta.spartaproject.domain.order;
 
-import com.sparta.spartaproject.domain.BaseEntity;
 import com.sparta.spartaproject.domain.BaseTimeEntity;
 import com.sparta.spartaproject.domain.store.Store;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -31,6 +32,6 @@ public class OrderHistory extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Store store;
 
-    private int price;
+    private Integer price;
     private Integer qty;
 }
