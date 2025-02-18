@@ -1,10 +1,7 @@
 package com.sparta.spartaproject.controller;
 
 import com.sparta.spartaproject.domain.user.UserService;
-import com.sparta.spartaproject.dto.request.FindUsernameRequestDto;
-import com.sparta.spartaproject.dto.request.LoginRequestDto;
-import com.sparta.spartaproject.dto.request.SignUpRequestDto;
-import com.sparta.spartaproject.dto.request.UpdatePasswordRequestDto;
+import com.sparta.spartaproject.dto.request.*;
 import com.sparta.spartaproject.dto.response.FindUsernameDto;
 import com.sparta.spartaproject.dto.response.TokenDto;
 import com.sparta.spartaproject.dto.response.UserInfoDto;
@@ -59,6 +56,15 @@ public class UserController {
     @PatchMapping("/change-password")
     public ResponseEntity<Void> changePassword(@RequestBody UpdatePasswordRequestDto request) {
         userService.changePassword(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Description(
+        "잠금 회원 활성화"
+    )
+    @PostMapping("/active")
+    public ResponseEntity<Void> activeUser(@RequestBody ActiveUserRequestDto request) {
+        userService.activeUser(request);
         return ResponseEntity.ok().build();
     }
 }
