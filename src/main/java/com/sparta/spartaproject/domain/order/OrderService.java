@@ -102,7 +102,7 @@ public class OrderService {
     @Transactional
     public void createOrder(CreateOrderRequestDto request) {
         User user = getUser();
-        Store store = storeRepository.findById(request.store_id())
+        Store store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
 
         Order order = orderMapper.toOrder(request, user, store);
