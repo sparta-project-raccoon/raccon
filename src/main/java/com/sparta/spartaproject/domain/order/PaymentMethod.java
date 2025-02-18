@@ -1,9 +1,14 @@
 package com.sparta.spartaproject.domain.order;
 
-public enum PaymentMethod {
-    CARD("카드 결제");
+import lombok.Getter;
 
-    private String description;
+@Getter
+public enum PaymentMethod {
+    CASH("현금"),
+    CARD("카드 결제"),
+    STORE_PAYMENT("매장 결제");
+
+    private final String description;
 
     PaymentMethod(String description) {
         this.description = description;
