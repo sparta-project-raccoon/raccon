@@ -36,9 +36,13 @@ public class QStore extends EntityPathBase<Store> {
     //inherited
     public final NumberPath<Long> createdBy = _super.createdBy;
 
+    public final DateTimePath<java.time.LocalDateTime> deletedAt = createDateTime("deletedAt", java.time.LocalDateTime.class);
+
     public final StringPath description = createString("description");
 
     public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
+
+    public final BooleanPath isDeleted = createBoolean("isDeleted");
 
     public final StringPath name = createString("name");
 
@@ -47,6 +51,8 @@ public class QStore extends EntityPathBase<Store> {
     public final com.sparta.spartaproject.domain.user.QUser owner;
 
     public final EnumPath<Status> status = createEnum("status", Status.class);
+
+    public final ListPath<StoreCategory, QStoreCategory> storeCategories = this.<StoreCategory, QStoreCategory>createList("storeCategories", StoreCategory.class, QStoreCategory.class, PathInits.DIRECT2);
 
     public final StringPath tel = createString("tel");
 

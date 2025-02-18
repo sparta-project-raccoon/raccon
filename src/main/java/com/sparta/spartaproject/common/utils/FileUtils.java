@@ -26,9 +26,17 @@ public class FileUtils {
 
             // 폴더가 존재하지 않으면 생성
             File folder = new File(folderPath);
-            if (!folder.exists() && !folder.mkdirs()) {
-                log.error("폴더 생성 실패 : {}", folderPath);
-                throw new RuntimeException("폴더 생성 실패: " + folderPath);
+
+            if (!folder.exists()) {
+                folder.mkdirs();
+                log.info("files 폴더 생성 완료");
+            }
+
+            log.info(folder.getAbsolutePath()); // BASE path 부분은 yaml 뺏기에 테스트 과정에서 확인하는 로그입니다.
+
+            if (file == null) {
+                log.info("빈 파일");
+                throw new RuntimeException("저장할 파일이 존재하지 않습니다");
             }
 
             // 랜덤 UUID를 사용하여 파일명 설정

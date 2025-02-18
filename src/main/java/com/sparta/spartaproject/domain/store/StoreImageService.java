@@ -77,11 +77,9 @@ public class StoreImageService {
             throw new AccessDeniedException("음식점 사장님만 이미지를 등록할 수 있습니다.");
         }
 
-        // TODO: 삭제 처리 방식 고민 (DB와 파일 시스템에서 영구 삭제 할지)
+        // DB의 삭제관련 변수 변경 및 파일 시스템에서 삭제
         storeImage.delete(); // 삭제 여부 변경, 삭제 일시 추가
         log.info("삭제 여부 변경 및 삭제 일시 생성 : {},{}", storeImage.getIsDeleted(), storeImage.getDeleteAt());
-
-        storeImageRepository.delete(storeImage); // DB에서 삭제
 
         FileUtils.deleteFile(storeImage.getPath()); // 파일 시스템에서 삭제
     }
