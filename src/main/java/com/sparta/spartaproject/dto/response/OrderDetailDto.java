@@ -6,7 +6,7 @@ import com.sparta.spartaproject.domain.order.PaymentMethod;
 
 import java.util.UUID;
 
-public record OrderDetailResponseDto(
+public record OrderDetailDto(
         UUID orderId,
         OrderStatus status,
         int total_price,

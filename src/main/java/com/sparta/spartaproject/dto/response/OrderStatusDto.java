@@ -2,7 +2,7 @@ package com.sparta.spartaproject.dto.response;
 
 import java.util.UUID;
 
-public record OrderStatusResponseDto(
+public record OrderStatusDto(
         UUID orderId,
         String orderStatus
 ) {

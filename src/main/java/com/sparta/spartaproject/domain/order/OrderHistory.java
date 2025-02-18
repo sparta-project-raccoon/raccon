@@ -31,6 +31,6 @@ public class OrderHistory extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Store store;
 
-    private int price; // 음식 단일 가격
-    private Integer qty; // 수량
+    private int price;
+    private Integer qty;
 }

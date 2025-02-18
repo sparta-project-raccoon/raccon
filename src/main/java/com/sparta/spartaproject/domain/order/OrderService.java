@@ -2,14 +2,13 @@ package com.sparta.spartaproject.domain.order;
 
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.store.StoreRepository;
-import com.sparta.spartaproject.domain.user.Role;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.domain.user.UserService;
 import com.sparta.spartaproject.dto.request.CreateOrderRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateOrderStatusRequestDto;
-import com.sparta.spartaproject.dto.response.OrderDetailResponseDto;
-import com.sparta.spartaproject.dto.response.OrderResponseDto;
-import com.sparta.spartaproject.dto.response.OrderStatusResponseDto;
+import com.sparta.spartaproject.dto.response.OrderDetailDto;
+import com.sparta.spartaproject.dto.response.OrderDto;
+import com.sparta.spartaproject.dto.response.OrderStatusDto;
 import com.sparta.spartaproject.exception.BusinessException;
 import com.sparta.spartaproject.mapper.OrderHistoryMapper;
 import com.sparta.spartaproject.mapper.OrderMapper;
@@ -24,7 +23,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import static com.sparta.spartaproject.domain.order.OrderStatus.*;
+import static com.sparta.spartaproject.domain.order.OrderStatus.CANCEL;
+import static com.sparta.spartaproject.domain.order.OrderStatus.REFUSE;
+import static com.sparta.spartaproject.domain.user.Role.CUSTOMER;
 import static com.sparta.spartaproject.exception.ErrorCode.*;
 
 @Service
@@ -43,31 +44,30 @@ public class OrderService {
     private Integer size = 10;
 
     public void updateStatus(UpdateOrderStatusRequestDto request) {
-        Order findedOrder = orderRepository.findById(request.getOrderId(), DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(request.getOrderId())
+                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+
         User user = getUser();
 
-        // todo 가게 사장인지 체크
-        if (isManager(user)) {
-            findedOrder.changeOrderStatus(request.getOrderStatus());
-            orderRepository.save(findedOrder);
+        if (user.getRole() == CUSTOMER) {
+            findedOrder.changeOrderStatus(REFUSE);
         }
     }
 
     @Transactional(readOnly = true)
-    public OrderStatusResponseDto getStatus(UUID orderId) {
-        Order findedOrder = orderRepository.findById(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+    public OrderStatusDto getStatus(UUID orderId) {
+        Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
+                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderStatusResponseDto(findedOrder);
     }
 
 
     public void cancelOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order order = orderRepository.findByIdAndIsDeletedFalse(orderId)
+                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime cancellationDeadline = now.minusMinutes(5);
-
-        if (order.getCreatedAt().isBefore(cancellationDeadline)) {
+        if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(5))) {
             throw new BusinessException(CAN_NOT_CANCEL_ORDER);
         }
 
@@ -76,26 +76,31 @@ public class OrderService {
     }
 
     public void rejectOrder(UUID orderId) {
-        Order findedOrder = orderRepository.findById(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
+                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+
         User user = getUser();
-        if (isManager(user)) {
+
+        if (user.getRole() == CUSTOMER) {
             findedOrder.changeOrderStatus(REFUSE);
         }
     }
 
     public void acceptOrder(UUID orderId) {
-        Order findedOrder = orderRepository.findById(orderId, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
+                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+
         User user = getUser();
 
-        if (isManager(user)) {
-            findedOrder.changeOrderStatus(ACCEPT);
+        if (user.getRole() == CUSTOMER) {
+            findedOrder.changeOrderStatus(REFUSE);
         }
-
     }
 
     public void createOrder(CreateOrderRequestDto request) {
         User user = getUser();
-        Store store = storeRepository.findById(request.store_id()).orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
+        Store store = storeRepository.findById(request.store_id())
+                .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
 
         Order order = orderMapper.toOrder(request, user, store);
 
@@ -109,36 +114,27 @@ public class OrderService {
 
     // todo 음식 추가
     @Transactional(readOnly = true)
-    public List<OrderResponseDto> getAllOrders(int page) {
+    public List<OrderDto> getAllOrders(int page) {
         User user = getUser();
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // todo
-        List<Order> orders = orderRepository.findAllByUser(pageable, user, DELETED);
+        List<Order> orders = orderRepository.findAllByUserAndIsDeletedFalse(pageable, user);
 
         return orders.stream()
-                .map(orderMapper::toOrderResponseDto)
+                .map(orderMapper::toOrderDto)
                 .toList();
     }
 
+    public OrderDetailDto getOrderDetail(UUID id) {
 
-    public OrderDetailResponseDto getOrderDetail(UUID id) {
-
-        Order order = orderRepository.findById(id, DELETED).orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order order = orderRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderDetailResponseDto(order);
     }
 
-
     private User getUser() {
         return userService.loginUser();
-    }
-
-    private Boolean isManager(User user) {
-        if (!(user.getRole() == Role.MANAGER || user.getRole() == Role.OWNER)) {
-            throw new BusinessException(HANDLE_ACCESS_DENIED);
-        }
-
-        return true;
     }
 }
