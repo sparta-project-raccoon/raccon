@@ -1,7 +1,7 @@
 HELP.md
 .gradle
 build/
-/src/main/resources/application.yml
+/src/main/resources/application.yaml
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
@@ -39,3 +39,4 @@ out/
 
 ## 추가
 /logs
+/src/test/java/com/sparta/spartaproject/storeTest

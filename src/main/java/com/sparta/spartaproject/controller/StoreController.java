@@ -1,10 +1,13 @@
 package com.sparta.spartaproject.controller;
 
+import com.sparta.spartaproject.domain.store.Status;
+import com.sparta.spartaproject.domain.store.StoreImageService;
 import com.sparta.spartaproject.domain.store.StoreService;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
 import com.sparta.spartaproject.dto.response.StoreByCategoryDto;
+import com.sparta.spartaproject.dto.response.ImageInfoDto;
 import com.sparta.spartaproject.dto.response.StoreDetailDto;
 import com.sparta.spartaproject.dto.response.StoreDto;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +15,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +25,7 @@ import java.util.UUID;
 @RequestMapping("/api/stores")
 public class StoreController {
     private final StoreService storeService;
+    private final StoreImageService storeImageService;
 
     @Description(
         "음식점 생성하기"
@@ -100,4 +105,28 @@ public class StoreController {
         storeService.deleteStore(id);
         return ResponseEntity.ok().build();
     }
+
+    // 음식점 이미지 저장 (권한 : 해당 음식점 사장님, 관리자)
+    @PostMapping("/image/{storeId}")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    public ResponseEntity<List<ImageInfoDto>> saveStoreImages(
+            @PathVariable(name="storeId") UUID storeId,
+            @RequestParam("images") List<MultipartFile> images) {
+        return ResponseEntity.ok(storeImageService.saveStoreImages(storeId, images));
+    }
+
+    // 음식점 이미지 조회
+    @GetMapping("/image/{storeId}")
+    public ResponseEntity<List<ImageInfoDto>> getStoreImages(@PathVariable(name="storeId") UUID storeId) {
+        return ResponseEntity.ok(storeImageService.getStoreImages(storeId));
+    }
+
+    // 이미지 삭제 (권한 : 해당 음식점 사장님, 관리자)
+    @DeleteMapping("/image/{imageId}")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    public ResponseEntity<Void> deleteImage(@PathVariable(name="imageId") UUID imageId) {
+        storeImageService.deleteImage(imageId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
