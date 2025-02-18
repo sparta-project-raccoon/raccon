@@ -21,8 +21,8 @@ import java.util.UUID;
 @Table(name = "p_order")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseTimeEntity {
-
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,10 +46,10 @@ public class Order extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private PaymentMethod payMethod;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String request;
 
     private Boolean isDeleted;

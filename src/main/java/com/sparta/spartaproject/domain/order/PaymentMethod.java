@@ -4,9 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum PaymentMethod {
-    CARD("카드 결제");
+    CASH("현금"),
+    CARD("카드 결제"),
+    STORE_PAYMENT("매장 결제");
 
-    private String description;
+    private final String description;
 
     PaymentMethod(String description) {
         this.description = description;

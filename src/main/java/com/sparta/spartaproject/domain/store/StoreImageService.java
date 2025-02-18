@@ -1,6 +1,6 @@
 package com.sparta.spartaproject.domain.store;
 
-import com.sparta.spartaproject.common.utils.FileUtils;
+import com.sparta.spartaproject.common.FileUtils;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.domain.user.UserService;
 import com.sparta.spartaproject.dto.response.ImageInfoDto;
@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -44,14 +43,14 @@ public class StoreImageService {
         // 폴더 생성 & 파일 저장
         List<String> savedImagePaths = images.stream().map(
                 image -> FileUtils.saveFile(image, "store"))
-                .toList();
+            .toList();
 
         // 저장된 이미지 경로를 사용하여 DB에 저장
         return savedImagePaths.stream().map(
-                imagePath -> {
-                    StoreImage storeImage = saveImageEntity(store, imagePath); // DB 저장
-                    return imageMapper.toImageInfoDtoFromStore(storeImage);
-                }).collect(Collectors.toList());
+            imagePath -> {
+                StoreImage storeImage = saveImageEntity(store, imagePath); // DB 저장
+                return imageMapper.toImageInfoDtoFromStore(storeImage);
+            }).toList();
     }
 
     // 음식점 이미지 조회
@@ -59,8 +58,8 @@ public class StoreImageService {
     public List<ImageInfoDto> getStoreImages(UUID storeId) {
         Store store = storeService.getStoreById(storeId);
         return storeImageRepository.findByStoreAndIsDeleteIsFalseOrderByCreatedAtAsc(store).stream().map(
-                        imageMapper::toImageInfoDtoFromStore
-                ).collect((Collectors.toList()));
+            imageMapper::toImageInfoDtoFromStore
+        ).toList();
     }
 
     // 이미지 삭제
@@ -87,19 +86,17 @@ public class StoreImageService {
     // StoreImage 테이블에 저장
     private StoreImage saveImageEntity(Store store, String imagePath) {
         return storeImageRepository.save(
-                StoreImage.builder()
-                        .store(store)
-                        .path(imagePath)
-                        .isDelete(false)
-                        .build()
+            StoreImage.builder()
+                .store(store)
+                .path(imagePath)
+                .isDelete(false)
+                .build()
         );
     }
 
     // 음식점 이미지 DB에서 조회
     public StoreImage getStoreImageById(UUID imageId) {
         return storeImageRepository.findById(imageId)
-                .orElseThrow(()->new IllegalArgumentException("해당 음식점 이미지가 존재하지 않습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("해당 음식점 이미지가 존재하지 않습니다."));
     }
-
-
 }

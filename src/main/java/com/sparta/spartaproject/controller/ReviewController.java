@@ -7,6 +7,7 @@ import com.sparta.spartaproject.dto.response.ReviewDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,10 +23,23 @@ public class ReviewController {
         "리뷰 전체 조회"
     )
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<List<ReviewDto>> getReviews(
-        @RequestParam(required = false, defaultValue = "1") int page
+        @RequestParam(required = false, defaultValue = "1") int page,
+        @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        return ResponseEntity.ok(reviewService.getReviews(page));
+        return ResponseEntity.ok(reviewService.getReviews(page, sortDirection));
+    }
+
+    @Description(
+        "내가 작성한 리뷰 전체 조회"
+    )
+    @GetMapping("/my")
+    public ResponseEntity<List<ReviewDto>> getMyReviews(
+        @RequestParam(required = false, defaultValue = "1") int page,
+        @RequestParam(defaultValue = "asc") String sortDirection
+    ) {
+        return ResponseEntity.ok(reviewService.getMyReviews(page, sortDirection));
     }
 
     @Description(
@@ -69,9 +83,9 @@ public class ReviewController {
     @GetMapping("/stores/{storeId}")
     public ResponseEntity<List<ReviewDto>> getReviewsForStore(
         @PathVariable UUID storeId,
-        @RequestParam(required = false, defaultValue = "1") int page
+        @RequestParam(required = false, defaultValue = "1") int page,
+        @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        // 마스터, 매니저, 가게 사장님 권한
-        return ResponseEntity.ok(reviewService.getReviewsForStore(storeId, page));
+        return ResponseEntity.ok(reviewService.getReviewsForStore(storeId, page, sortDirection));
     }
 }
