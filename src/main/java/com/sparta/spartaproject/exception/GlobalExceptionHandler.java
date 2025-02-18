@@ -25,6 +25,7 @@ public class GlobalExceptionHandler {
                 e.getBindingResult());
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
+
     /*
     enum type이 일치하지 않아 binding 못할경우 발생
      */
@@ -35,6 +36,7 @@ public class GlobalExceptionHandler {
         final ErrorResponse response = ErrorResponse.of(e);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
+
     /*
     지원하지 않은 Http Method방식으로 호출할 경우 발생
      */
@@ -57,7 +59,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class) // 위의 예외들에서 걸러지지않은 나머지 예외들에 대한 처리
     protected ResponseEntity<ErrorResponse> handleException(Exception e) {
-        log.error("handleAllException", e);
+        log.error("handleAllException : ", e);
         final ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }

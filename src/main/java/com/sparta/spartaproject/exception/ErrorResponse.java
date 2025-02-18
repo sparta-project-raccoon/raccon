@@ -14,21 +14,16 @@ public class ErrorResponse {
 
     private String message; //에러메시지
     private int status; // http상태코드
-    private String code; //에러코드
-    private List<FieldError> erros; // 유효성검증에서 실패했을경우 발생하는 에러정보 리스트
 
     //생성자는 private해되야 정적 팩토리 메소드가 의미가있다.
     private ErrorResponse(final ErrorCode errorCode) { //에러코드객체만 들어왔다면 그 객체를 이용해서 에러응답객체를 만들어준다.
         this.message = errorCode.getMessage();
         this.status = errorCode.getStatus().value();
-        this.code = errorCode.getCode();
-        this.erros = new ArrayList<>(); // null값으로 응답할순없고, 빈 리스트를 넣어준다.
     }
-    private ErrorResponse(final ErrorCode errorCode,final List<FieldError> errors) { //에러코드객체와, 필드에러리스트가 들어왔을때 응답객체 생성
+
+    private ErrorResponse(final ErrorCode errorCode, final List<FieldError> errors) { //에러코드객체와, 필드에러리스트가 들어왔을때 응답객체 생성
         this.message = errorCode.getMessage();
         this.status = errorCode.getStatus().value();
-        this.code = errorCode.getCode();
-        this.erros = errors;
     }
 
     //위의 만들어둔 private 생성자를 통해,  정적 팩토리 메소드를 만들어 준다. (생성자 대신 생성을 담당할 메소드) , of라는 메소드를 오버로딩해서 생성
@@ -64,7 +59,7 @@ public class ErrorResponse {
             this.reason = reason;
         }
 
-        private static List<FieldError> of(final String field,final String value,final String reason) {
+        private static List<FieldError> of(final String field, final String value, final String reason) {
             List<FieldError> fieldErrors = new ArrayList<>();
             fieldErrors.add(new FieldError(field, value, reason));
             return fieldErrors;
