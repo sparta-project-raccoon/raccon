@@ -1,0 +1,1 @@
+alter table p_food rename column food_id to id;
