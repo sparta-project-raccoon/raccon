@@ -31,7 +31,6 @@ import static com.sparta.spartaproject.exception.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class OrderService {
     // todo 중복되는 코드 처리하기
     private final OrderRepository orderRepository;
@@ -43,8 +42,9 @@ public class OrderService {
 
     private Integer size = 10;
 
+    @Transactional
     public void updateStatus(UpdateOrderStatusRequestDto request) {
-        Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(request.getOrderId())
+        Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(request.orderId())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         User user = getUser();
@@ -62,7 +62,7 @@ public class OrderService {
         return orderMapper.toOrderStatusResponseDto(findedOrder);
     }
 
-
+    @Transactional
     public void cancelOrder(UUID orderId) {
         Order order = orderRepository.findByIdAndIsDeletedFalse(orderId)
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
@@ -75,6 +75,7 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    @Transactional
     public void rejectOrder(UUID orderId) {
         Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
@@ -86,6 +87,7 @@ public class OrderService {
         }
     }
 
+    @Transactional
     public void acceptOrder(UUID orderId) {
         Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
@@ -97,6 +99,7 @@ public class OrderService {
         }
     }
 
+    @Transactional
     public void createOrder(CreateOrderRequestDto request) {
         User user = getUser();
         Store store = storeRepository.findById(request.store_id())
@@ -126,6 +129,7 @@ public class OrderService {
                 .toList();
     }
 
+    @Transactional
     public OrderDetailDto getOrderDetail(UUID id) {
 
         Order order = orderRepository.findByIdAndIsDeletedFalse(id)

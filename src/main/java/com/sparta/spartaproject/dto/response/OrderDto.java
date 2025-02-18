@@ -7,7 +7,7 @@ import java.util.UUID;
 public record OrderDto(
         UUID orderId,
         OrderStatus status,
-        int total_price,
+        Integer totalPrice,
         String storeName
 ) {
 }

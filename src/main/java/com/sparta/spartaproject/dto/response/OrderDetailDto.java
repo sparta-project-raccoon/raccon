@@ -9,7 +9,7 @@ import java.util.UUID;
 public record OrderDetailDto(
         UUID orderId,
         OrderStatus status,
-        int total_price,
+        Integer totalPrice,
         String storeName,
         OrderMethod orderMethod,
         PaymentMethod payMethod,

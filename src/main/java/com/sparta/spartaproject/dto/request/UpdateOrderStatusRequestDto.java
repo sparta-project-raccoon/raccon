@@ -1,13 +1,12 @@
 package com.sparta.spartaproject.dto.request;
 
 import com.sparta.spartaproject.domain.order.OrderStatus;
-import lombok.Getter;
 
 import java.util.UUID;
 
-@Getter
-public class UpdateOrderStatusRequestDto {
-    private UUID orderId;
+public record UpdateOrderStatusRequestDto(
+        UUID orderId,
+        OrderStatus orderStatus
+) {
 
-    private OrderStatus orderStatus;
 }

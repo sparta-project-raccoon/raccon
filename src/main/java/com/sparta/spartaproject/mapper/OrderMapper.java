@@ -33,5 +33,6 @@ public interface OrderMapper {
 
     @Mapping(target = "orderId", source = "order.id")
     @Mapping(target = "storeName", source = "order.store.name")
+    @Mapping(target = "totalPrice", source = "order.totalPrice")
     OrderDto toOrderDto(Order order);
 }

@@ -1,6 +1,5 @@
 package com.sparta.spartaproject.domain.order;
 
-import com.sparta.spartaproject.domain.BaseEntity;
 import com.sparta.spartaproject.domain.BaseTimeEntity;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
@@ -32,8 +31,8 @@ public class Order extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private Store store;
 
-    @Column(nullable = false)
-    private int total_price;
+    @Column(name = "total_price", nullable = false)
+    private Integer totalPrice;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
