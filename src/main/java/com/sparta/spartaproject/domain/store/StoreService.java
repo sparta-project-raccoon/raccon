@@ -192,4 +192,9 @@ public class StoreService {
         return storeRepository.findById(id)
             .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
     }
+
+    public Store getStoreByIdAndIsDeletedIsFalse(UUID id) {
+        return storeRepository.findByIdAndIsDeletedIsFalse(id)
+            .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+    }
 }

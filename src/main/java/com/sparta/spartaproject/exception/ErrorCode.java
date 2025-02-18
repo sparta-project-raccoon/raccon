@@ -37,6 +37,7 @@ public enum ErrorCode {
 
     // 찜
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "찜 목록이 존재하지 않습니다."),
+    LIKE_FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다."),
 
     // 리뷰
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰가 존재하지 않습니다."),
