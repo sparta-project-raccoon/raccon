@@ -59,7 +59,7 @@ public class FoodService {
         );
         log.info("음식 등록 완료 : {}", food.getId());
 
-        return foodMapper.toFoodInfoDto(food);
+        return foodMapper.toFoodDetailDto(food);
     }
 
     // 음식 수정
@@ -90,7 +90,7 @@ public class FoodService {
         }
 
         log.info("음식 수정 완료 : {}, image:{}", food.getName(), food.getImagePath());
-        return foodMapper.toFoodInfoDto(food);
+        return foodMapper.toFoodDetailDto(food);
     }
 
     // 음식 상태(준비중, 판매중, 품절) 수정
@@ -109,7 +109,7 @@ public class FoodService {
         // 음식 상태 변경
         food.updateStatus(newStatus);
 
-        return foodMapper.toFoodInfoDto(food);
+        return foodMapper.toFoodDetailDto(food);
     }
 
     // 음식 표시 상태(숨김(false), 표시(true)) 변경

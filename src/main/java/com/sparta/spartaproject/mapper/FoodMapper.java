@@ -7,6 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface FoodMapper {
 
-    FoodDetailDto toFoodInfoDto(Food food);
+    FoodDetailDto toFoodDetailDto(Food food);
 
 }
