@@ -1,12 +1,12 @@
 package com.sparta.spartaproject.domain.food;
 
-import com.sparta.spartaproject.common.utils.FileUtils;
+import com.sparta.spartaproject.common.FileUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
-import com.sparta.spartaproject.dto.response.FoodInfoDto;
+import com.sparta.spartaproject.dto.response.FoodDetailDto;
 import com.sparta.spartaproject.mapper.FoodMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class FoodService {
 
     // 음식 등록 및 음식 이미지 저장
     @Transactional
-    public FoodInfoDto createFoodWithImage(CreateFoodRequestDto request, MultipartFile image) {
+    public FoodDetailDto createFoodWithImage(CreateFoodRequestDto request, MultipartFile image) {
         // 음식점 사장 확인
         User user = circularService.getUserService().loginUser();
         Store store = circularService.getStoreService().getStoreById(request.storeId());
@@ -64,7 +64,7 @@ public class FoodService {
 
     // 음식 수정
     @Transactional
-    public FoodInfoDto updateFoodWithImage(UUID id, UpdateFoodRequestDto update, MultipartFile image) {
+    public FoodDetailDto updateFoodWithImage(UUID id, UpdateFoodRequestDto update, MultipartFile image) {
         // 음식 확인
         Food food = getFoodById(id);
 
@@ -95,7 +95,7 @@ public class FoodService {
 
     // 음식 상태(준비중, 판매중, 품절) 수정
     @Transactional
-    public FoodInfoDto updateFoodStatus(UUID id, Status newStatus) {
+    public FoodDetailDto updateFoodStatus(UUID id, Status newStatus) {
         Food food = getFoodById(id);
 
         // 음식점 사장 확인
@@ -182,5 +182,6 @@ public class FoodService {
         return foodRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("해당 음식점을 찾을 수 없습니다."));
     }
+
 
 }

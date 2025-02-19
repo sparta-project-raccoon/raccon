@@ -2,7 +2,8 @@ package com.sparta.spartaproject.mapper;
 
 import com.sparta.spartaproject.domain.food.Food;
 import com.sparta.spartaproject.domain.food.Status;
-import com.sparta.spartaproject.dto.response.FoodInfoDto;
+import com.sparta.spartaproject.dto.response.FoodDetailDto;
+
 import java.util.UUID;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 public class FoodMapperImpl implements FoodMapper {
 
     @Override
-    public FoodInfoDto toFoodInfoDto(Food food) {
+    public FoodDetailDto toFoodInfoDto(Food food) {
         if ( food == null ) {
             return null;
         }
@@ -35,8 +36,8 @@ public class FoodMapperImpl implements FoodMapper {
         imagePath = food.getImagePath();
         status = food.getStatus();
 
-        FoodInfoDto foodInfoDto = new FoodInfoDto( id, name, price, description, imagePath, status );
+        FoodDetailDto foodDetailDto = new FoodDetailDto( id, name, price, description, imagePath, status );
 
-        return foodInfoDto;
+        return foodDetailDto;
     }
 }

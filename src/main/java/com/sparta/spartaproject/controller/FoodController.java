@@ -4,7 +4,7 @@ import com.sparta.spartaproject.domain.food.FoodService;
 import com.sparta.spartaproject.domain.food.Status;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
-import com.sparta.spartaproject.dto.response.FoodInfoDto;
+import com.sparta.spartaproject.dto.response.FoodDetailDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.MediaType;
@@ -27,7 +27,7 @@ public class FoodController {
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<FoodInfoDto> createFood(
+    public ResponseEntity<FoodDetailDto> createFood(
         @RequestPart(value = "data") CreateFoodRequestDto request,
         @RequestPart(value = "image")MultipartFile image) {
         return ResponseEntity.ok(foodService.createFoodWithImage(request, image));
@@ -38,7 +38,7 @@ public class FoodController {
     )
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<FoodInfoDto> updateFood(
+    public ResponseEntity<FoodDetailDto> updateFood(
         @PathVariable("id") UUID id,
         @RequestPart(value = "data") UpdateFoodRequestDto update,
         @RequestPart(value = "image")MultipartFile image) {
@@ -46,26 +46,27 @@ public class FoodController {
     }
 
     @Description(
-        "음식 상태 수정"
+        "음식 상태 변경"
     )
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<FoodInfoDto> updateFoodStatus(
+    public ResponseEntity<FoodDetailDto> updateFoodStatus(
             @PathVariable("id") UUID id,
             @RequestParam("status") Status status) {
         return ResponseEntity.ok(foodService.updateFoodStatus(id, status));
     }
 
-    @Description("음식 표시 상태 변경")
-    @PatchMapping("/{id}/display")
+    @Description(
+        "음식 숨김 상태 변경"
+    )
+    @PatchMapping("/{id}/display-status")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<String> toggleFoodDisplay(@PathVariable("id") UUID id) {
 
-        boolean updatedStatus = foodService.toggleIsDisplayed(id);
-
-        String responseMessage = updatedStatus ? "isDisplayed: true" : "isDisplayed: false";
-
-        return ResponseEntity.ok(responseMessage);
+        if(foodService.toggleIsDisplayed(id)){
+            return ResponseEntity.ok("isDisplayed: true");
+        }
+        return ResponseEntity.ok("isDisplayed: false");
     }
 
     @Description(
