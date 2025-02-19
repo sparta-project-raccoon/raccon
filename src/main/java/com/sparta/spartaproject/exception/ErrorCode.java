@@ -63,7 +63,10 @@ public enum ErrorCode {
     EMAIL_NOT_FOUND_IN_VERIFICATION_LIST(HttpStatus.NOT_FOUND, "인증 이메일 목록에 이메일이 존재하지 않습니다."),
     VERIFICATION_CODE_REQUEST_TIMEOUT(HttpStatus.BAD_REQUEST, "인증번호 요청 시간이 3분을 초과했습니다."),
     EXCEEDED_MAX_VERIFICATION_ATTEMPTS(HttpStatus.BAD_REQUEST, "인증 코드 불일치 5회 초과, 재인증 요청해주세요."),
-    VERIFICATION_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다.");;
+    VERIFICATION_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다."),
+
+    // Gemini History
+    GEMINI_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "Gemini 내역이 존재하지 않습니다.");
 
 
     private final HttpStatus status; // http 상태코드
