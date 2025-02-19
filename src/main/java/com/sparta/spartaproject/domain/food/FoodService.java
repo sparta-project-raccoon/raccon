@@ -2,8 +2,6 @@ package com.sparta.spartaproject.domain.food;
 
 import com.sparta.spartaproject.common.FileUtils;
 import com.sparta.spartaproject.domain.CircularService;
-import com.sparta.spartaproject.domain.image.EntityType;
-import com.sparta.spartaproject.domain.image.ImageService;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
@@ -20,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -43,11 +40,11 @@ public class FoodService {
         }
 
         Food food = foodRepository.save(
-                Food.builder()
+            Food.builder()
                 .store(store)
                 .name(request.name())
                 .price(request.price())
-                .description(request.description())
+                .description(circularService.getGeminiService().requestGemini(store.getId(), request.description()))
                 .status(request.status())
                 .isDisplayed(true)
                 .isDeleted(false)
@@ -76,12 +73,13 @@ public class FoodService {
             throw new AccessDeniedException("현재 로그인한 사용자와 업주가 일치하지 않습니다.");
         }
 
+        // 음식 정보 업데이트
         food.update(update);
 
-        if(newImage!=null){
+        if (newImage!=null){
             String newImagePath = imageService.replaceAllImages(food.getId(),EntityType.FOOD, List.of(newImage)).get(0);
             food.updateImagePath(newImagePath);
-        }else {
+        } else {
             imageService.deleteAllImagesByEntity(food.getId(), EntityType.FOOD);
             food.updateImagePath(null);
         }
@@ -136,7 +134,7 @@ public class FoodService {
 
     // 기존 이미지와 새로운 이미지 동일 여부 확인
     private boolean isSameImage(String existingImagePath, MultipartFile newImage) {
-        if(existingImagePath == null || newImage==null){
+        if (existingImagePath == null || newImage == null) {
             return false;
         }
 
@@ -163,7 +161,7 @@ public class FoodService {
 
     public Food getFoodById(UUID id) {
         return foodRepository.findById(id)
-                .orElseThrow(()->new RuntimeException("해당 음식점을 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("해당 음식점을 찾을 수 없습니다."));
     }
 
 

@@ -48,7 +48,8 @@ public class SecurityConfig {
                     .requestMatchers("/api/users/active").permitAll()
                     .requestMatchers("/api/verify/send-code").permitAll()
                     .requestMatchers("/api/verify/confirm-code").permitAll()
-                        .requestMatchers("/api/sotres/").permitAll()
+                    .requestMatchers("/api/gemini").permitAll()
+                    .requestMatchers("/api/sotres/**").permitAll()
                     .anyRequest().authenticated()
             )
 
