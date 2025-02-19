@@ -9,6 +9,7 @@ import com.sparta.spartaproject.dto.response.OrderStatusDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,6 +44,7 @@ public class OrderController {
         "주문 상태 변경"
     )
     @PatchMapping("/status")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> updateStatus(@RequestBody UpdateOrderStatusRequestDto update) {
         orderService.updateStatus(update);
         return ResponseEntity.ok().build();
@@ -60,6 +62,7 @@ public class OrderController {
         "주문 받기"
     )
     @PatchMapping("/{id}/accept")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> acceptOrder(@PathVariable UUID id) {
         orderService.acceptOrder(id);
         return ResponseEntity.ok().build();
@@ -69,6 +72,7 @@ public class OrderController {
         "주문 거절"
     )
     @PatchMapping("/{id}/reject")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> rejectOrder(@PathVariable UUID id) {
         orderService.rejectOrder(id);
         return ResponseEntity.ok().build();

@@ -8,6 +8,8 @@ public record OrderDto(
         UUID orderId,
         OrderStatus status,
         Integer totalPrice,
-        String storeName
+        String storeName,
+        String foodName,
+        Integer totalFoodCnt
 ) {
 }
