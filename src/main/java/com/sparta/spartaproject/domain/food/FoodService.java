@@ -41,16 +41,16 @@ public class FoodService {
         }
 
         // 음식 사진 등록
-        String foodImagePath = FileUtils.saveFile(image,"food"); // FileSystem에 파일 저장
+        String foodImagePath = FileUtils.saveFile(image, "food"); // FileSystem에 파일 저장
         log.info("음식 사진 등록 : {}", foodImagePath);
 
         // 음식 등록
         Food food = foodRepository.save(
-                Food.builder()
+            Food.builder()
                 .store(store)
                 .name(request.name())
                 .price(request.price())
-                .description(request.description())
+                .description(circularService.getGeminiService().requestGemini(store.getId(), request.description()))
                 .imagePath(foodImagePath)
                 .status(request.status())
                 .isDisplayed(true)
@@ -80,12 +80,12 @@ public class FoodService {
         food.update(update);
 
         // 음식 이미지 변경 확인
-        if(image!=null && !isSameImage(food.getImagePath(), image)){
+        if (image != null && !isSameImage(food.getImagePath(), image)) {
             // 기존 이미지 삭제
             FileUtils.deleteFile(food.getImagePath());
 
             // 새로운 이미지 저장
-            String newImagePath = FileUtils.saveFile(image,"food");
+            String newImagePath = FileUtils.saveFile(image, "food");
             food.updateImagePath(newImagePath); // 새로운 이미지 경로로 업데이트
         }
 
@@ -153,7 +153,7 @@ public class FoodService {
 
     // 기존 이미지와 새로운 이미지 동일 여부 확인
     private boolean isSameImage(String existingImagePath, MultipartFile newImage) {
-        if(existingImagePath == null || newImage==null){
+        if (existingImagePath == null || newImage == null) {
             return false;
         }
 
@@ -180,7 +180,7 @@ public class FoodService {
 
     public Food getFoodById(UUID id) {
         return foodRepository.findById(id)
-                .orElseThrow(()->new RuntimeException("해당 음식점을 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("해당 음식점을 찾을 수 없습니다."));
     }
 
 
