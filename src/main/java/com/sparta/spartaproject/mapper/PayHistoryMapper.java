@@ -17,8 +17,10 @@ public interface PayHistoryMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
+    @Mapping(target = "order", source = "order")
+    @Mapping(target = "store", source = "store")
     @Mapping(target = "paymentMethod", source = "request.paymentMethod")
-    PayHistory toPayHistory(CreatePayHistoryRequestDto request, Store store, Order order, User user);
+    PayHistory toPayHistory(CreatePayHistoryRequestDto request, Order order, Store store, User user);
 
     @Mapping(target = "orderId", source = "order.id")
     @Mapping(target = "shopName", source = "order.store.name")

@@ -32,8 +32,8 @@ public class PayHistoryController {
     @Description(
             "결제 상세 확인"
     )
-    @GetMapping("/{id}")
-    public ResponseEntity<PayHistoryDetailDto> getPayHistoryDetail(@PathVariable("id") UUID payHistoryId){
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<PayHistoryDetailDto> getPayHistoryDetail(@PathVariable("id") UUID payHistoryId) {
         return ResponseEntity.ok(payHistoryService.getPayHistoryDetail(payHistoryId));
     }
 
@@ -43,7 +43,7 @@ public class PayHistoryController {
     @GetMapping
     public ResponseEntity<List<PayHistoryDto>> getPayHistoryList(
             @RequestParam(required = false, defaultValue = "1") int page
-    ){
+    ) {
         return ResponseEntity.ok(payHistoryService.getPayHistoryList(page));
     }
 
@@ -51,17 +51,18 @@ public class PayHistoryController {
             "결제 정보 수정"
     )
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updatePayHistory(@PathVariable("id") UUID payHistoryId, @RequestBody UpdatePayHistoryDto update){
+    public ResponseEntity<Void> updatePayHistory(
+            @PathVariable("id") UUID payHistoryId, @RequestBody UpdatePayHistoryDto update
+    ) {
         payHistoryService.updatePayHistory(payHistoryId, update);
         return ResponseEntity.ok().build();
     }
 
-
     @Description(
-            "결제 삭제"
+            "결제 삭제(취소)"
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePayHistory(@PathVariable("id") UUID payHistoryId){
+    public ResponseEntity<Void> deletePayHistory(@PathVariable("id") UUID payHistoryId) {
         payHistoryService.deletePayHistory(payHistoryId);
         return ResponseEntity.ok().build();
     }

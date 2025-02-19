@@ -8,4 +8,5 @@ public record PayHistoryDetailDto(
         Integer totalPrice,
         String paymentMethod
 ) {
+
 }

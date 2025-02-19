@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public record OrderStatusDto(
         UUID orderId,
-        String orderStatus
+        String orderStatusDescription
 ) {
 }

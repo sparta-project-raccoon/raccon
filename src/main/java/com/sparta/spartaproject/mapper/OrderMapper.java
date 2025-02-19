@@ -14,7 +14,7 @@ import org.mapstruct.Mapping;
 public interface OrderMapper {
 
     @Mapping(target = "orderId", source = "id")
-    @Mapping(target = "orderStatus", source = "status")
+    @Mapping(target = "orderStatusDescription", source = "status.description")
     OrderStatusDto toOrderStatusResponseDto(Order order);
 
     @Mapping(target = "id", ignore = true)

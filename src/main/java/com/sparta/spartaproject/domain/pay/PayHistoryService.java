@@ -15,13 +15,13 @@ import com.sparta.spartaproject.mapper.PayHistoryMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.sparta.spartaproject.domain.order.OrderStatus.CANCEL;
 import static com.sparta.spartaproject.exception.ErrorCode.*;
 
 @Service
@@ -44,7 +44,7 @@ public class PayHistoryService {
         Store store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
 
-        PayHistory payHistory = payHistoryMapper.toPayHistory(request, store, order, getUser());
+        PayHistory payHistory = payHistoryMapper.toPayHistory(request, order, store, getUser());
         payHistoryRepository.save(payHistory);
     }
 
@@ -71,12 +71,16 @@ public class PayHistoryService {
         PayHistory payHistory = payHistoryRepository.findById(payHistoryId)
                 .orElseThrow(() -> new BusinessException(PAY_HISTORY_NOT_EXIST));
 
+        payHistory.getOrder().changeOrderStatus(CANCEL);
+
         payHistory.deletePayHistory();
+
+        payHistoryRepository.save(payHistory);
     }
 
     public List<PayHistoryDto> getPayHistoryList(int page) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        List<PayHistory> payHistoryList = payHistoryRepository.findAllByUser(pageable,getUser());
+        List<PayHistory> payHistoryList = payHistoryRepository.findAllByUser(pageable, getUser());
 
         return payHistoryList.stream().map(payHistoryMapper::toPayHistoryDto).toList();
     }

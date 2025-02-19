@@ -30,6 +30,7 @@ public enum ErrorCode {
     // order
     ORDER_NOT_EXIST(HttpStatus.NOT_FOUND, "주문이 존재하지 않습니다."),
     CAN_NOT_CANCEL_ORDER(HttpStatus.BAD_REQUEST,"주문 취소 가능시간 5분이 지나 취소할 수 없습니다."),
+    ORDER_FORBIDDEN(HttpStatus.FORBIDDEN,"주문 상태 변경 권한이 존재하지 않습니다."),
 
     // pay history
     PAY_HISTORY_NOT_EXIST(HttpStatus.NOT_FOUND,"결제 정보가 존재하지 않습니다."),

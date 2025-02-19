@@ -21,10 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-import static com.sparta.spartaproject.domain.order.OrderStatus.CANCEL;
-import static com.sparta.spartaproject.domain.order.OrderStatus.REFUSE;
+import static com.sparta.spartaproject.domain.order.OrderStatus.*;
 import static com.sparta.spartaproject.domain.user.Role.CUSTOMER;
 import static com.sparta.spartaproject.exception.ErrorCode.*;
 
@@ -50,8 +50,11 @@ public class OrderService {
         User user = getUser();
 
         if (user.getRole() == CUSTOMER) {
-            findedOrder.changeOrderStatus(REFUSE);
+            throw new BusinessException(ORDER_FORBIDDEN);
         }
+
+        findedOrder.changeOrderStatus(request.orderStatus());
+
     }
 
     @Transactional(readOnly = true)
@@ -80,9 +83,15 @@ public class OrderService {
         Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
             .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
-        User user = getUser();
+        Store store = storeRepository.findById(findedOrder.getStore().getId())
+                .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
 
-        if (user.getRole() == CUSTOMER) {
+        User user = getUser();
+        if(!store.getOwner().equals(user)) {
+            throw new BusinessException(STORE_UNAUTHORIZED);
+        }
+
+        if (user.getRole() != CUSTOMER) {
             findedOrder.changeOrderStatus(REFUSE);
         }
     }
@@ -92,10 +101,17 @@ public class OrderService {
         Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
             .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
+        Store store = storeRepository.findById(findedOrder.getStore().getId())
+                .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
+
         User user = getUser();
 
-        if (user.getRole() == CUSTOMER) {
-            findedOrder.changeOrderStatus(REFUSE);
+        if(!store.getOwner().equals(user)) {
+            throw new BusinessException(STORE_UNAUTHORIZED);
+        }
+
+        if (user.getRole() != CUSTOMER) {
+            findedOrder.changeOrderStatus(ACCEPT);
         }
     }
 
