@@ -44,10 +44,11 @@ public class ImageService {
         List<Image> imageList = imageRepository.findByEntityIdAndEntityType(entityId, entityType);
 
         for (Image image : imageList) {
+
             s3Uploader.deleteImageFile(image.getImageUrl()); // s3에서 삭제
             log.info("삭제된 url : {}", image.getImageUrl());
-            imageRepository.delete(image); // DB에서 영구 삭제
 
+            imageRepository.delete(image); // DB에서 영구 삭제
         }
     }
 

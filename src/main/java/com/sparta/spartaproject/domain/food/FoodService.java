@@ -7,6 +7,7 @@ import com.sparta.spartaproject.domain.image.ImageService;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.Role;
 import com.sparta.spartaproject.domain.user.User;
+import com.sparta.spartaproject.domain.user.UserRepository;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodStatusRequestDto;
@@ -54,9 +55,11 @@ public class FoodService {
         Food newFood = foodMapper.toFood(request, store, descriptionForGemini, imagePathForFood);
         foodRepository.save(newFood);
 
-        // 음식 이미지 등록 (S3 업로드 후 URL 저장)
+
         if (image!=null) {
             imagePathForFood = imageService.uploadImage(newFood.getId(), EntityType.FOOD, image);
+            newFood.updateImagePath(imagePathForFood); // Food 내 imagePath 갱신
+            foodRepository.saveAndFlush(newFood);
             log.info("음식 이미지 등록 완료 : {}", imagePathForFood);
         }
 
@@ -74,13 +77,14 @@ public class FoodService {
                 throw new BusinessException(ErrorCode.FOOD_FORBIDDEN);
             }
         }
-
-        food.update(update);
-
-        imageService.deleteAllImagesByEntity(id, EntityType.FOOD);
+        String newImagePath = null;
         if (image!=null){
-            String newImagePath = imageService.uploadImage(id,EntityType.FOOD, image);
+            newImagePath = imageService.uploadImage(id,EntityType.FOOD, image);
         }
+        food.update(update);
+        food.updateImagePath(newImagePath); // Food의 imagePath 갱신
+        foodRepository.saveAndFlush(food);
+        imageService.deleteAllImagesByEntity(id, EntityType.FOOD);
 
         log.info("음식 수정 완료 : {}, image:{}", food.getName(), food.getImagePath());
     }
@@ -136,6 +140,7 @@ public class FoodService {
         }
 
         food.delete();
+        foodRepository.saveAndFlush(food);
         imageService.deleteAllImagesByEntity(food.getId(), EntityType.FOOD);
     }
 

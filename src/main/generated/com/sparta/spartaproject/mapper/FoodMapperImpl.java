@@ -1,42 +1,36 @@
 package com.sparta.spartaproject.mapper;
 
 import com.sparta.spartaproject.domain.food.Food;
-import com.sparta.spartaproject.domain.food.Status;
-import com.sparta.spartaproject.dto.response.FoodDetailDto;
-import java.util.UUID;
+import com.sparta.spartaproject.domain.store.Store;
+import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-19T17:49:49+0900",
+    date = "2025-02-20T01:34:00+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Oracle Corporation)"
 )
 @Component
 public class FoodMapperImpl implements FoodMapper {
 
     @Override
-    public FoodDetailDto toFoodDetailDto(Food food) {
-        if ( food == null ) {
+    public Food toFood(CreateFoodRequestDto source, Store store, String descriptionForGemini, String imagePathForFood) {
+        if ( source == null && store == null && descriptionForGemini == null && imagePathForFood == null ) {
             return null;
         }
 
-        UUID id = null;
-        String name = null;
-        Integer price = null;
-        String description = null;
-        String imagePath = null;
-        Status status = null;
+        Food.FoodBuilder<?, ?> food = Food.builder();
 
-        id = food.getId();
-        name = food.getName();
-        price = food.getPrice();
-        description = food.getDescription();
-        imagePath = food.getImagePath();
-        status = food.getStatus();
+        if ( source != null ) {
+            food.name( source.name() );
+            food.status( source.status() );
+            food.price( source.price() );
+        }
+        food.store( store );
+        food.description( descriptionForGemini );
+        food.imagePath( imagePathForFood );
 
-        FoodDetailDto foodDetailDto = new FoodDetailDto( id, name, price, description, imagePath, status );
-
-        return foodDetailDto;
+        return food.build();
     }
 }

@@ -27,9 +27,9 @@ public class FoodController {
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> createFood(
         @RequestPart(value = "request") CreateFoodRequestDto request,
-        @RequestPart(value = "image", required = false) MultipartFile images
+        @RequestPart(value = "image", required = false) MultipartFile image
     ) {
-        foodService.createFood(request, images);
+        foodService.createFood(request, image);
         return ResponseEntity.ok().build();
     }
 
@@ -41,9 +41,9 @@ public class FoodController {
     public ResponseEntity<Void> updateFood(
         @PathVariable("id") UUID id,
         @RequestPart(value = "request") UpdateFoodRequestDto update,
-        @RequestPart(value = "image") MultipartFile images
+        @RequestPart(value = "image", required = false) MultipartFile image
     ) {
-        foodService.updateFood(id, update, images);
+        foodService.updateFood(id, update, image);
         return ResponseEntity.ok().build();
     }
 
