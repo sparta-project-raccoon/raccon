@@ -2,6 +2,8 @@ package com.sparta.spartaproject.domain.food;
 
 import com.sparta.spartaproject.common.FileUtils;
 import com.sparta.spartaproject.domain.CircularService;
+import com.sparta.spartaproject.domain.image.EntityType;
+import com.sparta.spartaproject.domain.image.ImageService;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
@@ -18,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -28,30 +31,23 @@ public class FoodService {
     private final FoodRepository foodRepository;
     private final CircularService circularService;
     private final FoodMapper foodMapper;
+    private final ImageService imageService;
 
     // 음식 등록 및 음식 이미지 저장
     @Transactional
     public FoodDetailDto createFoodWithImage(CreateFoodRequestDto request, MultipartFile image) {
-        // 음식점 사장 확인
         User user = circularService.getUserService().loginUser();
         Store store = circularService.getStoreService().getStoreById(request.storeId());
-
         if (!user.getId().equals(store.getOwner().getId())) {
             throw new AccessDeniedException("현재 로그인한 사용자와 업주가 일치하지 않습니다.");
         }
 
-        // 음식 사진 등록
-        String foodImagePath = FileUtils.saveFile(image,"food"); // FileSystem에 파일 저장
-        log.info("음식 사진 등록 : {}", foodImagePath);
-
-        // 음식 등록
         Food food = foodRepository.save(
                 Food.builder()
                 .store(store)
                 .name(request.name())
                 .price(request.price())
                 .description(request.description())
-                .imagePath(foodImagePath)
                 .status(request.status())
                 .isDisplayed(true)
                 .isDeleted(false)
@@ -59,34 +55,35 @@ public class FoodService {
         );
         log.info("음식 등록 완료 : {}", food.getId());
 
+        // 음식 이미지 등록 (S3 업로드 후 URL 저장)
+        if (image!=null) {
+            String imagePath = imageService.uploadImage(food.getId(), EntityType.FOOD, image);
+            food.updateImagePath(imagePath);
+            log.info("음식 이미지 등록 완료 : {}", imagePath);
+        }
+
         return foodMapper.toFoodDetailDto(food);
     }
 
     // 음식 수정
     @Transactional
-    public FoodDetailDto updateFoodWithImage(UUID id, UpdateFoodRequestDto update, MultipartFile image) {
-        // 음식 확인
+    public FoodDetailDto updateFoodWithImage(UUID id, UpdateFoodRequestDto update, MultipartFile newImage) {
         Food food = getFoodById(id);
 
-        // 음식점 사장 확인
         User user = circularService.getUserService().loginUser();
         Store store = food.getStore();
-
         if (!user.getId().equals(store.getOwner().getId())) {
             throw new AccessDeniedException("현재 로그인한 사용자와 업주가 일치하지 않습니다.");
         }
 
-        // 음식 정보 업데이트
         food.update(update);
 
-        // 음식 이미지 변경 확인
-        if(image!=null && !isSameImage(food.getImagePath(), image)){
-            // 기존 이미지 삭제
-            FileUtils.deleteFile(food.getImagePath());
-
-            // 새로운 이미지 저장
-            String newImagePath = FileUtils.saveFile(image,"food");
-            food.updateImagePath(newImagePath); // 새로운 이미지 경로로 업데이트
+        if(newImage!=null){
+            String newImagePath = imageService.replaceAllImages(food.getId(),EntityType.FOOD, List.of(newImage)).get(0);
+            food.updateImagePath(newImagePath);
+        }else {
+            imageService.deleteAllImagesByEntity(food.getId(), EntityType.FOOD);
+            food.updateImagePath(null);
         }
 
         log.info("음식 수정 완료 : {}, image:{}", food.getName(), food.getImagePath());
@@ -98,17 +95,13 @@ public class FoodService {
     public FoodDetailDto updateFoodStatus(UUID id, Status newStatus) {
         Food food = getFoodById(id);
 
-        // 음식점 사장 확인
         User user = circularService.getUserService().loginUser();
         Store store = food.getStore();
-
         if (!user.getId().equals(store.getOwner().getId())) {
             throw new AccessDeniedException("현재 로그인한 사용자와 업주가 일치하지 않습니다.");
         }
 
-        // 음식 상태 변경
         food.updateStatus(newStatus);
-
         return foodMapper.toFoodDetailDto(food);
     }
 
@@ -116,14 +109,12 @@ public class FoodService {
     public boolean toggleIsDisplayed(UUID id) {
         Food food = getFoodById(id);
 
-        // 음식점 사장 확인
         User user = circularService.getUserService().loginUser();
         Store store = food.getStore();
         if (!user.getId().equals(store.getOwner().getId())) {
             throw new AccessDeniedException("현재 로그인한 사용자와 업주가 일치하지 않습니다.");
         }
 
-        // 음식 표시 상태 변경
         return food.toggleIsDisplayed(); // 변경된 상태 반환
     }
 
@@ -132,22 +123,14 @@ public class FoodService {
     public void deleteFoodWithImage(UUID id) {
         Food food = getFoodById(id);
 
-        // 음식점 사장 확인
         User user = circularService.getUserService().loginUser();
         Store store = food.getStore();
-
         if (!user.getId().equals(store.getOwner().getId())) {
             throw new AccessDeniedException("현재 로그인한 사용자와 업주가 일치하지 않습니다.");
         }
 
-        // 음식 삭제 여부 및 삭제 일시 업데이트
         food.delete();
-
-        // 음식 사진 삭제
-        FileUtils.deleteFile(food.getImagePath());
-
-        // TODO: 음식 아예 삭제 할 것인지? 안한다면 음식 이미지는 파일시스템에서 삭제하고 , imagePath도 삭제할 것인지?
-//        foodRepository.delete(food);
+        imageService.deleteAllImagesByEntity(food.getId(), EntityType.FOOD);
     }
 
 
