@@ -51,6 +51,10 @@ public enum ErrorCode {
     // 카테고리
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."),
 
+    // 음식
+    FOOD_FORBIDDEN(HttpStatus.FORBIDDEN, "현재 로그인한 사용자와 업주가 일치하지 않습니다."),
+    FOOD_NOT_FOUND(HttpStatus.NOT_FOUND, "음식 정보가 존재하지 않습니다."),
+
     // 인증
     MIN_RE_AUTHENTICATION_TIME_NOT_PASSED(HttpStatus.BAD_REQUEST, "3분 내 재인증 요청할 수 없습니다."),
     EMAIL_NOT_FOUND_IN_VERIFICATION_LIST(HttpStatus.NOT_FOUND, "인증 이메일 목록에 이메일이 존재하지 않습니다."),
