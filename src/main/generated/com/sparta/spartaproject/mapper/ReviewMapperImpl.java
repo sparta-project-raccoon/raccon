@@ -6,13 +6,15 @@ import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.CreateReviewRequestDto;
 import com.sparta.spartaproject.dto.response.ReviewDto;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-19T17:49:49+0900",
+    date = "2025-02-19T21:05:29+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Oracle Corporation)"
 )
 @Component
@@ -38,7 +40,40 @@ public class ReviewMapperImpl implements ReviewMapper {
         content = review.getContent();
         rating = review.getRating();
 
-        ReviewDto reviewDto = new ReviewDto( id, userId, storeId, orderId, content, rating );
+        List<String> imageUrlList = null;
+
+        ReviewDto reviewDto = new ReviewDto( id, userId, storeId, orderId, content, rating, imageUrlList );
+
+        return reviewDto;
+    }
+
+    @Override
+    public ReviewDto toReviewDtoWithImages(Review review, List<String> imageUrlList) {
+        if ( review == null && imageUrlList == null ) {
+            return null;
+        }
+
+        Long userId = null;
+        UUID storeId = null;
+        UUID orderId = null;
+        UUID id = null;
+        String content = null;
+        Integer rating = null;
+        if ( review != null ) {
+            userId = reviewUserId( review );
+            storeId = reviewStoreId( review );
+            orderId = reviewOrderId( review );
+            id = review.getId();
+            content = review.getContent();
+            rating = review.getRating();
+        }
+        List<String> imageUrlList1 = null;
+        List<String> list = imageUrlList;
+        if ( list != null ) {
+            imageUrlList1 = new ArrayList<String>( list );
+        }
+
+        ReviewDto reviewDto = new ReviewDto( id, userId, storeId, orderId, content, rating, imageUrlList1 );
 
         return reviewDto;
     }

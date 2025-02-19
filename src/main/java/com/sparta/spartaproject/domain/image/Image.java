@@ -48,8 +48,4 @@ public class Image extends BaseEntity {
         }
     }
 
-    public void delete() {
-        this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
-    }
 }

@@ -20,7 +20,7 @@ import java.util.UUID;
 public class S3Uploader {
     private final AmazonS3 amazonS3;
 
-    @Value("{cloud.aws.s3.bucket}")
+    @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
     private static final String BASE_PATH = "images"; //
@@ -45,14 +45,20 @@ public class S3Uploader {
     }
 
     public void deleteImageFile(String imageUrl) {
-        try{
-            String fileKey = imageUrl.substring(imageUrl.lastIndexOf(bucketName) + bucketName.length() + 1);
+        try {
+            String fileKey = extractKeyFromUrl(imageUrl);
             amazonS3.deleteObject(new DeleteObjectRequest(bucketName, fileKey));
-            log.info("S3에서 삭제된 파일 : {}", fileKey);
-        }catch (Exception e) {
+            log.info("S3에서 삭제된 파일: {}", fileKey);
+        } catch (Exception e) {
+            log.error("S3 파일 삭제 실패: {}", imageUrl, e);
             throw new RuntimeException("파일 삭제 실패");
         }
     }
+
+    private String extractKeyFromUrl(String imageUrl) {
+        return imageUrl.substring(imageUrl.indexOf(BASE_PATH+"/"));
+    }
+
 
 
 }

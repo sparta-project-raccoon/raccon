@@ -2,6 +2,8 @@ package com.sparta.spartaproject.domain.food;
 
 import com.sparta.spartaproject.common.FileUtils;
 import com.sparta.spartaproject.domain.CircularService;
+import com.sparta.spartaproject.domain.image.EntityType;
+import com.sparta.spartaproject.domain.image.ImageService;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
@@ -18,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -77,7 +80,8 @@ public class FoodService {
         food.update(update);
 
         if (newImage!=null){
-            String newImagePath = imageService.replaceAllImages(food.getId(),EntityType.FOOD, List.of(newImage)).get(0);
+            imageService.deleteAllImagesByEntity(id, EntityType.FOOD);
+            String newImagePath = imageService.uploadImage(id,EntityType.FOOD, newImage);
             food.updateImagePath(newImagePath);
         } else {
             imageService.deleteAllImagesByEntity(food.getId(), EntityType.FOOD);
