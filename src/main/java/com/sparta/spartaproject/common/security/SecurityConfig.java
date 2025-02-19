@@ -49,7 +49,6 @@ public class SecurityConfig {
                     .requestMatchers("/api/verify/send-code").permitAll()
                     .requestMatchers("/api/verify/confirm-code").permitAll()
                     .requestMatchers("/api/gemini").permitAll()
-                    .requestMatchers("/api/sotres/**").permitAll()
                     .anyRequest().authenticated()
             )
 

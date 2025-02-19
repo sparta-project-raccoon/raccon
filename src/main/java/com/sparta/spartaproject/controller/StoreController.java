@@ -26,15 +26,15 @@ public class StoreController {
     private final StoreService storeService;
     private final StoreImageService storeImageService;
 
-//    @Description(
-//        "음식점 생성하기"
-//    )
-//    @PostMapping
-//    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-//    public ResponseEntity<Void> createStore(@RequestBody CreateStoreRequestDto request) {
-//        storeService.createStore(request);
-//        return ResponseEntity.ok().build();
-//    }
+    @Description(
+        "음식점 생성하기"
+    )
+    @PostMapping
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    public ResponseEntity<Void> createStore(@RequestBody CreateStoreRequestDto request) {
+        storeService.createStore(request);
+        return ResponseEntity.ok().build();
+    }
 
     @Description(
         "음식점 전체 조회하기"
@@ -42,10 +42,9 @@ public class StoreController {
     @GetMapping
     public ResponseEntity<StoreDto> getStores(
         @RequestParam(required = false, defaultValue = "1") int page,
-        @RequestParam(defaultValue = "asc") String sortDirection,
         @RequestParam(required = false, defaultValue = "") String name
     ) {
-        return ResponseEntity.ok(storeService.getStores(page, sortDirection, name));
+        return ResponseEntity.ok(storeService.getStores(page, name));
     }
 
     @Description(
@@ -130,16 +129,16 @@ public class StoreController {
     }
 
     //================================================ 이미지 연동
-    @Description(
-            "음식 등록"
-    )
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<StoreDto> createStoreWithImage(
-            @RequestPart(value = "data") CreateStoreRequestDto request,
-            @RequestPart(value = "imageList")List<MultipartFile> imageList) {
-        return ResponseEntity.ok(storeService.createStoreWithImage(request, imageList));
-    }
+//    @Description(
+//            "음식 등록"
+//    )
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+//    public ResponseEntity<StoreDto> createStoreWithImage(
+//            @RequestPart(value = "data") CreateStoreRequestDto request,
+//            @RequestPart(value = "imageList")List<MultipartFile> imageList) {
+//        return ResponseEntity.ok(storeService.createStoreWithImage(request, imageList));
+//    }
 
 
 }
