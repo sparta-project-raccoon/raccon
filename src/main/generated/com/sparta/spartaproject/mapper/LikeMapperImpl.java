@@ -1,8 +1,8 @@
 package com.sparta.spartaproject.mapper;
 
 import com.sparta.spartaproject.domain.like.Like;
+import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
-import com.sparta.spartaproject.dto.request.CreateLikeRequestDto;
 import com.sparta.spartaproject.dto.response.LikeDto;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-18T21:35:09+0900",
+    date = "2025-02-19T17:49:49+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Oracle Corporation)"
 )
 @Component
@@ -24,15 +24,15 @@ public class LikeMapperImpl implements LikeMapper {
         }
 
         Long userId = null;
-        UUID id = null;
         UUID storeId = null;
+        UUID id = null;
         Boolean isDeleted = null;
         LocalDateTime createdAt = null;
         LocalDateTime updatedAt = null;
 
         userId = likeUserId( like );
+        storeId = likeStoreId( like );
         id = like.getId();
-        storeId = like.getStoreId();
         isDeleted = like.getIsDeleted();
         createdAt = like.getCreatedAt();
         updatedAt = like.getUpdatedAt();
@@ -43,23 +43,15 @@ public class LikeMapperImpl implements LikeMapper {
     }
 
     @Override
-    public Like toLike(CreateLikeRequestDto request, User user) {
-        if ( request == null && user == null ) {
+    public Like toLike(Store store, User user) {
+        if ( store == null && user == null ) {
             return null;
         }
 
         Like.LikeBuilder<?, ?> like = Like.builder();
 
-        if ( request != null ) {
-            like.storeId( request.storeId() );
-        }
-        if ( user != null ) {
-            like.user( user );
-            like.createdAt( user.getCreatedAt() );
-            like.updatedAt( user.getUpdatedAt() );
-            like.isDeleted( user.getIsDeleted() );
-            like.deletedAt( user.getDeletedAt() );
-        }
+        like.store( store );
+        like.user( user );
 
         return like.build();
     }
@@ -73,6 +65,21 @@ public class LikeMapperImpl implements LikeMapper {
             return null;
         }
         Long id = user.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+
+    private UUID likeStoreId(Like like) {
+        if ( like == null ) {
+            return null;
+        }
+        Store store = like.getStore();
+        if ( store == null ) {
+            return null;
+        }
+        UUID id = store.getId();
         if ( id == null ) {
             return null;
         }

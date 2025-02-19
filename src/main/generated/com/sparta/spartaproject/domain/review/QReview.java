@@ -38,11 +38,11 @@ public class QReview extends EntityPathBase<Review> {
 
     public final BooleanPath isDeleted = createBoolean("isDeleted");
 
-    public final ComparablePath<java.util.UUID> orderId = createComparable("orderId", java.util.UUID.class);
+    public final com.sparta.spartaproject.domain.order.QOrder order;
 
     public final NumberPath<Integer> rating = createNumber("rating", Integer.class);
 
-    public final ComparablePath<java.util.UUID> storeId = createComparable("storeId", java.util.UUID.class);
+    public final com.sparta.spartaproject.domain.store.QStore store;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
@@ -70,6 +70,8 @@ public class QReview extends EntityPathBase<Review> {
 
     public QReview(Class<? extends Review> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
+        this.order = inits.isInitialized("order") ? new com.sparta.spartaproject.domain.order.QOrder(forProperty("order"), inits.get("order")) : null;
+        this.store = inits.isInitialized("store") ? new com.sparta.spartaproject.domain.store.QStore(forProperty("store"), inits.get("store")) : null;
         this.user = inits.isInitialized("user") ? new com.sparta.spartaproject.domain.user.QUser(forProperty("user")) : null;
     }
 

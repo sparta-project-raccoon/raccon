@@ -3,15 +3,14 @@ package com.sparta.spartaproject.controller;
 import com.sparta.spartaproject.domain.store.Status;
 import com.sparta.spartaproject.domain.store.StoreImageService;
 import com.sparta.spartaproject.domain.store.StoreService;
+import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
-import com.sparta.spartaproject.dto.response.StoreByCategoryDto;
-import com.sparta.spartaproject.dto.response.ImageInfoDto;
-import com.sparta.spartaproject.dto.response.StoreDetailDto;
-import com.sparta.spartaproject.dto.response.StoreDto;
+import com.sparta.spartaproject.dto.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,15 +26,15 @@ public class StoreController {
     private final StoreService storeService;
     private final StoreImageService storeImageService;
 
-    @Description(
-        "음식점 생성하기"
-    )
-    @PostMapping
-    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<Void> createStore(@RequestBody CreateStoreRequestDto request) {
-        storeService.createStore(request);
-        return ResponseEntity.ok().build();
-    }
+//    @Description(
+//        "음식점 생성하기"
+//    )
+//    @PostMapping
+//    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+//    public ResponseEntity<Void> createStore(@RequestBody CreateStoreRequestDto request) {
+//        storeService.createStore(request);
+//        return ResponseEntity.ok().build();
+//    }
 
     @Description(
         "음식점 전체 조회하기"
@@ -43,9 +42,10 @@ public class StoreController {
     @GetMapping
     public ResponseEntity<StoreDto> getStores(
         @RequestParam(required = false, defaultValue = "1") int page,
+        @RequestParam(defaultValue = "asc") String sortDirection,
         @RequestParam(required = false, defaultValue = "") String name
     ) {
-        return ResponseEntity.ok(storeService.getStores(page, name));
+        return ResponseEntity.ok(storeService.getStores(page, sortDirection, name));
     }
 
     @Description(
@@ -128,5 +128,18 @@ public class StoreController {
         storeImageService.deleteImage(imageId);
         return ResponseEntity.noContent().build();
     }
+
+    //================================================ 이미지 연동
+    @Description(
+            "음식 등록"
+    )
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    public ResponseEntity<StoreDto> createStoreWithImage(
+            @RequestPart(value = "data") CreateStoreRequestDto request,
+            @RequestPart(value = "imageList")List<MultipartFile> imageList) {
+        return ResponseEntity.ok(storeService.createStoreWithImage(request, imageList));
+    }
+
 
 }
