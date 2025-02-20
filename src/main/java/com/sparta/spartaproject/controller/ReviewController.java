@@ -98,7 +98,7 @@ public class ReviewController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> createReview(
             @RequestPart("request") CreateReviewRequestDto request,
-            @RequestPart("imageList") List<MultipartFile> imageList) {
+            @RequestPart(value = "imageList", required = false) List<MultipartFile> imageList) {
         reviewService.createReviewWithImages(request, imageList);
         return ResponseEntity.ok().build();
     }
@@ -141,8 +141,8 @@ public class ReviewController {
     @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateReviewWithImages(
             @PathVariable("id") UUID id,
-            @RequestPart("update") UpdateReviewRequestDto update,
-            @RequestPart("imageList") List<MultipartFile> imageList) {
+            @RequestPart("request") UpdateReviewRequestDto update,
+            @RequestPart(value = "imageList", required = false) List<MultipartFile> imageList) {
         reviewService.updateReviewWithImages(id, update, imageList);
         return ResponseEntity.ok().build();
     }
