@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -31,7 +32,7 @@ public class Order extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private Store store;
 
-    @Column(nullable = false)
+    @Column(name = "total_price", nullable = false)
     private Integer totalPrice;
 
     @Column(nullable = false)
@@ -54,7 +55,19 @@ public class Order extends BaseTimeEntity {
 
     private Boolean isDeleted;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     public void changeOrderStatus(OrderStatus orderStatus) {
         this.status = orderStatus;
+    }
+
+    public void updateTotalPrice(Integer totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public void deleteOrder() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
     }
 }

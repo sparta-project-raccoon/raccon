@@ -2,8 +2,9 @@ package com.sparta.spartaproject.dto.response;
 
 import java.util.UUID;
 
-public record OrderStatusDto(
+public record OnlyPayHistoryDto(
         UUID orderId,
-        String orderStatusDescription
+        String shopName,
+        Integer totalPrice
 ) {
 }

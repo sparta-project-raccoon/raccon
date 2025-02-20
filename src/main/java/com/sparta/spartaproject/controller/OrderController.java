@@ -9,9 +9,9 @@ import com.sparta.spartaproject.dto.response.OrderStatusDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -22,7 +22,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @Description(
-        "주문하기"
+            "주문하기"
     )
     @PostMapping
     public ResponseEntity<Void> createOrder(@RequestBody CreateOrderRequestDto request) {
@@ -31,7 +31,7 @@ public class OrderController {
     }
 
     @Description(
-        "주문 취소"
+            "주문 취소"
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> cancelOrder(@PathVariable UUID id) {
@@ -40,16 +40,17 @@ public class OrderController {
     }
 
     @Description(
-        "주문 상태 변경"
+            "주문 상태 변경"
     )
     @PatchMapping("/status")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> updateStatus(@RequestBody UpdateOrderStatusRequestDto update) {
         orderService.updateStatus(update);
         return ResponseEntity.ok().build();
     }
 
     @Description(
-        "주문 상태 조회"
+            "주문 상태 조회"
     )
     @GetMapping("/{id}/status")
     public ResponseEntity<OrderStatusDto> getStatus(@PathVariable UUID id) {
@@ -57,35 +58,37 @@ public class OrderController {
     }
 
     @Description(
-        "주문 받기"
+            "주문 받기"
     )
     @PatchMapping("/{id}/accept")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> acceptOrder(@PathVariable UUID id) {
         orderService.acceptOrder(id);
         return ResponseEntity.ok().build();
     }
 
     @Description(
-        "주문 거절"
+            "주문 거절"
     )
     @PatchMapping("/{id}/reject")
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> rejectOrder(@PathVariable UUID id) {
         orderService.rejectOrder(id);
         return ResponseEntity.ok().build();
     }
 
     @Description(
-        "주문 내역 확인"
+            "주문 내역 확인"
     )
     @GetMapping
-    public ResponseEntity<List<OrderDto>> getAllOrders(
-        @RequestParam(required = false, defaultValue = "1") int page
+    public ResponseEntity<OrderDto> getAllOrders(
+            @RequestParam(required = false, defaultValue = "1") int page
     ) {
         return ResponseEntity.ok(orderService.getAllOrders(page));
     }
 
     @Description(
-        "주문 내역 상세 조회"
+            "주문 내역 상세 조회"
     )
     @GetMapping("/{id}")
     public ResponseEntity<OrderDetailDto> getOrderDetail(@PathVariable UUID id) {
