@@ -1,12 +1,13 @@
 package com.sparta.spartaproject.exception;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -67,12 +68,13 @@ public class ErrorResponse {
 
         private static List<FieldError> of(final BindingResult bindingResult) { //BindingResult는 검증오류가 발생할 경우 검증오류를 보관하는 객체(추가공부필요)
             final List<org.springframework.validation.FieldError> fieldErrors = bindingResult.getFieldErrors(); //bindingResult에 저장되는 springframeworkd에서 지원하는 fielderror 가져온다
-            return fieldErrors.stream() //내가 만든 fielderror로 매핑
-                    .map(error -> new FieldError(
-                            error.getField(),
-                            error.getRejectedValue() == null ? "" : error.getRejectedValue().toString(),
-                            error.getDefaultMessage()))
-                    .collect(Collectors.toList());
+            return fieldErrors.stream().map(
+                error -> new FieldError(
+                    error.getField(),
+                    error.getRejectedValue() == null ? "" : error.getRejectedValue().toString(),
+                    error.getDefaultMessage()
+                )
+            ).toList();
         }
     }
 }

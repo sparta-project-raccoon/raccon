@@ -4,6 +4,7 @@ import com.sparta.spartaproject.domain.food.FoodService;
 import com.sparta.spartaproject.domain.gemini.GeminiService;
 import com.sparta.spartaproject.domain.mail.MailService;
 import com.sparta.spartaproject.domain.order.OrderService;
+import com.sparta.spartaproject.domain.store.StoreCategoryService;
 import com.sparta.spartaproject.domain.store.StoreService;
 import com.sparta.spartaproject.domain.user.CustomUserDetailsService;
 import com.sparta.spartaproject.domain.user.UserService;
@@ -22,6 +23,7 @@ public class CircularService {
     private final OrderService orderService;
     private final VerifyService verifyService;
     private final GeminiService geminiService;
+    private final StoreCategoryService storeCategoryService;
     private final CustomUserDetailsService customUserDetailsService;
 
     public CircularService(
@@ -32,6 +34,7 @@ public class CircularService {
         @Lazy OrderService orderService,
         @Lazy VerifyService verifyService,
         @Lazy GeminiService geminiService,
+        @Lazy StoreCategoryService storeCategoryService,
         @Lazy CustomUserDetailsService customUserDetailsService
     ) {
         this.userService = userService;
@@ -41,6 +44,7 @@ public class CircularService {
         this.orderService = orderService;
         this.verifyService = verifyService;
         this.geminiService = geminiService;
+        this.storeCategoryService = storeCategoryService;
         this.customUserDetailsService = customUserDetailsService;
     }
 }
