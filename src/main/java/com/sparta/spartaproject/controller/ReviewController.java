@@ -21,86 +21,27 @@ import java.util.UUID;
 public class ReviewController {
     private final ReviewService reviewService;
 
-//    @Description(
-//        "리뷰 전체 조회"
-//    )
-//    @GetMapping
-//    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
-//    public ResponseEntity<List<ReviewDto>> getReviews(
-//        @RequestParam(required = false, defaultValue = "1") int page,
-//        @RequestParam(defaultValue = "asc") String sortDirection
-//    ) {
-//        return ResponseEntity.ok(reviewService.getReviews(page, sortDirection));
-//    }
-
-//    @Description(
-//        "내가 작성한 리뷰 전체 조회"
-//    )
-//    @GetMapping("/my")
-//    public ResponseEntity<List<ReviewDto>> getMyReviews(
-//        @RequestParam(required = false, defaultValue = "1") int page,
-//        @RequestParam(defaultValue = "asc") String sortDirection
-//    ) {
-//        return ResponseEntity.ok(reviewService.getMyReviews(page, sortDirection));
-//    }
-
-//    @Description(
-//        "리뷰 상세 조회"
-//    )
-//    @GetMapping("/{id}")
-//    public ResponseEntity<ReviewDto> getReview(@PathVariable UUID id) {
-//        return ResponseEntity.ok(reviewService.getReview(id));
-//    }
-
-//    @Description(
-//        "리뷰 생성하기"
-//    )
-//    @PostMapping
-//    public ResponseEntity<Void> createReview(@RequestBody CreateReviewRequestDto request) {
-//        reviewService.createReview(request);
-//        return ResponseEntity.ok().build();
-//    }
-
-//    @Description(
-//        "리뷰 수정하기"
-//    )
-//    @PatchMapping("/{id}")
-//    public ResponseEntity<Void> updateReview(@PathVariable UUID id, @RequestBody UpdateReviewRequestDto update) {
-//        reviewService.updateReview(id, update);
-//        return ResponseEntity.ok().build();
-//    }
-//
-//    @Description(
-//        "리뷰 삭제하기"
-//    )
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> deleteReview(@PathVariable UUID id) {
-//        reviewService.deleteReview(id);
-//        return ResponseEntity.ok().build();
-//    }
-
-//    @Description(
-//        "가게 리뷰 전체조회"
-//    )
-//    @GetMapping("/stores/{storeId}")
-//    public ResponseEntity<List<ReviewDto>> getReviewsForStore(
-//        @PathVariable UUID storeId,
-//        @RequestParam(required = false, defaultValue = "1") int page,
-//        @RequestParam(defaultValue = "asc") String sortDirection
-//    ) {
-//        return ResponseEntity.ok(reviewService.getReviewsForStore(storeId, page, sortDirection));
-//    }
-
-//=============================================================================
     @Description(
-        "리뷰 생성하기(with 이미지)"
+        "리뷰 전체 조회"
     )
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> createReview(
-            @RequestPart("request") CreateReviewRequestDto request,
-            @RequestPart(value = "imageList", required = false) List<MultipartFile> imageList) {
-        reviewService.createReviewWithImages(request, imageList);
-        return ResponseEntity.ok().build();
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
+    public ResponseEntity<List<ReviewDto>> getReviews(
+        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+    ) {
+        return ResponseEntity.ok(reviewService.getReviews(page, sortDirection));
+    }
+
+    @Description(
+        "내가 작성한 리뷰 전체 조회"
+    )
+    @GetMapping("/my")
+    public ResponseEntity<List<ReviewDto>> getMyReviews(
+        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+    ) {
+        return ResponseEntity.ok(reviewService.getMyReviews(page, sortDirection));
     }
 
     @Description(
@@ -108,42 +49,31 @@ public class ReviewController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<ReviewDto> getReview(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok(reviewService.getReviewWithImages(id));
+        return ResponseEntity.ok(reviewService.getReview(id));
     }
 
     @Description(
-        "내가 작성한 리뷰 전체 조회"
+        "리뷰 등록"
     )
-    @GetMapping("/my")
-    public ResponseEntity<List<ReviewDto>> getMyReviewsWithImages(
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> createReview(
+        @RequestPart("request") CreateReviewRequestDto request,
+        @RequestPart(value = "imageList", required = false) List<MultipartFile> imageList
     ) {
-        return ResponseEntity.ok(reviewService.getMyReviewsWithImages(page, sortDirection));
-    }
-
-
-    @Description(
-        "리뷰 전체 조회"
-    )
-    @GetMapping
-//    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
-    public ResponseEntity<List<ReviewDto>> getReviewsWithImages(
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
-    ) {
-        return ResponseEntity.ok(reviewService.getReviewsWithImages(page, sortDirection));
+        reviewService.createReview(request, imageList);
+        return ResponseEntity.ok().build();
     }
 
     @Description(
-        "리뷰 수정하기"
+        "리뷰 수정"
     )
     @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> updateReviewWithImages(
-            @PathVariable("id") UUID id,
-            @RequestPart("request") UpdateReviewRequestDto update,
-            @RequestPart(value = "imageList", required = false) List<MultipartFile> imageList) {
-        reviewService.updateReviewWithImages(id, update, imageList);
+    public ResponseEntity<Void> updateReview(
+        @PathVariable("id") UUID id,
+        @RequestPart("request") UpdateReviewRequestDto update,
+        @RequestPart(value = "imageList", required = false) List<MultipartFile> imageList
+    ) {
+        reviewService.updateReview(id, update, imageList);
         return ResponseEntity.ok().build();
     }
 
@@ -151,22 +81,21 @@ public class ReviewController {
         "리뷰 삭제하기"
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReviewWithImages(@PathVariable("id") UUID id) {
-        reviewService.deleteReviewWithImages(id);
+    public ResponseEntity<Void> deleteReview(@PathVariable("id") UUID id) {
+        reviewService.deleteReview(id);
         return ResponseEntity.ok().build();
     }
 
     @Description(
-        "가게 리뷰 전체조회"
+        "가게 리뷰 전체 조회"
     )
     @GetMapping("/stores/{storeId}")
-    public ResponseEntity<List<ReviewDto>> getReviewsWithImagesForStore(
+    public ResponseEntity<List<ReviewDto>> getReviewsForStore(
         @PathVariable("storeId") UUID storeId,
         @RequestParam(value = "page", required = false, defaultValue = "1") int page,
         @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
     ) {
-        return ResponseEntity.ok(reviewService.getReviewsWithImagesForStore(storeId, page, sortDirection));
+        return ResponseEntity.ok(reviewService.getReviewsForStore(storeId, page, sortDirection));
     }
-
 
 }
