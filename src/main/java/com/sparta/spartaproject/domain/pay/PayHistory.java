@@ -45,6 +45,9 @@ public class PayHistory extends BaseEntity {
     @Column(name = "payment_method")
     private PaymentMethod paymentMethod;
 
+    @Enumerated(EnumType.STRING)
+    private PayStatus status;
+
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 

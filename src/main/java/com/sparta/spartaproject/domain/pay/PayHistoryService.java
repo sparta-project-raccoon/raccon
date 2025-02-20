@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.sparta.spartaproject.domain.order.OrderStatus.CANCEL;
+import static com.sparta.spartaproject.domain.order.OrderStatus.PAYMENT_COMPLETE;
 import static com.sparta.spartaproject.exception.ErrorCode.*;
 
 @Service
@@ -39,13 +40,14 @@ public class PayHistoryService {
 
     @Transactional
     public void createPayHistory(CreatePayHistoryRequestDto request) {
-        Order order = orderRepository.findByIdAndUserIsDeletedFalse(request.orderId(), getUser())
+        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(request.orderId(), getUser())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         Store store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
 
         PayHistory payHistory = payHistoryMapper.toPayHistory(request, order, store, getUser());
+
         payHistoryRepository.save(payHistory);
     }
 

@@ -47,7 +47,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public OrderStatusDto getStatus(UUID orderId) {
-        Order findedOrder = orderRepository.findByIdAndUserIsDeletedFalse(orderId, getUser())
+        Order findedOrder = orderRepository.findByIdAndUserAndIsDeletedFalse(orderId, getUser())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderStatusResponseDto(findedOrder);
@@ -55,7 +55,7 @@ public class OrderService {
 
     @Transactional
     public void cancelOrder(UUID orderId) {
-        Order order = orderRepository.findByIdAndUserIsDeletedFalse(orderId, getUser())
+        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(orderId, getUser())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(5))) {
@@ -151,7 +151,7 @@ public class OrderService {
     @Transactional
     public OrderDetailDto getOrderDetail(UUID id) {
 
-        Order order = orderRepository.findByIdAndUserIsDeletedFalse(id, getUser())
+        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(id, getUser())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderDetailResponseDto(order);
@@ -163,7 +163,7 @@ public class OrderService {
     }
 
     public Order getOrderByIdAndIsDeletedIsFalse(UUID id) {
-        return orderRepository.findByIdAndUserIsDeletedFalse(id, getUser())
+        return orderRepository.findByIdAndUserAndIsDeletedFalse(id, getUser())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
     }
 
