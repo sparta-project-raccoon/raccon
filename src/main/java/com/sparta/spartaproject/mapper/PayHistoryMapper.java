@@ -20,16 +20,21 @@ public interface PayHistoryMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "status", ignore = true)
     @Mapping(target = "order", source = "order")
     @Mapping(target = "store", source = "store")
     @Mapping(target = "paymentMethod", source = "request.paymentMethod")
     PayHistory toPayHistory(CreatePayHistoryRequestDto request, Order order, Store store, User user);
 
-    @Mapping(target = "orderId", source = "order.id")
-    @Mapping(target = "shopName", source = "order.store.name")
-    @Mapping(target = "totalPrice", source = "order.totalPrice")
-    @Mapping(target = "paymentMethod", source = "paymentMethod.description")
-    PayHistoryDetailDto toPayHistoryDetailDto(PayHistory payHistory);
+    @Mapping(target = "orderId", source = "payHistory.order.id")
+    @Mapping(target = "shopName", source = "payHistory.order.store.name")
+    @Mapping(target = "totalPrice", source = "payHistory.order.totalPrice")
+    @Mapping(target = "paymentMethod", source = "payMethodDescription")
+    @Mapping(target = "payStatusDescription", source = "description")
+    PayHistoryDetailDto toPayHistoryDetailDto(PayHistory payHistory, String description, String payMethodDescription);
+
 
     PayHistoryDto toPayHistoryDto(
             List<OnlyPayHistoryDto> onlyPayHistoryDtoList,
@@ -41,5 +46,7 @@ public interface PayHistoryMapper {
     @Mapping(target = "orderId", source = "payHistory.order.id")
     @Mapping(target = "shopName", source = "payHistory.store.name")
     @Mapping(target = "totalPrice", source = "payHistory.order.totalPrice")
-    OnlyPayHistoryDto toOnlyPayHistoryDto(PayHistory payHistory);
+    @Mapping(target = "status", source = "description")
+    @Mapping(target = "paymentMethod", source = "payMethodDescription")
+    OnlyPayHistoryDto toOnlyPayHistoryDto(PayHistory payHistory, String description, String payMethodDescription);
 }

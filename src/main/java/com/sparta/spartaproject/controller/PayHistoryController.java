@@ -23,7 +23,7 @@ public class PayHistoryController {
     @Description(
             "결제하기"
     )
-    @PostMapping
+    @PutMapping
     public ResponseEntity<Void> createPayHistory(@RequestBody CreatePayHistoryRequestDto request) {
         payHistoryService.createPayHistory(request);
         return ResponseEntity.ok().build();
@@ -63,6 +63,7 @@ public class PayHistoryController {
             "결제 삭제(취소)"
     )
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<Void> deletePayHistory(@PathVariable("id") UUID payHistoryId) {
         payHistoryService.deletePayHistory(payHistoryId);
         return ResponseEntity.ok().build();

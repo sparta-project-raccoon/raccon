@@ -28,8 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.sparta.spartaproject.domain.order.OrderStatus.CANCEL;
-import static com.sparta.spartaproject.domain.order.OrderStatus.WAIT;
+import static com.sparta.spartaproject.domain.order.OrderStatus.*;
 import static com.sparta.spartaproject.exception.ErrorCode.*;
 
 @Service
@@ -46,19 +45,9 @@ public class OrderService {
 
     private final Integer size = 10;
 
-    @Transactional
-    public void updateStatus(UpdateOrderStatusRequestDto request) {
-        User user = getUser();
-
-        Order findedOrder = orderRepository.findByIdAndUserAndIsDeletedFalse(request.orderId(), user)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
-
-        findedOrder.changeOrderStatus(request.orderStatus());
-    }
-
     @Transactional(readOnly = true)
     public OrderStatusDto getStatus(UUID orderId) {
-        Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
+        Order findedOrder = orderRepository.findByIdAndUserAndIsDeletedFalse(orderId, getUser())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderStatusResponseDto(findedOrder);
@@ -66,49 +55,40 @@ public class OrderService {
 
     @Transactional
     public void cancelOrder(UUID orderId) {
-        Order order = orderRepository.findByIdAndIsDeletedFalse(orderId)
+        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(orderId, getUser())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(5))) {
+            order.changeOrderStatus(PENDING);
             throw new BusinessException(CAN_NOT_CANCEL_ORDER);
         }
 
         order.changeOrderStatus(CANCEL);
+        order.deleteOrder();
         orderRepository.save(order);
     }
 
     @Transactional
+    public void updateStatus(UpdateOrderStatusRequestDto request) {
+        Order order = getMyStoreOrder(request.orderId());
+
+        order.changeOrderStatus(request.orderStatus());
+    }
+
+    @Transactional
     public void rejectOrder(UUID orderId) {
-        Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order order = getMyStoreOrder(orderId);
 
-        Store store = storeRepository.findById(findedOrder.getStore().getId())
-                .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
-
-        User user = getUser();
-
-        if (!store.getOwner().equals(user)) {
-            throw new BusinessException(STORE_UNAUTHORIZED);
-        }
-
+        order.changeOrderStatus(REFUSE);
     }
 
     @Transactional
     public void acceptOrder(UUID orderId) {
-        Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(orderId)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        Order order = getMyStoreOrder(orderId);
 
-        Store store = storeRepository.findById(findedOrder.getStore().getId())
-                .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
-
-
-        User user = getUser();
-
-        if (!store.getOwner().equals(user)) {
-            throw new BusinessException(STORE_UNAUTHORIZED);
-        }
-
+        order.changeOrderStatus(ACCEPT);
     }
+
 
     @Transactional
     public void createOrder(CreateOrderRequestDto request) {
@@ -148,10 +128,9 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public OrderDto getAllOrders(int page) {
-        User user = getUser();
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        List<Order> orders = orderRepository.findAllByUserAndIsDeletedFalse(pageable, user);
+        List<Order> orders = orderRepository.findAllByUserAndIsDeletedFalse(pageable, getUser());
 
         int totalOrderCount = orders.size();
 
@@ -159,7 +138,8 @@ public class OrderService {
                 .map(
                         order ->
                                 orderMapper.toOrderOnlyDto(order,
-                                        orderHistoryRepository.findLatestFoodByOrderId(order.getId()).orElseThrow(() -> new BusinessException(FOOD_NOT_FOUND)).getFood().getName(),
+                                        orderHistoryRepository.findFirstByOrderId(order.getId())
+                                                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST)).getFood().getName(),
                                         orderHistoryRepository.countByOrder(order)
                                 ))
                 .toList();
@@ -171,7 +151,7 @@ public class OrderService {
     @Transactional
     public OrderDetailDto getOrderDetail(UUID id) {
 
-        Order order = orderRepository.findByIdAndIsDeletedFalse(id)
+        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(id, getUser())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderDetailResponseDto(order);
@@ -183,7 +163,12 @@ public class OrderService {
     }
 
     public Order getOrderByIdAndIsDeletedIsFalse(UUID id) {
-        return orderRepository.findByIdAndIsDeletedFalse(id)
+        return orderRepository.findByIdAndUserAndIsDeletedFalse(id, getUser())
+                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+    }
+
+    private Order getMyStoreOrder(UUID orderId) {
+        return orderRepository.findByIdAndStoreOwnerAndIsDeletedIsFalse(orderId, getUser())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
     }
 }

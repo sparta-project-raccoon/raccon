@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.sparta.spartaproject.domain.order.OrderStatus.CANCEL;
+import static com.sparta.spartaproject.domain.pay.PayStatus.CANCELLED;
+import static com.sparta.spartaproject.domain.pay.PayStatus.COMPLETED;
 import static com.sparta.spartaproject.exception.ErrorCode.*;
 
 @Service
@@ -39,13 +41,15 @@ public class PayHistoryService {
 
     @Transactional
     public void createPayHistory(CreatePayHistoryRequestDto request) {
-        Order order = orderRepository.findByIdAndIsDeletedFalse(request.orderId())
+        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(request.orderId(), getUser())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         Store store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
 
         PayHistory payHistory = payHistoryMapper.toPayHistory(request, order, store, getUser());
+
+        payHistory.updateStatus(COMPLETED);
         payHistoryRepository.save(payHistory);
     }
 
@@ -54,7 +58,7 @@ public class PayHistoryService {
         PayHistory payHistory = payHistoryRepository.findById(payHistoryId)
                 .orElseThrow(() -> new BusinessException(PAY_HISTORY_NOT_EXIST));
 
-        return payHistoryMapper.toPayHistoryDetailDto(payHistory);
+        return payHistoryMapper.toPayHistoryDetailDto(payHistory, payHistory.getStatus().description, payHistory.getPaymentMethod().getDescription());
     }
 
     @Transactional
@@ -73,6 +77,8 @@ public class PayHistoryService {
 
         payHistory.getOrder().changeOrderStatus(CANCEL);
 
+        payHistory.updateStatus(CANCELLED);
+
         payHistory.deletePayHistory();
 
         payHistoryRepository.save(payHistory);
@@ -83,9 +89,11 @@ public class PayHistoryService {
 
         List<PayHistory> payHistoryList = payHistoryRepository.findAllByUser(pageable, getUser());
 
-        List<OnlyPayHistoryDto> onlyPayHistoryDtoList = payHistoryList.stream().map(
-                payHistoryMapper::toOnlyPayHistoryDto
-        ).toList();
+        List<OnlyPayHistoryDto> onlyPayHistoryDtoList = payHistoryList.stream()
+                .map(
+                        payHistory ->
+                                payHistoryMapper.toOnlyPayHistoryDto(payHistory,payHistory.getStatus().description, payHistory.getPaymentMethod().getDescription())
+                ).toList();
 
         int totalCount = payHistoryList.size();
 

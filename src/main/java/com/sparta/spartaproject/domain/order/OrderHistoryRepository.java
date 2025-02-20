@@ -9,9 +9,11 @@ import java.util.UUID;
 
 public interface OrderHistoryRepository extends JpaRepository<OrderHistory, UUID> {
 
-    Optional<OrderHistory> findLatestFoodByOrderId(UUID id);
+    Optional<OrderHistory> findFirstByOrderId(UUID id);
 
     @Query("SELECT COUNT(oh) FROM OrderHistory oh WHERE oh.order = :order")
     Integer countByOrder(@Param("order") Order order);
+
+    Optional<OrderHistory> findByOrderIdAndOrderIsDeletedIsFalse(UUID orderId);
 }
 
