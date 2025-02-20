@@ -54,7 +54,7 @@ public class UserController {
         "사용자 비밀번호 변경"
     )
     @PatchMapping("/change-password")
-    public ResponseEntity<Void> changePassword(@RequestBody UpdatePasswordRequestDto request) {
+    public ResponseEntity<Void> changePassword(@Validated @RequestBody UpdatePasswordRequestDto request) {
         userService.changePassword(request);
         return ResponseEntity.ok().build();
     }
@@ -65,6 +65,24 @@ public class UserController {
     @PostMapping("/active")
     public ResponseEntity<Void> activeUser(@RequestBody ActiveUserRequestDto request) {
         userService.activeUser(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Description(
+        "매니저 계정 등록하기"
+    )
+    @PostMapping("/role/manager")
+    public ResponseEntity<Void> updateRoleManager(@RequestBody UpdateRoleManagerRequestDto request) {
+        userService.updateRoleManager(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Description(
+        "마스터 계정 등록하기"
+    )
+    @PostMapping("/role/master")
+    public ResponseEntity<Void> updateRoleMaster(@RequestBody UpdateRoleMasterRequestDto request) {
+        userService.updateRoleMaster(request);
         return ResponseEntity.ok().build();
     }
 }
