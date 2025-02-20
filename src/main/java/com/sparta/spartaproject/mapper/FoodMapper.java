@@ -3,8 +3,14 @@ package com.sparta.spartaproject.mapper;
 import com.sparta.spartaproject.domain.food.Food;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
+import com.sparta.spartaproject.dto.response.FoodDetailDto;
+import com.sparta.spartaproject.dto.response.FoodDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Mapper(componentModel = "spring")
 public interface FoodMapper {
@@ -22,4 +28,13 @@ public interface FoodMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     Food toFood(CreateFoodRequestDto source, Store store, String descriptionForGemini, String imagePathForFood);
+
+    @Mapping(target = "foods", source = "foods")
+    @Mapping(target = "currentPage", source = "page")
+    @Mapping(target = "totalPages", source = "totalPages")
+    FoodDto toFoodDto(List<FoodDetailDto> foods, Integer page, Integer totalPages);
+
+
+    @Mapping(target ="imagePath", source = "imageUrl")
+    FoodDetailDto toFoodDetailDto(Food food, String imageUrl);
 }

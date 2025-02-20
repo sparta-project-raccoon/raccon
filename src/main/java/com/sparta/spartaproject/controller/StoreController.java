@@ -3,15 +3,14 @@ package com.sparta.spartaproject.controller;
 import com.sparta.spartaproject.domain.store.Status;
 import com.sparta.spartaproject.domain.store.StoreImageService;
 import com.sparta.spartaproject.domain.store.StoreService;
+import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
-import com.sparta.spartaproject.dto.response.StoreByCategoryDto;
-import com.sparta.spartaproject.dto.response.ImageInfoDto;
-import com.sparta.spartaproject.dto.response.StoreDetailDto;
-import com.sparta.spartaproject.dto.response.StoreDto;
+import com.sparta.spartaproject.dto.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -128,5 +127,18 @@ public class StoreController {
         storeImageService.deleteImage(imageId);
         return ResponseEntity.noContent().build();
     }
+
+    //================================================ 이미지 연동
+//    @Description(
+//            "음식 등록"
+//    )
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+//    public ResponseEntity<StoreDto> createStoreWithImage(
+//            @RequestPart(value = "data") CreateStoreRequestDto request,
+//            @RequestPart(value = "imageList")List<MultipartFile> imageList) {
+//        return ResponseEntity.ok(storeService.createStoreWithImage(request, imageList));
+//    }
+
 
 }

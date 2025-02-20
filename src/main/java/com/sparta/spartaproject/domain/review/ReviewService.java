@@ -2,6 +2,8 @@ package com.sparta.spartaproject.domain.review;
 
 import com.sparta.spartaproject.common.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
+import com.sparta.spartaproject.domain.image.EntityType;
+import com.sparta.spartaproject.domain.image.ImageService;
 import com.sparta.spartaproject.domain.order.Order;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -32,6 +35,7 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final CircularService circularService;
     private final ReviewRepository reviewRepository;
+    private final ImageService imageService;
 
     private final Integer size = 10;
 
@@ -41,8 +45,11 @@ public class ReviewService {
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
         return reviewRepository.findAllByIsDeletedIsFalse(pageable).stream().map(
-            reviewMapper::toReviewDto
-        ).toList();
+            review-> {
+                List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
+                log.info("리뷰 이미지 url - {}",imageUrlList);
+                return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
+            }).toList();
     }
 
     @Transactional(readOnly = true)
@@ -51,9 +58,13 @@ public class ReviewService {
 
         Sort sort = SortUtils.getSort(sortDirection);
         Pageable pageable = PageRequest.of(page - 1, size, sort);
+
         return reviewRepository.findAllByUserIdAndIsDeletedIsFalse(pageable, user.getId()).stream().map(
-            reviewMapper::toReviewDto
-        ).toList();
+            review-> {
+                List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
+                log.info("리뷰 이미지 개수 - {}",imageUrlList);
+                return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
+            }).toList();
     }
 
     @Transactional(readOnly = true)
@@ -65,11 +76,13 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다.");
         }
 
-        return reviewMapper.toReviewDto(review);
+        List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
+        imageUrlList.forEach(image -> {log.info("리뷰의 이미지 url : {}", image);});
+        return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
     }
 
     @Transactional
-    public void createReview(CreateReviewRequestDto request) {
+    public void createReview(CreateReviewRequestDto request, List<MultipartFile> imageList) {
         User user = circularService.getUserService().loginUser();
         Store store = circularService.getStoreService().getStoreByIdAndIsDeletedIsFalse(request.storeId());
 
@@ -85,10 +98,15 @@ public class ReviewService {
 
         Review newReview = reviewMapper.toReview(request, store, order, user);
         reviewRepository.save(newReview);
+
+        imageList.forEach(image -> {
+            String path = imageService.uploadImage(newReview.getId(), EntityType.REVIEW, image);
+            log.info("리뷰 이미지 저장 url : {}", path);
+        });
     }
 
     @Transactional
-    public void updateReview(UUID id, UpdateReviewRequestDto update) {
+    public void updateReview(UUID id, UpdateReviewRequestDto update, List<MultipartFile> imageList) {
         User user = circularService.getUserService().loginUser();
         Review review = getReviewByIdAndIsDeletedIsFalse(id);
 
@@ -96,7 +114,16 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다.");
         }
 
+        if(imageList != null) {
+            imageList.forEach(image -> {
+                String url = imageService.uploadImage(id, EntityType.REVIEW, image);
+                log.info("새로 생성된 URL : {}", url);
+            });
+        }
+        imageService.deleteAllImagesByEntity(id, EntityType.REVIEW);
+
         review.update(update);
+        reviewRepository.saveAndFlush(review);
         log.info("리뷰: {}, 수정 완료", id);
     }
 
@@ -109,7 +136,10 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다.");
         }
 
+        imageService.deleteAllImagesByEntity(id, EntityType.REVIEW);
+
         review.delete();
+        reviewRepository.saveAndFlush(review);
         log.info("리뷰: {}, 삭제 완료", id);
     }
 
@@ -121,10 +151,13 @@ public class ReviewService {
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
         return reviewRepository.findAllByStoreIdAndIsDeletedIsFalse(pageable, store.getId()).stream().map(
-            reviewMapper::toReviewDto
-        ).toList();
+        review-> {
+                log.info("리뷰 id : {}", review.getId());
+                List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
+                log.info("리뷰 이미지 url - {}",imageUrlList);
+                return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
+            }).toList();
     }
-
 
     public Review getReviewByIdAndIsDeletedIsFalse(UUID id) {
         return reviewRepository.findByIdAndIsDeletedIsFalse(id)
