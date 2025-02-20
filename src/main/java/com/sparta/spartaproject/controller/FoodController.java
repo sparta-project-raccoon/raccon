@@ -4,6 +4,8 @@ import com.sparta.spartaproject.domain.food.FoodService;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodStatusRequestDto;
+import com.sparta.spartaproject.dto.response.FoodDetailDto;
+import com.sparta.spartaproject.dto.response.FoodDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.MediaType;
@@ -19,6 +21,40 @@ import java.util.UUID;
 @RequestMapping("/api/foods")
 public class FoodController {
     private final FoodService foodService;
+
+    @Description(
+        "음식 전체 조회 (관리자, 운영자 용)"
+    )
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
+    public ResponseEntity<FoodDto> getAllFoods(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+    ) {
+        return ResponseEntity.ok(foodService.getAllFoods(page, sortDirection));
+    }
+
+    @Description(
+        "음식점 별 음식 조회"
+    )
+    @GetMapping("/stores/{storeId}")
+    public ResponseEntity<FoodDto> getAllFoodsByStore(
+            @PathVariable("storeId") UUID storeId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+    ) {
+        return ResponseEntity.ok(foodService.getAllFoodsByStore(storeId, page, sortDirection));
+    }
+
+    @Description(
+        "음식 상세 조회"
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<FoodDetailDto> getFood(
+            @PathVariable("id") UUID id
+    ) {
+        return ResponseEntity.ok(foodService.getFood(id));
+    }
 
     @Description(
         "음식 등록"
