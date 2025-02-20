@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public record StoreDetailDto(
     List<CategoryDto> categories,
+    List<String> imageUrls,
     UUID id,
     String name,
     String address,
