@@ -11,6 +11,7 @@ import com.sparta.spartaproject.exception.ErrorCode;
 import com.sparta.spartaproject.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -29,6 +32,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CircularService circularService;
+
+    @Value("${code.master}")
+    private String masterCode;
+
+    @Value("${code.manager}")
+    private String managerCode;
 
     public User loginUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -43,11 +52,10 @@ public class UserService {
             return cachedUser;
         }
 
-        // 캐시된 유저가 없으면 DB 에서 조회 후 캐시 저장
         User user = userRepository.findById(userId)
             .orElseThrow();
 
-        cache.put(userId, user); // 캐시 저장
+        cache.put(userId, user);
         log.info("{} - {}, 로그인 유저 캐시 저장", cache.getName(), userId);
 
         return user;
@@ -60,19 +68,7 @@ public class UserService {
             throw new BusinessException(ErrorCode.USERNAME_OR_EMAIL_ALREADY_IN_USE);
         }
 
-        User newUser = User.builder()
-            .username(request.username())
-            .password(passwordEncoder.encode(request.password()))
-            .email(request.email())
-            .name(request.name())
-            .phone(request.phone())
-            .address(request.address())
-            .role(Role.CUSTOMER)
-            .status(Status.WAITING)
-            .isDeleted(false)
-            .loginFailCount(0)
-            .build();
-
+        User newUser = userMapper.toUser(request, passwordEncoder.encode(request.password()));
         userRepository.save(newUser);
         log.info("ID: {}, 회원가입 완료", newUser.getUsername());
 
@@ -102,9 +98,7 @@ public class UserService {
         }
 
         user.successLogin();
-
-        Cache cache = cacheManager.getCache("loginUser");
-        cache.put(user.getId(), user); // 캐시 저장
+        putCacheForLoginUser(user);
 
         log.info("사용자:{}, 로그인 성공", user.getId());
         return jwtUtils.generateToken(user);
@@ -135,14 +129,10 @@ public class UserService {
 
         String newPassword = passwordEncoder.encode(update.newPassword());
 
-        Cache cache = cacheManager.getCache("loginUser");
-
-        if (cache != null) {
-            cache.evict(user.getId());
-            log.info("비밀번호 변경 유저: {}, 캐시 삭제 완료", user.getId());
-        }
+        evictCacheForLoginUser(user);
 
         user.updatePassword(newPassword);
+        userRepository.save(user);
         log.info("사용자: {}, 비밀번호 변경 완료", user.getId());
     }
 
@@ -159,6 +149,43 @@ public class UserService {
         );
     }
 
+    @Transactional
+    public void updateRoleManager(UpdateRoleManagerRequestDto update) {
+        User user = this.loginUser();
+
+        if (!Objects.equals(update.managerCode(), managerCode)) {
+            throw new BusinessException(ErrorCode.USER_INVALID_ACCESS);
+        }
+
+        if (user.getRole() == Role.MANAGER) {
+            throw new BusinessException(ErrorCode.ALREADY_ROLE_MANAGER);
+        }
+
+        user.updateRole(Role.MANAGER);
+        userRepository.save(user);
+
+        refreshCacheForLoginUser(user);
+    }
+
+    @Transactional
+    public void updateRoleMaster(UpdateRoleMasterRequestDto update) {
+        User user = this.loginUser();
+
+        if (!Objects.equals(update.masterCode(), masterCode)) {
+            throw new BusinessException(ErrorCode.USER_INVALID_ACCESS);
+        }
+
+        if (user.getRole() == Role.MASTER) {
+            throw new BusinessException(ErrorCode.ALREADY_ROLE_MASTER);
+        }
+
+        user.updateRole(Role.MASTER);
+        userRepository.save(user);
+
+        refreshCacheForLoginUser(user);
+    }
+
+
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
             .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_USER));
@@ -170,5 +197,36 @@ public class UserService {
 
         user.updateStatus(status);
         userRepository.save(user);
+    }
+
+    public void putCacheForLoginUser(User user) {
+        Cache cache = cacheManager.getCache("loginUser");
+        cache.put(user.getId(), user);
+
+        log.info("Cache - loginUser, 캐시 할당 - id: {}", user.getId());
+    }
+
+    public void evictCacheForLoginUser(User user) {
+        Cache cache = cacheManager.getCache("loginUser");
+
+        if (cache != null) {
+            cache.evict(user.getId());
+        }
+
+        log.info("Cache - loginUser, 캐시 삭제 - id: {}", user.getId());
+    }
+
+    public void refreshCacheForLoginUser(User user) {
+        Cache cache = cacheManager.getCache("loginUser");
+
+        if (cache != null) {
+            cache.evict(user.getId());
+            log.info("Refresh - 캐시 삭제");
+
+            cache.put(user.getId(), user);
+            log.info("Refresh - 캐시 할당");
+        }
+
+        log.info("캐시 재할당 완료: {}", user.getId());
     }
 }
