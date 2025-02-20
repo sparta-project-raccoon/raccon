@@ -1,4 +1,4 @@
-package com.sparta.spartaproject.domain.like;
+package com.sparta.spartaproject.domain.gemini;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -11,27 +11,29 @@ import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
- * QLike is a Querydsl query type for Like
+ * QGeminiHistory is a Querydsl query type for GeminiHistory
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QLike extends EntityPathBase<Like> {
+public class QGeminiHistory extends EntityPathBase<GeminiHistory> {
 
-    private static final long serialVersionUID = 2053871066L;
+    private static final long serialVersionUID = -491267366L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QLike like = new QLike("like1");
+    public static final QGeminiHistory geminiHistory = new QGeminiHistory("geminiHistory");
 
     public final com.sparta.spartaproject.domain.QBaseTimeEntity _super = new com.sparta.spartaproject.domain.QBaseTimeEntity(this);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
-    public final DateTimePath<java.time.LocalDateTime> deletedAt = createDateTime("deletedAt", java.time.LocalDateTime.class);
-
     public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
 
-    public final BooleanPath isDeleted = createBoolean("isDeleted");
+    public final StringPath requestText = createString("requestText");
+
+    public final StringPath responseText = createString("responseText");
+
+    public final NumberPath<Integer> statusCode = createNumber("statusCode", Integer.class);
 
     public final com.sparta.spartaproject.domain.store.QStore store;
 
@@ -40,23 +42,23 @@ public class QLike extends EntityPathBase<Like> {
 
     public final com.sparta.spartaproject.domain.user.QUser user;
 
-    public QLike(String variable) {
-        this(Like.class, forVariable(variable), INITS);
+    public QGeminiHistory(String variable) {
+        this(GeminiHistory.class, forVariable(variable), INITS);
     }
 
-    public QLike(Path<? extends Like> path) {
+    public QGeminiHistory(Path<? extends GeminiHistory> path) {
         this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
-    public QLike(PathMetadata metadata) {
+    public QGeminiHistory(PathMetadata metadata) {
         this(metadata, PathInits.getFor(metadata, INITS));
     }
 
-    public QLike(PathMetadata metadata, PathInits inits) {
-        this(Like.class, metadata, inits);
+    public QGeminiHistory(PathMetadata metadata, PathInits inits) {
+        this(GeminiHistory.class, metadata, inits);
     }
 
-    public QLike(Class<? extends Like> type, PathMetadata metadata, PathInits inits) {
+    public QGeminiHistory(Class<? extends GeminiHistory> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.store = inits.isInitialized("store") ? new com.sparta.spartaproject.domain.store.QStore(forProperty("store"), inits.get("store")) : null;
         this.user = inits.isInitialized("user") ? new com.sparta.spartaproject.domain.user.QUser(forProperty("user")) : null;

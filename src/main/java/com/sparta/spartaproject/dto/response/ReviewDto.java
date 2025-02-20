@@ -1,5 +1,6 @@
 package com.sparta.spartaproject.dto.response;
 
+import java.util.List;
 import java.util.UUID;
 
 public record ReviewDto(
@@ -8,6 +9,7 @@ public record ReviewDto(
     UUID storeId,
     UUID orderId,
     String content,
-    Integer rating
+    Integer rating,
+    List<String> imageUrlList // 리뷰 이미지 URL
 ) {
 }

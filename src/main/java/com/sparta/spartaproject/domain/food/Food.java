@@ -106,7 +106,9 @@ public class Food extends BaseEntity {
     }
 
     public void delete() {
+        this.imagePath = null;
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
     }
+
 }
