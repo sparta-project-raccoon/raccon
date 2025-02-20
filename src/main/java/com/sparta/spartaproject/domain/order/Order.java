@@ -1,5 +1,6 @@
 package com.sparta.spartaproject.domain.order;
 
+import com.sparta.spartaproject.domain.BaseEntity;
 import com.sparta.spartaproject.domain.BaseTimeEntity;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @DynamicUpdate
 @Table(name = "p_order")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Order extends BaseTimeEntity {
+public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
