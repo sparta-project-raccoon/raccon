@@ -7,7 +7,6 @@ import java.util.UUID;
 public record CreatePayHistoryRequestDto(
         UUID orderId,
         PaymentMethod paymentMethod,
-        UUID storeId,
-        Integer totalPrice
+        UUID storeId
 ) {
 }

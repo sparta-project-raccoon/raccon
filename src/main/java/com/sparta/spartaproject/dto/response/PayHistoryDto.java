@@ -1,10 +1,11 @@
 package com.sparta.spartaproject.dto.response;
 
-import java.util.UUID;
+import java.util.List;
 
 public record PayHistoryDto(
-        UUID orderId,
-        String shopName,
-        Integer totalPrice
+    List<OnlyPayHistoryDto> onlyPayHistoryDtoList,
+    Integer currentPage,
+    Integer totalPages,
+    Integer totalElements
 ) {
 }

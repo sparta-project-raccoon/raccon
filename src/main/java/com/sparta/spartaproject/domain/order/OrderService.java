@@ -10,10 +10,10 @@ import com.sparta.spartaproject.dto.request.CreateFoodOrderRequestDto;
 import com.sparta.spartaproject.dto.request.CreateOrderRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateOrderStatusRequestDto;
 import com.sparta.spartaproject.dto.response.OrderDetailDto;
+import com.sparta.spartaproject.dto.response.OnlyOrderDto;
 import com.sparta.spartaproject.dto.response.OrderDto;
 import com.sparta.spartaproject.dto.response.OrderStatusDto;
 import com.sparta.spartaproject.exception.BusinessException;
-import com.sparta.spartaproject.mapper.FoodMapper;
 import com.sparta.spartaproject.mapper.OrderHistoryMapper;
 import com.sparta.spartaproject.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,18 +26,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-import static com.sparta.spartaproject.domain.order.OrderStatus.*;
-import static com.sparta.spartaproject.domain.user.Role.CUSTOMER;
+import static com.sparta.spartaproject.domain.order.OrderStatus.CANCEL;
+import static com.sparta.spartaproject.domain.order.OrderStatus.WAIT;
 import static com.sparta.spartaproject.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class OrderService {
-    // todo 중복되는 코드 처리하기
     private final UserService userService;
     private final OrderMapper orderMapper;
     private final OrderRepository orderRepository;
@@ -149,35 +147,26 @@ public class OrderService {
 
     }
 
-    // todo 음식 추가
     @Transactional(readOnly = true)
-    public List<OrderDto> getAllOrders(int page) {
+    public OrderDto getAllOrders(int page) {
         User user = getUser();
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        // todo
         List<Order> orders = orderRepository.findAllByUserAndIsDeletedFalse(pageable, user);
 
-        orders.forEach(o -> {
-            log.info(o.getId().toString());
+        int totalOrderCount = orders.size();
 
-            System.out.println(orderHistoryRepository.findAllByOrder(o).size());
-//
-//            log.info(
-//                    orderHistoryRepository.findAllByOrder(o).get(3).toString()
-//            );
-        });
+        List<OnlyOrderDto> orderDtoList = orders.stream()
+                .map(
+                        order ->
+                                orderMapper.toOrderOnlyDto(order,
+                                        orderHistoryRepository.findLatestFoodByOrderId(order.getId()).orElseThrow(() -> new BusinessException(FOOD_NOT_FOUND)).getFood().getName(),
+                                        orderHistoryRepository.countByOrder(order)
+                                ))
+                .toList();
 
-//        return orders.stream()
-//                .map(
-//                order ->
-//                        orderMapper.toOrderDto(order,
-//                        orderHistoryRepository.findLatestFoodByOrderId(order.getId()).orElseThrow(() -> new BusinessException(FOOD_NOT_FOUND)).getFood().getName(),
-//                        orderHistoryRepository.countByOrder_Id(order.getId()).intValue())
-//        )
-//                .toList();
+        return orderMapper.toOrderDto(orderDtoList,page,(int) Math.ceil((double) totalOrderCount / size),totalOrderCount);
 
-        return null;
     }
 
     @Transactional

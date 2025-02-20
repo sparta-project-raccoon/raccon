@@ -5,11 +5,14 @@ import com.sparta.spartaproject.domain.order.OrderStatus;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.CreateOrderRequestDto;
+import com.sparta.spartaproject.dto.response.OnlyOrderDto;
 import com.sparta.spartaproject.dto.response.OrderDetailDto;
 import com.sparta.spartaproject.dto.response.OrderDto;
 import com.sparta.spartaproject.dto.response.OrderStatusDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
@@ -37,5 +40,11 @@ public interface OrderMapper {
     @Mapping(target = "orderId", source = "order.id")
     @Mapping(target = "storeName", source = "order.store.name")
     @Mapping(target = "totalPrice", source = "order.totalPrice")
-    OrderDto toOrderDto(Order order,String foodName,Integer foodCnt);
+    OnlyOrderDto toOrderOnlyDto(Order order, String foodName, Integer totalFoodCnt);
+
+    OrderDto toOrderDto(
+            List<OnlyOrderDto> onlyOrderDtoList,
+            int currentPage,
+            int totalPages,
+            int totalElements);
 }

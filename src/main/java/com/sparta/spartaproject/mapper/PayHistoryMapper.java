@@ -5,10 +5,13 @@ import com.sparta.spartaproject.domain.pay.PayHistory;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.CreatePayHistoryRequestDto;
+import com.sparta.spartaproject.dto.response.OnlyPayHistoryDto;
 import com.sparta.spartaproject.dto.response.PayHistoryDetailDto;
 import com.sparta.spartaproject.dto.response.PayHistoryDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface PayHistoryMapper {
@@ -28,8 +31,15 @@ public interface PayHistoryMapper {
     @Mapping(target = "paymentMethod", source = "paymentMethod.description")
     PayHistoryDetailDto toPayHistoryDetailDto(PayHistory payHistory);
 
-    @Mapping(target = "orderId", source = "order.id")
-    @Mapping(target = "shopName", source = "order.store.name")
-    @Mapping(target = "totalPrice", source = "order.totalPrice")
-    PayHistoryDto toPayHistoryDto(PayHistory payHistory);
+    PayHistoryDto toPayHistoryDto(
+            List<OnlyPayHistoryDto> onlyPayHistoryDtoList,
+            Integer currentPage,
+            Integer totalPages,
+            Integer totalElements
+    );
+
+    @Mapping(target = "orderId", source = "payHistory.order.id")
+    @Mapping(target = "shopName", source = "payHistory.store.name")
+    @Mapping(target = "totalPrice", source = "payHistory.order.totalPrice")
+    OnlyPayHistoryDto toOnlyPayHistoryDto(PayHistory payHistory);
 }

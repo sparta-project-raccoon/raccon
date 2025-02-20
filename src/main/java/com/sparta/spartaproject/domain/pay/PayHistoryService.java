@@ -8,6 +8,7 @@ import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.domain.user.UserService;
 import com.sparta.spartaproject.dto.request.CreatePayHistoryRequestDto;
 import com.sparta.spartaproject.dto.request.UpdatePayHistoryDto;
+import com.sparta.spartaproject.dto.response.OnlyPayHistoryDto;
 import com.sparta.spartaproject.dto.response.PayHistoryDetailDto;
 import com.sparta.spartaproject.dto.response.PayHistoryDto;
 import com.sparta.spartaproject.exception.BusinessException;
@@ -78,11 +79,23 @@ public class PayHistoryService {
         payHistoryRepository.save(payHistory);
     }
 
-    public List<PayHistoryDto> getPayHistoryList(int page) {
+    public PayHistoryDto getPayHistoryList(int page) {
         Pageable pageable = PageRequest.of(page - 1, size);
+
         List<PayHistory> payHistoryList = payHistoryRepository.findAllByUser(pageable, getUser());
 
-        return payHistoryList.stream().map(payHistoryMapper::toPayHistoryDto).toList();
+        List<OnlyPayHistoryDto> onlyPayHistoryDtoList = payHistoryList.stream().map(
+                payHistoryMapper::toOnlyPayHistoryDto
+        ).toList();
+
+        int totalCount = payHistoryList.size();
+
+        return payHistoryMapper.toPayHistoryDto(
+                onlyPayHistoryDtoList
+                , page
+                , (int) Math.ceil((double) totalCount / size)
+                , totalCount
+        );
     }
 
 

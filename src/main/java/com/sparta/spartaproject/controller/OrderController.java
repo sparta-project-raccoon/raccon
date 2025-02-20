@@ -82,7 +82,7 @@ public class OrderController {
         "주문 내역 확인"
     )
     @GetMapping
-    public ResponseEntity<List<OrderDto>> getAllOrders(
+    public ResponseEntity<OrderDto> getAllOrders(
         @RequestParam(required = false, defaultValue = "1") int page
     ) {
         return ResponseEntity.ok(orderService.getAllOrders(page));
