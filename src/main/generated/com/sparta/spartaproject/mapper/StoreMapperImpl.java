@@ -20,15 +20,15 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-19T17:49:50+0900",
+    date = "2025-02-20T23:24:16+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Oracle Corporation)"
 )
 @Component
 public class StoreMapperImpl implements StoreMapper {
 
     @Override
-    public StoreDetailDto toStoreDetailDto(List<CategoryDto> categories, Store store) {
-        if ( categories == null && store == null ) {
+    public StoreDetailDto toStoreDetailDto(List<CategoryDto> categories, List<String> imageUrls, Store store) {
+        if ( categories == null && imageUrls == null && store == null ) {
             return null;
         }
 
@@ -65,15 +65,20 @@ public class StoreMapperImpl implements StoreMapper {
         if ( list != null ) {
             categories1 = new ArrayList<CategoryDto>( list );
         }
+        List<String> imageUrls1 = null;
+        List<String> list1 = imageUrls;
+        if ( list1 != null ) {
+            imageUrls1 = new ArrayList<String>( list1 );
+        }
 
-        StoreDetailDto storeDetailDto = new StoreDetailDto( categories1, id, name, address, status, tel, description, openTime, closeTime, closedDays, createdAt, createdBy, updatedAt, updatedBy );
+        StoreDetailDto storeDetailDto = new StoreDetailDto( categories1, imageUrls1, id, name, address, status, tel, description, openTime, closeTime, closedDays, createdAt, createdBy, updatedAt, updatedBy );
 
         return storeDetailDto;
     }
 
     @Override
-    public OnlyStoreDto toOnlyStoreDto(Store store) {
-        if ( store == null ) {
+    public OnlyStoreDto toOnlyStoreDto(Store store, List<String> imageUrls) {
+        if ( store == null && imageUrls == null ) {
             return null;
         }
 
@@ -90,22 +95,28 @@ public class StoreMapperImpl implements StoreMapper {
         Long createdBy = null;
         LocalDateTime updatedAt = null;
         Long updatedBy = null;
+        if ( store != null ) {
+            id = store.getId();
+            name = store.getName();
+            address = store.getAddress();
+            status = store.getStatus();
+            tel = store.getTel();
+            description = store.getDescription();
+            openTime = store.getOpenTime();
+            closeTime = store.getCloseTime();
+            closedDays = store.getClosedDays();
+            createdAt = store.getCreatedAt();
+            createdBy = store.getCreatedBy();
+            updatedAt = store.getUpdatedAt();
+            updatedBy = store.getUpdatedBy();
+        }
+        List<String> imageUrls1 = null;
+        List<String> list = imageUrls;
+        if ( list != null ) {
+            imageUrls1 = new ArrayList<String>( list );
+        }
 
-        id = store.getId();
-        name = store.getName();
-        address = store.getAddress();
-        status = store.getStatus();
-        tel = store.getTel();
-        description = store.getDescription();
-        openTime = store.getOpenTime();
-        closeTime = store.getCloseTime();
-        closedDays = store.getClosedDays();
-        createdAt = store.getCreatedAt();
-        createdBy = store.getCreatedBy();
-        updatedAt = store.getUpdatedAt();
-        updatedBy = store.getUpdatedBy();
-
-        OnlyStoreDto onlyStoreDto = new OnlyStoreDto( id, name, address, status, tel, description, openTime, closeTime, closedDays, createdAt, createdBy, updatedAt, updatedBy );
+        OnlyStoreDto onlyStoreDto = new OnlyStoreDto( imageUrls1, id, name, address, status, tel, description, openTime, closeTime, closedDays, createdAt, createdBy, updatedAt, updatedBy );
 
         return onlyStoreDto;
     }

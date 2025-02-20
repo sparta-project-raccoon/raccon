@@ -1,5 +1,7 @@
 package com.sparta.spartaproject.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.spartaproject.domain.store.Status;
 import com.sparta.spartaproject.domain.store.StoreImageService;
 import com.sparta.spartaproject.domain.store.StoreService;
@@ -29,10 +31,14 @@ public class StoreController {
     @Description(
         "음식점 생성하기"
     )
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<Void> createStore(@RequestBody CreateStoreRequestDto request) {
-        storeService.createStore(request);
+    public ResponseEntity<Void> createStore(
+        @RequestPart(value = "request") String requestJson,
+        @RequestPart(value = "imageList", required = false) List<MultipartFile> imageList
+    ) throws JsonProcessingException {
+        CreateStoreRequestDto request = new ObjectMapper().readValue(requestJson, CreateStoreRequestDto.class);
+        storeService.createStore(request, imageList);
         return ResponseEntity.ok().build();
     }
 
@@ -41,47 +47,56 @@ public class StoreController {
     )
     @GetMapping
     public ResponseEntity<StoreDto> getStores(
-        @RequestParam(required = false, defaultValue = "1") int page,
-        @RequestParam(required = false, defaultValue = "") String name
+        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
+        @RequestParam(value = "name", required = false, defaultValue = "") String name
     ) {
-        return ResponseEntity.ok(storeService.getStores(page, name));
+        return ResponseEntity.ok(storeService.getStores(page, sortDirection, name));
     }
 
     @Description(
         "음식점 상세 조회하기"
     )
     @GetMapping("/{id}")
-    public ResponseEntity<StoreDetailDto> getStore(@PathVariable UUID id) {
+    public ResponseEntity<StoreDetailDto> getStore(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(storeService.getStore(id));
     }
 
     @Description(
-        "카테고리별 음식점 조회"
+        "카테고리별 음식점 조회하기"
     )
     @GetMapping("/categories/{categoryId}")
     public ResponseEntity<StoreByCategoryDto> getStoresByCategory(
-        @PathVariable UUID categoryId,
-        @RequestParam(required = false, defaultValue = "1") int page
+        @PathVariable("categoryId") UUID categoryId,
+        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
     ) {
-        return ResponseEntity.ok(storeService.getStoresByCategory(page, categoryId));
+        return ResponseEntity.ok(storeService.getStoresByCategory(page, sortDirection, categoryId));
     }
 
     @Description(
-        "내 음식점 조회하기"
+        "내 음식점 목록 조회하기"
     )
     @GetMapping("/my")
     @PreAuthorize("hasAuthority('OWNER')")
-    public ResponseEntity<List<StoreDetailDto>> getMyStores() {
-        return ResponseEntity.ok(storeService.getMyStores());
+    public ResponseEntity<StoreDto> getMyStores(
+        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+    ) {
+        return ResponseEntity.ok(storeService.getMyStores(page, sortDirection));
     }
 
     @Description(
-        "가게 정보 수정하기"
+        "음식점 정보 수정하기"
     )
     @PatchMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<Void> updateStore(@PathVariable UUID id, @RequestBody UpdateStoreRequestDto update) {
-        storeService.updateStore(id, update);
+    public ResponseEntity<Void> updateStore(
+        @PathVariable("id") UUID id,
+        @RequestPart("request") UpdateStoreRequestDto update,
+        @RequestPart(value = "imageList", required = false) List<MultipartFile> imageList
+    ) {
+        storeService.updateStore(id, update, imageList);
         return ResponseEntity.ok().build();
     }
 
@@ -90,7 +105,7 @@ public class StoreController {
     )
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<Void> updateStoreStatus(@PathVariable UUID id, @RequestBody UpdateStoreStatusRequestDto update) {
+    public ResponseEntity<Void> updateStoreStatus(@PathVariable("id") UUID id, @RequestBody UpdateStoreStatusRequestDto update) {
         storeService.updateStoreStatus(id, update);
         return ResponseEntity.ok().build();
     }
@@ -100,45 +115,11 @@ public class StoreController {
     )
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<String> deleteStore(@PathVariable UUID id) {
+    public ResponseEntity<String> deleteStore(@PathVariable("id") UUID id) {
         storeService.deleteStore(id);
         return ResponseEntity.ok().build();
     }
 
-    // 음식점 이미지 저장 (권한 : 해당 음식점 사장님, 관리자)
-    @PostMapping("/image/{storeId}")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<List<ImageInfoDto>> saveStoreImages(
-            @PathVariable(name="storeId") UUID storeId,
-            @RequestParam("images") List<MultipartFile> images) {
-        return ResponseEntity.ok(storeImageService.saveStoreImages(storeId, images));
-    }
-
-    // 음식점 이미지 조회
-    @GetMapping("/image/{storeId}")
-    public ResponseEntity<List<ImageInfoDto>> getStoreImages(@PathVariable(name="storeId") UUID storeId) {
-        return ResponseEntity.ok(storeImageService.getStoreImages(storeId));
-    }
-
-    // 이미지 삭제 (권한 : 해당 음식점 사장님, 관리자)
-    @DeleteMapping("/image/{imageId}")
-    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<Void> deleteImage(@PathVariable(name="imageId") UUID imageId) {
-        storeImageService.deleteImage(imageId);
-        return ResponseEntity.noContent().build();
-    }
-
-    //================================================ 이미지 연동
-//    @Description(
-//            "음식 등록"
-//    )
-//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-//    public ResponseEntity<StoreDto> createStoreWithImage(
-//            @RequestPart(value = "data") CreateStoreRequestDto request,
-//            @RequestPart(value = "imageList")List<MultipartFile> imageList) {
-//        return ResponseEntity.ok(storeService.createStoreWithImage(request, imageList));
-//    }
 
 
 }
