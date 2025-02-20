@@ -114,13 +114,13 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다.");
         }
 
+        imageService.deleteAllImagesByEntity(id, EntityType.REVIEW);
         if(imageList != null) {
             imageList.forEach(image -> {
                 String url = imageService.uploadImage(id, EntityType.REVIEW, image);
                 log.info("새로 생성된 URL : {}", url);
             });
         }
-        imageService.deleteAllImagesByEntity(id, EntityType.REVIEW);
 
         review.update(update);
         reviewRepository.saveAndFlush(review);
