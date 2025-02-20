@@ -28,13 +28,12 @@ public interface PayHistoryMapper {
     @Mapping(target = "paymentMethod", source = "request.paymentMethod")
     PayHistory toPayHistory(CreatePayHistoryRequestDto request, Order order, Store store, User user);
 
-    @Mapping(target = "orderId", source = "order.id")
-    @Mapping(target = "shopName", source = "order.store.name")
-    @Mapping(target = "totalPrice", source = "order.totalPrice")
-    @Mapping(target = "paymentMethod", source = "paymentMethod.description")
-    @Mapping(target = "payStatusDescription", source = "payHistory.status")
+    @Mapping(target = "orderId", source = "payHistory.order.id")
+    @Mapping(target = "shopName", source = "payHistory.order.store.name")
+    @Mapping(target = "totalPrice", source = "payHistory.order.totalPrice")
+    @Mapping(target = "paymentMethod", source = "payMethodDescription")
     @Mapping(target = "payStatusDescription", source = "description")
-    PayHistoryDetailDto toPayHistoryDetailDto(PayHistory payHistory, String description);
+    PayHistoryDetailDto toPayHistoryDetailDto(PayHistory payHistory, String description, String payMethodDescription);
 
 
     PayHistoryDto toPayHistoryDto(

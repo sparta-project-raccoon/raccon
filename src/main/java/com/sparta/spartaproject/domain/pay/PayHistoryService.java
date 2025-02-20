@@ -58,7 +58,7 @@ public class PayHistoryService {
         PayHistory payHistory = payHistoryRepository.findById(payHistoryId)
                 .orElseThrow(() -> new BusinessException(PAY_HISTORY_NOT_EXIST));
 
-        return payHistoryMapper.toPayHistoryDetailDto(payHistory, payHistory.getStatus().description);
+        return payHistoryMapper.toPayHistoryDetailDto(payHistory, payHistory.getStatus().description, payHistory.getPaymentMethod().getDescription());
     }
 
     @Transactional
