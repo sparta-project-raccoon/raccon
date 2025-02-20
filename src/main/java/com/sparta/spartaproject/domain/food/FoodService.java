@@ -1,6 +1,6 @@
 package com.sparta.spartaproject.domain.food;
 
-import com.sparta.spartaproject.common.FileUtils;
+import com.sparta.spartaproject.common.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.image.EntityType;
 import com.sparta.spartaproject.domain.image.ImageService;
@@ -11,19 +11,21 @@ import com.sparta.spartaproject.domain.user.UserRepository;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodStatusRequestDto;
+import com.sparta.spartaproject.dto.response.FoodDetailDto;
+import com.sparta.spartaproject.dto.response.FoodDto;
 import com.sparta.spartaproject.exception.BusinessException;
 import com.sparta.spartaproject.exception.ErrorCode;
 import com.sparta.spartaproject.mapper.FoodMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -34,6 +36,41 @@ public class FoodService {
     private final ImageService imageService;
     private final FoodRepository foodRepository;
     private final CircularService circularService;
+
+    private final Integer size = 10;
+    private final UserRepository userRepository;
+
+    @Transactional(readOnly = true)
+    public FoodDto getAllFoods(int page, String sortDirection) {
+        Sort sort = SortUtils.getSort(sortDirection);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+
+        List<Food> foodList = foodRepository.findAll(pageable).getContent();
+
+        return getFoodDto(page, foodList);
+    }
+
+    @Transactional(readOnly = true)
+    public FoodDto getAllFoodsByStore(UUID storeId, int page, String sortDirection) {
+        Store store = circularService.getStoreService().getStoreById(storeId);
+
+        Sort sort = SortUtils.getSort(sortDirection);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+
+        List<Food> foodList = foodRepository.findByStoreAndIsDisplayedIsTrueAndIsDeletedIsFalse(store, pageable);
+
+        return getFoodDto(page, foodList);
+    }
+
+    @Transactional(readOnly = true)
+    public FoodDetailDto getFood(UUID id) {
+        Food food = getFoodById(id);
+
+        String imageUrl = imageService.getImageUrlByEntity(food.getId(), EntityType.FOOD).get(0);
+        log.info("조회한 food ID: " + food.getId() + " imageUrl: " + imageUrl);
+
+        return foodMapper.toFoodDetailDto(food, imageUrl);
+    }
 
     @Transactional
     public void createFood(CreateFoodRequestDto request, MultipartFile image) {
@@ -142,6 +179,25 @@ public class FoodService {
         food.delete();
         foodRepository.saveAndFlush(food);
         imageService.deleteAllImagesByEntity(food.getId(), EntityType.FOOD);
+    }
+
+    private FoodDto getFoodDto(int page, List<Food> foodList) {
+        Integer totalPages = (int) Math.ceil((double) foodList.size() / size);
+
+        return foodMapper.toFoodDto(
+            foodList.stream().map(
+            food -> {
+                String imageUrl = imageService.getImageUrlByEntity(food.getId(), EntityType.FOOD)
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
+
+                log.info("Image url: {}", imageUrl);
+                return foodMapper.toFoodDetailDto(food, imageUrl);
+            }).toList(),
+            page,
+            totalPages
+        );
     }
 
 
