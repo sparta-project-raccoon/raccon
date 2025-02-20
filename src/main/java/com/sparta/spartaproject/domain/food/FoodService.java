@@ -3,10 +3,13 @@ package com.sparta.spartaproject.domain.food;
 import com.sparta.spartaproject.common.FileUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.store.Store;
+import com.sparta.spartaproject.domain.user.Role;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
-import com.sparta.spartaproject.dto.response.FoodDetailDto;
+import com.sparta.spartaproject.dto.request.UpdateFoodStatusRequestDto;
+import com.sparta.spartaproject.exception.BusinessException;
+import com.sparta.spartaproject.exception.ErrorCode;
 import com.sparta.spartaproject.mapper.FoodMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,107 +27,97 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class FoodService {
-
+    private final FoodMapper foodMapper;
     private final FoodRepository foodRepository;
     private final CircularService circularService;
-    private final FoodMapper foodMapper;
 
-    // 음식 등록 및 음식 이미지 저장
     @Transactional
-    public FoodDetailDto createFoodWithImage(CreateFoodRequestDto request, MultipartFile image) {
-        // 음식점 사장 확인
+    public void createFood(CreateFoodRequestDto request, MultipartFile images) {
         User user = circularService.getUserService().loginUser();
         Store store = circularService.getStoreService().getStoreById(request.storeId());
 
-        if (!user.getId().equals(store.getOwner().getId())) {
-            throw new AccessDeniedException("현재 로그인한 사용자와 업주가 일치하지 않습니다.");
+        if (user.getRole() == Role.OWNER) {
+            if (!user.getId().equals(store.getOwner().getId())) {
+                throw new BusinessException(ErrorCode.FOOD_FORBIDDEN);
+            }
         }
 
-        // 음식 사진 등록
-        String foodImagePath = FileUtils.saveFile(image, "food"); // FileSystem에 파일 저장
-        log.info("음식 사진 등록 : {}", foodImagePath);
+        String imagePathForFood = null;
 
-        // 음식 등록
-        Food food = foodRepository.save(
-            Food.builder()
-                .store(store)
-                .name(request.name())
-                .price(request.price())
-                .description(circularService.getGeminiService().requestGemini(store.getId(), request.description()))
-                .imagePath(foodImagePath)
-                .status(request.status())
-                .isDisplayed(true)
-                .isDeleted(false)
-                .build()
+        if (images != null && !images.isEmpty()) {
+            imagePathForFood = FileUtils.saveFile(images, "food");
+            log.info("음식 사진 등록 : {}", imagePathForFood);
+        }
+
+        String descriptionForGemini = circularService.getGeminiService().requestGemini(
+            store.getId(), request.description()
         );
-        log.info("음식 등록 완료 : {}", food.getId());
 
-        return foodMapper.toFoodDetailDto(food);
+        Food newFood = foodMapper.toFood(request, store, descriptionForGemini, imagePathForFood);
+        foodRepository.save(newFood);
+
+        log.info("가게: {}, 음식 생성 완료", store.getId());
     }
 
-    // 음식 수정
     @Transactional
-    public FoodDetailDto updateFoodWithImage(UUID id, UpdateFoodRequestDto update, MultipartFile image) {
-        // 음식 확인
-        Food food = getFoodById(id);
-
-        // 음식점 사장 확인
+    public void updateFood(UUID id, UpdateFoodRequestDto update, MultipartFile images) {
         User user = circularService.getUserService().loginUser();
+        Food food = getFoodById(id);
         Store store = food.getStore();
 
-        if (!user.getId().equals(store.getOwner().getId())) {
-            throw new AccessDeniedException("현재 로그인한 사용자와 업주가 일치하지 않습니다.");
+        if (user.getRole() == Role.OWNER) {
+            if (!user.getId().equals(store.getOwner().getId())) {
+                throw new BusinessException(ErrorCode.FOOD_FORBIDDEN);
+            }
         }
 
-        // 음식 정보 업데이트
         food.update(update);
 
-        // 음식 이미지 변경 확인
-        if (image != null && !isSameImage(food.getImagePath(), image)) {
-            // 기존 이미지 삭제
+        if (images != null && !isSameImage(food.getImagePath(), images)) {
             FileUtils.deleteFile(food.getImagePath());
 
-            // 새로운 이미지 저장
-            String newImagePath = FileUtils.saveFile(image, "food");
-            food.updateImagePath(newImagePath); // 새로운 이미지 경로로 업데이트
+            String newImagePath = FileUtils.saveFile(images, "food");
+            food.updateImagePath(newImagePath);
         }
 
         log.info("음식 수정 완료 : {}, image:{}", food.getName(), food.getImagePath());
-        return foodMapper.toFoodDetailDto(food);
     }
 
-    // 음식 상태(준비중, 판매중, 품절) 수정
     @Transactional
-    public FoodDetailDto updateFoodStatus(UUID id, Status newStatus) {
-        Food food = getFoodById(id);
-
-        // 음식점 사장 확인
+    public void updateFoodStatus(UUID id, UpdateFoodStatusRequestDto update) {
         User user = circularService.getUserService().loginUser();
+        Food food = getFoodById(id);
         Store store = food.getStore();
 
-        if (!user.getId().equals(store.getOwner().getId())) {
-            throw new AccessDeniedException("현재 로그인한 사용자와 업주가 일치하지 않습니다.");
+        if (user.getRole() == Role.OWNER) {
+            if (!user.getId().equals(store.getOwner().getId())) {
+                throw new BusinessException(ErrorCode.FOOD_FORBIDDEN);
+            }
         }
 
-        // 음식 상태 변경
-        food.updateStatus(newStatus);
-
-        return foodMapper.toFoodDetailDto(food);
+        food.updateStatus(update);
+        log.info("음식: {},  상태 정보 수정 완료", food.getId());
     }
 
-    // 음식 표시 상태(숨김(false), 표시(true)) 변경
-    public boolean toggleIsDisplayed(UUID id) {
-        Food food = getFoodById(id);
-
-        // 음식점 사장 확인
+    @Transactional
+    public void toggleDisplay(UUID id) {
         User user = circularService.getUserService().loginUser();
+        Food food = getFoodById(id);
         Store store = food.getStore();
-        if (!user.getId().equals(store.getOwner().getId())) {
-            throw new AccessDeniedException("현재 로그인한 사용자와 업주가 일치하지 않습니다.");
+
+        if (user.getRole() == Role.OWNER) {
+            if (!user.getId().equals(store.getOwner().getId())) {
+                throw new BusinessException(ErrorCode.FOOD_FORBIDDEN);
+            }
         }
 
-        // 음식 표시 상태 변경
-        return food.toggleIsDisplayed(); // 변경된 상태 반환
+        if (food.getIsDisplayed().equals(Boolean.TRUE)) {
+            log.info("음식: {}, 숨김 처리", food.getId());
+        } else {
+            log.info("음식: {}, 숨김 처리 해제", food.getId());
+        }
+
+        food.toggleIsDisplayed();
     }
 
     // 음식 삭제
@@ -179,9 +172,7 @@ public class FoodService {
     }
 
     public Food getFoodById(UUID id) {
-        return foodRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("해당 음식점을 찾을 수 없습니다."));
+        return foodRepository.findByIdAndIsDeletedFalse(id)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FOOD_NOT_FOUND));
     }
-
-
 }

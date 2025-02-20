@@ -1,10 +1,9 @@
 package com.sparta.spartaproject.controller;
 
 import com.sparta.spartaproject.domain.food.FoodService;
-import com.sparta.spartaproject.domain.food.Status;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
-import com.sparta.spartaproject.dto.response.FoodDetailDto;
+import com.sparta.spartaproject.dto.request.UpdateFoodStatusRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.MediaType;
@@ -19,7 +18,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/foods")
 public class FoodController {
-
     private final FoodService foodService;
 
     @Description(
@@ -27,10 +25,12 @@ public class FoodController {
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<FoodDetailDto> createFood(
-        @RequestPart(value = "data") CreateFoodRequestDto request,
-        @RequestPart(value = "image")MultipartFile image) {
-        return ResponseEntity.ok(foodService.createFoodWithImage(request, image));
+    public ResponseEntity<Void> createFood(
+        @RequestPart(value = "request") CreateFoodRequestDto request,
+        @RequestPart(value = "image", required = false) MultipartFile images
+    ) {
+        foodService.createFood(request, images);
+        return ResponseEntity.ok().build();
     }
 
     @Description(
@@ -38,11 +38,13 @@ public class FoodController {
     )
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<FoodDetailDto> updateFood(
+    public ResponseEntity<Void> updateFood(
         @PathVariable("id") UUID id,
-        @RequestPart(value = "data") UpdateFoodRequestDto update,
-        @RequestPart(value = "image")MultipartFile image) {
-        return ResponseEntity.ok(foodService.updateFoodWithImage(id, update, image));
+        @RequestPart(value = "request") UpdateFoodRequestDto update,
+        @RequestPart(value = "image") MultipartFile images
+    ) {
+        foodService.updateFood(id, update, images);
+        return ResponseEntity.ok().build();
     }
 
     @Description(
@@ -50,10 +52,12 @@ public class FoodController {
     )
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<FoodDetailDto> updateFoodStatus(
-            @PathVariable("id") UUID id,
-            @RequestParam("status") Status status) {
-        return ResponseEntity.ok(foodService.updateFoodStatus(id, status));
+    public ResponseEntity<Void> updateFoodStatus(
+        @PathVariable("id") UUID id,
+        @RequestBody UpdateFoodStatusRequestDto update
+    ) {
+        foodService.updateFoodStatus(id, update);
+        return ResponseEntity.ok().build();
     }
 
     @Description(
@@ -61,12 +65,9 @@ public class FoodController {
     )
     @PatchMapping("/{id}/display-status")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<String> toggleFoodDisplay(@PathVariable("id") UUID id) {
-
-        if(foodService.toggleIsDisplayed(id)){
-            return ResponseEntity.ok("isDisplayed: true");
-        }
-        return ResponseEntity.ok("isDisplayed: false");
+    public ResponseEntity<Void> toggleDisplay(@PathVariable("id") UUID id) {
+        foodService.toggleDisplay(id);
+        return ResponseEntity.ok().build();
     }
 
     @Description(
@@ -78,5 +79,4 @@ public class FoodController {
         foodService.deleteFoodWithImage(id);
         return ResponseEntity.noContent().build();
     }
-
 }

@@ -56,7 +56,8 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."),
 
     // 음식
-    FOOD_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 음식을 찾을 수 없습니다."),
+    FOOD_FORBIDDEN(HttpStatus.FORBIDDEN, "현재 로그인한 사용자와 업주가 일치하지 않습니다."),
+    FOOD_NOT_FOUND(HttpStatus.NOT_FOUND, "음식 정보가 존재하지 않습니다."),
 
     // 인증
     MIN_RE_AUTHENTICATION_TIME_NOT_PASSED(HttpStatus.BAD_REQUEST, "3분 내 재인증 요청할 수 없습니다."),
@@ -67,7 +68,6 @@ public enum ErrorCode {
 
     // Gemini History
     GEMINI_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "Gemini 내역이 존재하지 않습니다.");
-
 
     private final HttpStatus status; // http 상태코드
     private final String message;//에러메시지
