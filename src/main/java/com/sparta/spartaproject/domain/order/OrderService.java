@@ -48,13 +48,12 @@ public class OrderService {
 
     @Transactional
     public void updateStatus(UpdateOrderStatusRequestDto request) {
-        Order findedOrder = orderRepository.findByIdAndIsDeletedFalse(request.orderId())
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
-
         User user = getUser();
 
-        findedOrder.changeOrderStatus(request.orderStatus());
+        Order findedOrder = orderRepository.findByIdAndUserAndIsDeletedFalse(request.orderId(), user)
+                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
+        findedOrder.changeOrderStatus(request.orderStatus());
     }
 
     @Transactional(readOnly = true)
@@ -165,7 +164,7 @@ public class OrderService {
                                 ))
                 .toList();
 
-        return orderMapper.toOrderDto(orderDtoList,page,(int) Math.ceil((double) totalOrderCount / size),totalOrderCount);
+        return orderMapper.toOrderDto(orderDtoList, page, (int) Math.ceil((double) totalOrderCount / size), totalOrderCount);
 
     }
 

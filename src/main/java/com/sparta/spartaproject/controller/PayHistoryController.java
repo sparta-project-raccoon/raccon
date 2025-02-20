@@ -8,6 +8,7 @@ import com.sparta.spartaproject.dto.response.PayHistoryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -50,6 +51,7 @@ public class PayHistoryController {
             "결제 정보 수정"
     )
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<Void> updatePayHistory(
             @PathVariable("id") UUID payHistoryId, @RequestBody UpdatePayHistoryDto update
     ) {

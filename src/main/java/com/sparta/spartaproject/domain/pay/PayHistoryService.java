@@ -65,7 +65,6 @@ public class PayHistoryService {
         payHistory.updatePayHistory(update);
 
         payHistoryRepository.save(payHistory);
-
     }
 
     public void deletePayHistory(UUID payHistoryId) {
