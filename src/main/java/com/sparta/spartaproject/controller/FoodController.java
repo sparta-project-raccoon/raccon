@@ -23,13 +23,13 @@ public class FoodController {
     private final FoodService foodService;
 
     @Description(
-        "음식 전체 조회 (관리자, 운영자 용)"
+        "음식 전체 조회 (관리자, 운영자)"
     )
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<FoodDto> getAllFoods(
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
     ) {
         return ResponseEntity.ok(foodService.getAllFoods(page, sortDirection));
     }
@@ -38,12 +38,12 @@ public class FoodController {
         "음식점 별 음식 조회"
     )
     @GetMapping("/stores/{storeId}")
-    public ResponseEntity<FoodDto> getAllFoodsByStore(
-            @PathVariable("storeId") UUID storeId,
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+    public ResponseEntity<FoodDto> getAllFoodsForStore(
+        @PathVariable("storeId") UUID storeId,
+        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
     ) {
-        return ResponseEntity.ok(foodService.getAllFoodsByStore(storeId, page, sortDirection));
+        return ResponseEntity.ok(foodService.getAllFoodsForStore(storeId, page, sortDirection));
     }
 
     @Description(
@@ -51,7 +51,7 @@ public class FoodController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<FoodDetailDto> getFood(
-            @PathVariable("id") UUID id
+        @PathVariable("id") UUID id
     ) {
         return ResponseEntity.ok(foodService.getFood(id));
     }
@@ -112,7 +112,7 @@ public class FoodController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> deleteFood(@PathVariable("id") UUID id) {
-        foodService.deleteFoodWithImage(id);
+        foodService.deleteFood(id);
         return ResponseEntity.noContent().build();
     }
 }

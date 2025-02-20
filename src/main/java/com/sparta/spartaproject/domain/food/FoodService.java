@@ -7,7 +7,6 @@ import com.sparta.spartaproject.domain.image.ImageService;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.Role;
 import com.sparta.spartaproject.domain.user.User;
-import com.sparta.spartaproject.domain.user.UserRepository;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodStatusRequestDto;
@@ -38,7 +37,6 @@ public class FoodService {
     private final CircularService circularService;
 
     private final Integer size = 10;
-    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public FoodDto getAllFoods(int page, String sortDirection) {
@@ -51,7 +49,7 @@ public class FoodService {
     }
 
     @Transactional(readOnly = true)
-    public FoodDto getAllFoodsByStore(UUID storeId, int page, String sortDirection) {
+    public FoodDto getAllFoodsForStore(UUID storeId, int page, String sortDirection) {
         Store store = circularService.getStoreService().getStoreById(storeId);
 
         Sort sort = SortUtils.getSort(sortDirection);
@@ -92,11 +90,8 @@ public class FoodService {
         Food newFood = foodMapper.toFood(request, store, descriptionForGemini, imagePathForFood);
         foodRepository.save(newFood);
 
-
         if (image!=null) {
             imagePathForFood = imageService.uploadImage(newFood.getId(), EntityType.FOOD, image);
-            newFood.updateImagePath(imagePathForFood); // Food 내 imagePath 갱신
-            foodRepository.saveAndFlush(newFood);
             log.info("음식 이미지 등록 완료 : {}", imagePathForFood);
         }
 
@@ -114,16 +109,16 @@ public class FoodService {
                 throw new BusinessException(ErrorCode.FOOD_FORBIDDEN);
             }
         }
-        String newImagePath = null;
+
         if (image!=null){
-            newImagePath = imageService.uploadImage(id,EntityType.FOOD, image);
+            imageService.uploadImage(id,EntityType.FOOD, image);
         }
+
         food.update(update);
-        food.updateImagePath(newImagePath); // Food의 imagePath 갱신
         foodRepository.saveAndFlush(food);
         imageService.deleteAllImagesByEntity(id, EntityType.FOOD);
 
-        log.info("음식 수정 완료 : {}, image:{}", food.getName(), food.getImagePath());
+        log.info("음식 수정 완료 : {}", food.getName());
     }
 
     @Transactional
@@ -165,7 +160,7 @@ public class FoodService {
 
     // 음식 삭제
     @Transactional
-    public void deleteFoodWithImage(UUID id) {
+    public void deleteFood(UUID id) {
         User user = circularService.getUserService().loginUser();
         Food food = getFoodById(id);
         Store store = food.getStore();
@@ -181,6 +176,11 @@ public class FoodService {
         imageService.deleteAllImagesByEntity(food.getId(), EntityType.FOOD);
     }
 
+    public Food getFoodById(UUID id) {
+        return foodRepository.findByIdAndIsDeletedFalse(id)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FOOD_NOT_FOUND));
+    }
+
     private FoodDto getFoodDto(int page, List<Food> foodList) {
         Integer totalPages = (int) Math.ceil((double) foodList.size() / size);
 
@@ -188,9 +188,9 @@ public class FoodService {
             foodList.stream().map(
             food -> {
                 String imageUrl = imageService.getImageUrlByEntity(food.getId(), EntityType.FOOD)
-                        .stream()
-                        .findFirst()
-                        .orElse(null);
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
 
                 log.info("Image url: {}", imageUrl);
                 return foodMapper.toFoodDetailDto(food, imageUrl);
@@ -199,12 +199,5 @@ public class FoodService {
             totalPages
         );
     }
-
-
-    public Food getFoodById(UUID id) {
-        return foodRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new BusinessException(ErrorCode.FOOD_NOT_FOUND));
-    }
-
 
 }
