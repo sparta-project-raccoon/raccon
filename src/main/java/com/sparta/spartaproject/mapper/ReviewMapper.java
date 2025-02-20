@@ -9,12 +9,20 @@ import com.sparta.spartaproject.dto.response.ReviewDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ReviewMapper {
     @Mapping(target = "userId", source = "review.user.id")
     @Mapping(target = "storeId", source = "review.store.id")
     @Mapping(target = "orderId", source = "review.order.id")
     ReviewDto toReviewDto(Review review);
+
+    @Mapping(target = "userId", source = "review.user.id")
+    @Mapping(target = "storeId", source = "review.store.id")
+    @Mapping(target = "orderId", source = "review.order.id")
+    @Mapping(target = "imageUrlList", source = "imageUrlList")
+    ReviewDto toReviewDtoWithImages(Review review, List<String> imageUrlList);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", source = "user")
