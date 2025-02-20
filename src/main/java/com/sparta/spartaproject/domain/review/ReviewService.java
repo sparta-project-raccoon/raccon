@@ -45,11 +45,12 @@ public class ReviewService {
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
         return reviewRepository.findAllByIsDeletedIsFalse(pageable).stream().map(
-            review-> {
+            review -> {
                 List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
-                log.info("리뷰 이미지 url - {}",imageUrlList);
+                log.info("리뷰 이미지 url - {}", imageUrlList);
                 return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
-            }).toList();
+            }
+        ).toList();
     }
 
     @Transactional(readOnly = true)
@@ -60,11 +61,12 @@ public class ReviewService {
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
         return reviewRepository.findAllByUserIdAndIsDeletedIsFalse(pageable, user.getId()).stream().map(
-            review-> {
+            review -> {
                 List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
-                log.info("리뷰 이미지 개수 - {}",imageUrlList);
+                log.info("리뷰 이미지 개수 - {}", imageUrlList.size());
                 return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
-            }).toList();
+            }
+        ).toList();
     }
 
     @Transactional(readOnly = true)
@@ -77,7 +79,9 @@ public class ReviewService {
         }
 
         List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
-        imageUrlList.forEach(image -> {log.info("리뷰의 이미지 url : {}", image);});
+        imageUrlList.forEach(image -> {
+            log.info("리뷰의 이미지 url : {}", image);
+        });
         return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
     }
 
@@ -99,10 +103,12 @@ public class ReviewService {
         Review newReview = reviewMapper.toReview(request, store, order, user);
         reviewRepository.save(newReview);
 
-        imageList.forEach(image -> {
-            String path = imageService.uploadImage(newReview.getId(), EntityType.REVIEW, image);
-            log.info("리뷰 이미지 저장 url : {}", path);
-        });
+        if (imageList != null) {
+            imageList.forEach(image -> {
+                String path = imageService.uploadImage(newReview.getId(), EntityType.REVIEW, image);
+                log.info("리뷰 이미지 저장 url : {}", path);
+            });
+        }
     }
 
     @Transactional
@@ -114,16 +120,16 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다.");
         }
 
-        if(imageList != null) {
+        imageService.deleteAllImagesByEntity(id, EntityType.REVIEW);
+
+        if (imageList != null) {
             imageList.forEach(image -> {
                 String url = imageService.uploadImage(id, EntityType.REVIEW, image);
                 log.info("새로 생성된 URL : {}", url);
             });
         }
-        imageService.deleteAllImagesByEntity(id, EntityType.REVIEW);
 
         review.update(update);
-        reviewRepository.saveAndFlush(review);
         log.info("리뷰: {}, 수정 완료", id);
     }
 
@@ -151,13 +157,15 @@ public class ReviewService {
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
         return reviewRepository.findAllByStoreIdAndIsDeletedIsFalse(pageable, store.getId()).stream().map(
-        review-> {
+            review -> {
                 log.info("리뷰 id : {}", review.getId());
                 List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
-                log.info("리뷰 이미지 url - {}",imageUrlList);
+                log.info("리뷰 이미지 url - {}", imageUrlList);
                 return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
-            }).toList();
+            }
+        ).toList();
     }
+
 
     public Review getReviewByIdAndIsDeletedIsFalse(UUID id) {
         return reviewRepository.findByIdAndIsDeletedIsFalse(id)
