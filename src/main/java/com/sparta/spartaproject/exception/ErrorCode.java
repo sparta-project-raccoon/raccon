@@ -26,14 +26,17 @@ public enum ErrorCode {
     USER_NOT_AUTHENTICATED_OR_SUSPENDED(HttpStatus.UNAUTHORIZED, "인증이 완료되지 않은 사용자이거나 정지된 사용자입니다."),
     USERNAME_OR_EMAIL_ALREADY_IN_USE(HttpStatus.ALREADY_REPORTED, "이미 사용중인 아이디 또는 이메일 입니다."),
     SAME_PASSWORD_CHANGE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "같은 비밀번호로는 변경이 불가능합니다."),
+    ALREADY_ROLE_MASTER(HttpStatus.BAD_REQUEST, "이미 마스터 권한입니다."),
+    USER_INVALID_ACCESS(HttpStatus.BAD_REQUEST, "잘못된 접근입니다."),
+    ALREADY_ROLE_MANAGER(HttpStatus.BAD_REQUEST, "이미 매니저 권한입니다."),
 
     // order
     ORDER_NOT_EXIST(HttpStatus.NOT_FOUND, "주문이 존재하지 않습니다."),
-    CAN_NOT_CANCEL_ORDER(HttpStatus.BAD_REQUEST,"주문 취소 가능시간 5분이 지나 취소할 수 없습니다."),
-    ORDER_FORBIDDEN(HttpStatus.FORBIDDEN,"주문 상태 변경 권한이 존재하지 않습니다."),
+    CAN_NOT_CANCEL_ORDER(HttpStatus.BAD_REQUEST, "주문 취소 가능시간 5분이 지나 취소할 수 없습니다."),
+    ORDER_FORBIDDEN(HttpStatus.FORBIDDEN, "주문 상태 변경 권한이 존재하지 않습니다."),
 
     // pay history
-    PAY_HISTORY_NOT_EXIST(HttpStatus.NOT_FOUND,"결제 정보가 존재하지 않습니다."),
+    PAY_HISTORY_NOT_EXIST(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."),
     //room Validation
 
 
