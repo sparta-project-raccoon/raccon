@@ -35,7 +35,7 @@ public class PayHistoryService {
     private final PayHistoryMapper payHistoryMapper;
     private final UserService userService;
 
-    private Integer size = 10;
+    private final Integer size = 10;
 
     @Transactional
     public void createPayHistory(CreatePayHistoryRequestDto request) {

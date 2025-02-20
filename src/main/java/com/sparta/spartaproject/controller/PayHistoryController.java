@@ -1,17 +1,15 @@
 package com.sparta.spartaproject.controller;
 
 import com.sparta.spartaproject.domain.pay.PayHistoryService;
-import com.sparta.spartaproject.dto.response.PayHistoryDto;
 import com.sparta.spartaproject.dto.request.CreatePayHistoryRequestDto;
 import com.sparta.spartaproject.dto.request.UpdatePayHistoryDto;
 import com.sparta.spartaproject.dto.response.PayHistoryDetailDto;
+import com.sparta.spartaproject.dto.response.PayHistoryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
