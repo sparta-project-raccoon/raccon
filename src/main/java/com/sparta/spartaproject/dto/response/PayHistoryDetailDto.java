@@ -6,7 +6,8 @@ public record PayHistoryDetailDto(
         UUID orderId,
         String shopName,
         Integer totalPrice,
-        String paymentMethod
+        String paymentMethod,
+        String payStatusDescription
 ) {
 
 }

@@ -5,6 +5,8 @@ import java.util.UUID;
 public record OnlyPayHistoryDto(
         UUID orderId,
         String shopName,
-        Integer totalPrice
+        Integer totalPrice,
+        String paymentMethod,
+        String status
 ) {
 }

@@ -6,7 +6,7 @@ public enum PayStatus {
     CANCELLED("결제 취소")
     ;
 
-    private String description;
+    String description;
 
     PayStatus(String description) {
         this.description = description;

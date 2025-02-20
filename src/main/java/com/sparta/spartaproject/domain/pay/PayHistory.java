@@ -69,4 +69,7 @@ public class PayHistory extends BaseEntity {
         this.deletedAt = LocalDateTime.now();
     }
 
+    public void updateStatus(PayStatus status) {
+        this.status = status;
+    }
 }
