@@ -30,11 +30,19 @@ public class QPayHistory extends EntityPathBase<PayHistory> {
     //inherited
     public final NumberPath<Long> createdBy = _super.createdBy;
 
+    public final DateTimePath<java.time.LocalDateTime> deletedAt = createDateTime("deletedAt", java.time.LocalDateTime.class);
+
     public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
+
+    public final BooleanPath isDeleted = createBoolean("isDeleted");
 
     public final com.sparta.spartaproject.domain.order.QOrder order;
 
-    public final EnumPath<com.sparta.spartaproject.domain.order.PaymentMethod> payMethod = createEnum("payMethod", com.sparta.spartaproject.domain.order.PaymentMethod.class);
+    public final EnumPath<com.sparta.spartaproject.domain.order.PaymentMethod> paymentMethod = createEnum("paymentMethod", com.sparta.spartaproject.domain.order.PaymentMethod.class);
+
+    public final EnumPath<PayStatus> status = createEnum("status", PayStatus.class);
+
+    public final com.sparta.spartaproject.domain.store.QStore store;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
@@ -63,6 +71,7 @@ public class QPayHistory extends EntityPathBase<PayHistory> {
     public QPayHistory(Class<? extends PayHistory> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.order = inits.isInitialized("order") ? new com.sparta.spartaproject.domain.order.QOrder(forProperty("order"), inits.get("order")) : null;
+        this.store = inits.isInitialized("store") ? new com.sparta.spartaproject.domain.store.QStore(forProperty("store"), inits.get("store")) : null;
         this.user = inits.isInitialized("user") ? new com.sparta.spartaproject.domain.user.QUser(forProperty("user")) : null;
     }
 
