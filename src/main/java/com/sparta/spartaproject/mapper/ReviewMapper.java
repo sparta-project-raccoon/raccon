@@ -24,5 +24,7 @@ public interface ReviewMapper {
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
     Review toReview(CreateReviewRequestDto createReviewRequestDto, Store store, Order order, User user);
 }

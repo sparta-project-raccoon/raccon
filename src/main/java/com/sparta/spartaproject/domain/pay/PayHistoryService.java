@@ -39,7 +39,7 @@ public class PayHistoryService {
 
     @Transactional
     public void createPayHistory(CreatePayHistoryRequestDto request) {
-        Order order = orderRepository.findByIdAndIsDeletedFalse(request.orderId())
+        Order order = orderRepository.findByIdAndUserIsDeletedFalse(request.orderId(), getUser())
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         Store store = storeRepository.findById(request.storeId())

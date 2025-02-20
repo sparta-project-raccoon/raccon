@@ -20,6 +20,8 @@ public interface PayHistoryMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "order", source = "order")
     @Mapping(target = "store", source = "store")
     @Mapping(target = "paymentMethod", source = "request.paymentMethod")
