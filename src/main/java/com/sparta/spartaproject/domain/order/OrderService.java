@@ -74,6 +74,7 @@ public class OrderService {
         }
 
         order.changeOrderStatus(CANCEL);
+        order.deleteOrder();
         orderRepository.save(order);
     }
 
