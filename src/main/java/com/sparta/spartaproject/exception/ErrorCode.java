@@ -57,6 +57,8 @@ public enum ErrorCode {
 
     // 카테고리
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."),
+    CATEGORY_IS_USED(HttpStatus.BAD_REQUEST, "사용중인 카테고리이므로 삭제할 수 없습니다."),
+    ALREADY_CATEGORY(HttpStatus.BAD_REQUEST, "이미 사용중인 카테고리 입니다."),
 
     // 음식
     FOOD_FORBIDDEN(HttpStatus.FORBIDDEN, "현재 로그인한 사용자와 업주가 일치하지 않습니다."),
