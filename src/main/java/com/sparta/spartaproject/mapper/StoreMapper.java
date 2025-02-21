@@ -13,9 +13,11 @@ import java.util.List;
 public interface StoreMapper {
     @Mapping(target = "id", source = "store.id")
     @Mapping(target = "categories", source = "categories")
-    StoreDetailDto toStoreDetailDto(List<CategoryDto> categories, Store store);
+    @Mapping(target = "imageUrls", source = "imageUrls")
+    StoreDetailDto toStoreDetailDto(List<CategoryDto> categories, List<String> imageUrls,Store store);
 
-    OnlyStoreDto toOnlyStoreDto(Store store);
+    @Mapping(target = "imageUrls", source = "imageUrls")
+    OnlyStoreDto toOnlyStoreDto(Store store, List<String> imageUrls);
 
     @Mapping(target = "stores", source = "source")
     StoreDto toStoreDto(List<StoreDetailDto> source, Integer currentPage, Integer totalPages, Integer totalElements);

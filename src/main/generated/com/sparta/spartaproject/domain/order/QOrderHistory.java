@@ -27,7 +27,7 @@ public class QOrderHistory extends EntityPathBase<OrderHistory> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
-    public final ComparablePath<java.util.UUID> food_id = createComparable("food_id", java.util.UUID.class);
+    public final com.sparta.spartaproject.domain.food.QFood food;
 
     public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
 
@@ -60,6 +60,7 @@ public class QOrderHistory extends EntityPathBase<OrderHistory> {
 
     public QOrderHistory(Class<? extends OrderHistory> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
+        this.food = inits.isInitialized("food") ? new com.sparta.spartaproject.domain.food.QFood(forProperty("food"), inits.get("food")) : null;
         this.order = inits.isInitialized("order") ? new QOrder(forProperty("order"), inits.get("order")) : null;
         this.store = inits.isInitialized("store") ? new com.sparta.spartaproject.domain.store.QStore(forProperty("store"), inits.get("store")) : null;
     }
