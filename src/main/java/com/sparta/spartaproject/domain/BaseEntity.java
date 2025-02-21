@@ -1,8 +1,6 @@
 package com.sparta.spartaproject.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -19,8 +17,10 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class BaseEntity {
+public abstract class BaseEntity {
     @CreatedDate
+    @Column(updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @CreatedBy
@@ -28,6 +28,8 @@ public class BaseEntity {
     private Long createdBy;
 
     @LastModifiedDate
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
     @LastModifiedBy

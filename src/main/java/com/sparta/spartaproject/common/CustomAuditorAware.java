@@ -1,22 +1,27 @@
 package com.sparta.spartaproject.common;
 
-import com.sparta.spartaproject.domain.user.User;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Component
-public class CustomAuditorAware implements AuditorAware<String> {
+@Configuration
+@EnableJpaAuditing
+@RequiredArgsConstructor
+public class CustomAuditorAware implements AuditorAware<Long> {
 
     @Override
-    public Optional<String> getCurrentAuditor() {
-        // 현재 로그인한 사용자 정보 추출
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof User) {
-            return Optional.of(((User) principal).getUsername());
+    public Optional<Long> getCurrentAuditor() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        return Optional.of(Long.valueOf(authentication.getName()));
     }
 }
