@@ -22,6 +22,10 @@ public class CustomAuditorAware implements AuditorAware<Long> {
             return Optional.empty();
         }
 
-        return Optional.of(Long.valueOf(authentication.getName()));
+        try {
+            return Optional.of(Long.valueOf(authentication.getName()));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 }
