@@ -9,9 +9,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.nio.file.AccessDeniedException;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException e) {
+        log.error("권한 에러 : {} ", e.getMessage());
+        final ErrorCode code = ErrorCode.HANDLE_ACCESS_DENIED;
+        final ErrorResponse response = ErrorResponse.of(code);
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
 
     /*
     @Valid

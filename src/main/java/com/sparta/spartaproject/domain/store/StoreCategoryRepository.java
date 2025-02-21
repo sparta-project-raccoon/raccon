@@ -30,4 +30,6 @@ public interface StoreCategoryRepository extends JpaRepository<StoreCategory, UU
         Pageable pageable,
         @Param("category") Category category
     );
+
+    Boolean existsByCategoryAndIsDeletedIsFalse(Category category);
 }

@@ -21,4 +21,8 @@ public class StoreCategoryService {
     public List<Store> getStoresByCategory(Pageable pageable, Category category) {
         return storeCategoryRepository.findAllStoreListByCategory(pageable, category);
     }
+
+    public Boolean existsByCategory(Category category) {
+        return storeCategoryRepository.existsByCategoryAndIsDeletedIsFalse(category);
+    }
 }
