@@ -10,4 +10,6 @@ import java.util.UUID;
 public interface PayHistoryRepository extends JpaRepository<PayHistory, UUID> {
 
     List<PayHistory> findAllByUser(Pageable pageable, User user);
+
+    PayHistory findByOrderId(UUID orderId);
 }

@@ -2,6 +2,8 @@ package com.sparta.spartaproject.domain.order;
 
 import com.sparta.spartaproject.domain.food.Food;
 import com.sparta.spartaproject.domain.food.FoodRepository;
+import com.sparta.spartaproject.domain.pay.PayHistory;
+import com.sparta.spartaproject.domain.pay.PayHistoryRepository;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.store.StoreRepository;
 import com.sparta.spartaproject.domain.user.User;
@@ -44,10 +46,13 @@ public class OrderService {
     private final FoodRepository foodRepository;
 
     private final Integer size = 10;
+    private final PayHistoryRepository payHistoryRepository;
 
     @Transactional(readOnly = true)
     public OrderStatusDto getStatus(UUID orderId) {
-        Order findedOrder = orderRepository.findByIdAndUserAndIsDeletedFalse(orderId, getUser())
+        User user = getUser();
+
+        Order findedOrder = orderRepository.findByIdAndUserAndIsDeletedFalse(orderId, user)
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderStatusResponseDto(findedOrder);
@@ -55,7 +60,9 @@ public class OrderService {
 
     @Transactional
     public void cancelOrder(UUID orderId) {
-        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(orderId, getUser())
+        User user = getUser();
+
+        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(orderId, user)
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(5))) {
@@ -118,10 +125,17 @@ public class OrderService {
             totalPrice += findFood.getPrice() * food.quantity();
         }
 
+        PayHistory payHistory = PayHistory.builder()
+                .order(order)
+                .store(store)
+                .user(user)
+                .paymentMethod(PaymentMethod.CARD)
+                .build();
+
         order.updateTotalPrice(totalPrice);
 
         orderRepository.save(order);
-
+        payHistoryRepository.save(payHistory);
         orderHistoryRepository.saveAll(orderHistoryList);
 
     }
@@ -130,7 +144,9 @@ public class OrderService {
     public OrderDto getAllOrders(int page) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        List<Order> orders = orderRepository.findAllByUserAndIsDeletedFalse(pageable, getUser());
+        User user = getUser();
+
+        List<Order> orders = orderRepository.findAllByUserAndIsDeletedFalse(pageable, user);
 
         int totalOrderCount = orders.size();
 
@@ -140,18 +156,21 @@ public class OrderService {
                                 orderMapper.toOrderOnlyDto(order,
                                         orderHistoryRepository.findFirstByOrderId(order.getId())
                                                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST)).getFood().getName(),
-                                        orderHistoryRepository.countByOrder(order)
+                                        orderHistoryRepository.findByOrderId(order.getId()).stream()
+                                                .mapToInt(OrderHistory::getQty)
+                                                .sum()
                                 ))
                 .toList();
 
         return orderMapper.toOrderDto(orderDtoList, page, (int) Math.ceil((double) totalOrderCount / size), totalOrderCount);
-
     }
 
     @Transactional
     public OrderDetailDto getOrderDetail(UUID id) {
 
-        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(id, getUser())
+        User user = getUser();
+
+        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(id, user)
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
 
         return orderMapper.toOrderDetailResponseDto(order);
@@ -163,12 +182,17 @@ public class OrderService {
     }
 
     public Order getOrderByIdAndIsDeletedIsFalse(UUID id) {
-        return orderRepository.findByIdAndUserAndIsDeletedFalse(id, getUser())
+
+        User user = getUser();
+
+        return orderRepository.findByIdAndUserAndIsDeletedFalse(id, user)
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
     }
 
     private Order getMyStoreOrder(UUID orderId) {
-        return orderRepository.findByIdAndStoreOwnerAndIsDeletedIsFalse(orderId, getUser())
+        User user = getUser();
+
+        return orderRepository.findByIdAndStoreOwnerAndIsDeletedIsFalse(orderId, user)
                 .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
     }
 }
