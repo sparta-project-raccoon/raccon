@@ -3,6 +3,7 @@ package com.sparta.spartaproject.mapper;
 import com.sparta.spartaproject.domain.user.Role;
 import com.sparta.spartaproject.domain.user.Status;
 import com.sparta.spartaproject.domain.user.User;
+import com.sparta.spartaproject.dto.request.SignUpRequestDto;
 import com.sparta.spartaproject.dto.response.FindUsernameDto;
 import com.sparta.spartaproject.dto.response.UserInfoDto;
 import javax.annotation.processing.Generated;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-19T17:49:49+0900",
+    date = "2025-02-20T23:24:17+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Oracle Corporation)"
 )
 @Component
@@ -56,5 +57,25 @@ public class UserMapperImpl implements UserMapper {
         FindUsernameDto findUsernameDto = new FindUsernameDto( username );
 
         return findUsernameDto;
+    }
+
+    @Override
+    public User toUser(SignUpRequestDto source, String encodedPassword) {
+        if ( source == null && encodedPassword == null ) {
+            return null;
+        }
+
+        User.UserBuilder<?, ?> user = User.builder();
+
+        if ( source != null ) {
+            user.username( source.username() );
+            user.email( source.email() );
+            user.name( source.name() );
+            user.phone( source.phone() );
+            user.address( source.address() );
+        }
+        user.password( encodedPassword );
+
+        return user.build();
     }
 }
