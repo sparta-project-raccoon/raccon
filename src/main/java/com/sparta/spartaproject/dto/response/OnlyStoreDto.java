@@ -5,9 +5,11 @@ import com.sparta.spartaproject.domain.store.Status;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 public record OnlyStoreDto(
+    List<String> imageUrls,
     UUID id,
     String name,
     String address,

@@ -110,13 +110,13 @@ public class FoodService {
             }
         }
 
+        imageService.deleteAllImagesByEntity(id, EntityType.FOOD);
         if (image!=null){
             imageService.uploadImage(id,EntityType.FOOD, image);
         }
 
         food.update(update);
         foodRepository.saveAndFlush(food);
-        imageService.deleteAllImagesByEntity(id, EntityType.FOOD);
 
         log.info("음식 수정 완료 : {}", food.getName());
     }

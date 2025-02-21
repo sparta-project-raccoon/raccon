@@ -29,6 +29,7 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
             "AND s.owner = :owner"
     )
     List<Store> findAllStoreListByOwner(
+        Pageable pageable,
         @Param("owner") User owner
     );
 
