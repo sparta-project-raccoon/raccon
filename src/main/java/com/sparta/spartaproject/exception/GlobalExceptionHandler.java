@@ -1,5 +1,8 @@
 package com.sparta.spartaproject.exception;
 
+import com.sparta.spartaproject.domain.slack.SlackService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +15,9 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+    private final SlackService slackService;
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AuthorizationDeniedException e) {
@@ -58,10 +63,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BusinessException.class) //비즈니스로직에서 던져지는,발생되는 예외들에 대한 처리 (validation오류들과 같은)
-    protected ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
+    protected ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e, HttpServletRequest request) {
         log.error("handle 내부 로직 에러(BusinessException) : {} ", e.getMessage());
         final ErrorCode code = e.getErrorCode();
         final ErrorResponse response = ErrorResponse.of(code);
+        slackService.sendMessage(e, request);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
