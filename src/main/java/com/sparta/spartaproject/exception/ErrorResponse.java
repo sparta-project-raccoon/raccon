@@ -17,7 +17,7 @@ public class ErrorResponse {
     private int status; // http상태코드
 
     //생성자는 private해되야 정적 팩토리 메소드가 의미가있다.
-    private ErrorResponse(final ErrorCode errorCode) { //에러코드객체만 들어왔다면 그 객체를 이용해서 에러응답객체를 만들어준다.
+    public ErrorResponse(final ErrorCode errorCode) { //에러코드객체만 들어왔다면 그 객체를 이용해서 에러응답객체를 만들어준다.
         this.message = errorCode.getMessage();
         this.status = errorCode.getStatus().value();
     }
