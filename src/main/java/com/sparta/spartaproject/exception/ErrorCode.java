@@ -16,7 +16,7 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND(HttpStatus.BAD_REQUEST, " Entity Not Found"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error"),
     INVALID_TYPE_VALUE(HttpStatus.BAD_REQUEST, " Invalid Type Value"),
-    HANDLE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "Access is Denied"),
+
 
     //Member Validation
     EMAIL_DUPLICATION(HttpStatus.BAD_REQUEST, "중복 이메일입니다."),
@@ -70,6 +70,7 @@ public enum ErrorCode {
     VERIFICATION_CODE_REQUEST_TIMEOUT(HttpStatus.BAD_REQUEST, "인증번호 요청 시간이 3분을 초과했습니다."),
     EXCEEDED_MAX_VERIFICATION_ATTEMPTS(HttpStatus.BAD_REQUEST, "인증 코드 불일치 5회 초과, 재인증 요청해주세요."),
     VERIFICATION_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다."),
+    HANDLE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다."),
 
     // Gemini History
     GEMINI_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "Gemini 내역이 존재하지 않습니다."),

@@ -41,13 +41,16 @@ public class PayHistoryService {
 
     @Transactional
     public void createPayHistory(CreatePayHistoryRequestDto request) {
-        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(request.orderId(), getUser())
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        User user = getUser();
+//        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(request.orderId(), user)
+//                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+//
+//        Store store = storeRepository.findById(request.storeId())
+//                .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
+//
+//        PayHistory payHistory = payHistoryMapper.toPayHistory(request, order, store, user);
 
-        Store store = storeRepository.findById(request.storeId())
-                .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
-
-        PayHistory payHistory = payHistoryMapper.toPayHistory(request, order, store, getUser());
+        PayHistory payHistory = payHistoryRepository.findByOrderId(request.orderId());
 
         payHistory.updateStatus(COMPLETED);
         payHistoryRepository.save(payHistory);
@@ -87,7 +90,9 @@ public class PayHistoryService {
     public PayHistoryDto getPayHistoryList(int page) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        List<PayHistory> payHistoryList = payHistoryRepository.findAllByUser(pageable, getUser());
+        User user = getUser();
+
+        List<PayHistory> payHistoryList = payHistoryRepository.findAllByUser(pageable, user);
 
         List<OnlyPayHistoryDto> onlyPayHistoryDtoList = payHistoryList.stream()
                 .map(
