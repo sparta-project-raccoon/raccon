@@ -7,6 +7,7 @@ import com.sparta.spartaproject.dto.response.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -34,7 +35,9 @@ public interface StoreMapper {
     @Mapping(target = "name", source = "source.name")
     @Mapping(target = "address", source = "source.address")
     @Mapping(target = "status", source = "source.status")
+    @Mapping(target = "openTime", source = "openTime")
+    @Mapping(target = "closeTime", source = "closeTime")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    Store toStore(CreateStoreRequestDto source, User user);
+    Store toStore(CreateStoreRequestDto source, User user, LocalTime openTime, LocalTime closeTime);
 }

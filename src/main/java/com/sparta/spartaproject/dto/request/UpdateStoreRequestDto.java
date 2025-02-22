@@ -14,8 +14,8 @@ public record UpdateStoreRequestDto(
     Status status,
     String tel,
     String description,
-    LocalTime openTime,
-    LocalTime closeTime,
+    String openTime,
+    String closeTime,
     ClosedDays closedDays
 ) {
 }
