@@ -1,6 +1,7 @@
 package com.sparta.spartaproject.domain.store;
 
 import com.sparta.spartaproject.domain.BaseEntity;
+import com.sparta.spartaproject.domain.food.Food;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
@@ -81,6 +82,9 @@ public class Store extends BaseEntity {
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<StoreCategory> storeCategories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Food> foods = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

@@ -5,12 +5,12 @@ import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.response.FoodDetailDto;
 import com.sparta.spartaproject.dto.response.FoodDto;
+import com.sparta.spartaproject.dto.response.FoodQtySummaryDto;
+import com.sparta.spartaproject.dto.response.FoodSummaryDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Mapper(componentModel = "spring")
 public interface FoodMapper {
@@ -34,7 +34,12 @@ public interface FoodMapper {
     @Mapping(target = "totalPages", source = "totalPages")
     FoodDto toFoodDto(List<FoodDetailDto> foods, Integer page, Integer totalPages);
 
-
-    @Mapping(target ="imagePath", source = "imageUrl")
+    @Mapping(target = "imagePath", source = "imageUrl")
     FoodDetailDto toFoodDetailDto(Food food, String imageUrl);
+
+    FoodSummaryDto toFoodSummaryDto(Food food);
+
+    @Mapping(target = "qty", source = "qty")
+    @Mapping(target = "food", source = "food")
+    FoodQtySummaryDto toFoodQtySummaryDto(Integer qty, FoodSummaryDto food);
 }
