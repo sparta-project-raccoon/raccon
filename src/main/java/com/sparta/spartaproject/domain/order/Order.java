@@ -1,7 +1,6 @@
 package com.sparta.spartaproject.domain.order;
 
 import com.sparta.spartaproject.domain.BaseEntity;
-import com.sparta.spartaproject.domain.BaseTimeEntity;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import jakarta.persistence.*;
@@ -13,6 +12,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -33,33 +34,46 @@ public class Order extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private Store store;
 
-    @Column(name = "total_price", nullable = false)
+    @Column(
+        nullable = false
+    )
     private Integer totalPrice;
 
-    @Column(nullable = false)
+    private String request;
+
+    @Column(
+        nullable = false
+    )
     @Enumerated(EnumType.STRING)
     private OrderMethod orderMethod;
 
-    @Column(nullable = false)
+    @Column(
+        nullable = false
+    )
+    @Enumerated(EnumType.STRING)
+    private PayMethod payMethod;
+
+    @Column(
+        nullable = false
+    )
+    private String address;
+
+    @Column(
+        nullable = false
+    )
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private PaymentMethod payMethod;
-
-    @Column(nullable = false)
-    private String address;
-
-    @Column(nullable = false)
-    private String request;
+    private Integer totalFoodCount;
 
     private Boolean isDeleted;
 
-    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public void changeOrderStatus(OrderStatus orderStatus) {
+    @OneToMany(mappedBy = "order")
+    private List<OrderHistory> orderHistories = new ArrayList<>();
+
+    public void updateStatus(OrderStatus orderStatus) {
         this.status = orderStatus;
     }
 

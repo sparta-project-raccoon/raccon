@@ -34,7 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -72,15 +71,18 @@ public class StoreService {
 
         if (imageList != null && !imageList.isEmpty()) {
             List<String> imageUrls = imageList.stream()
-                    .map(image -> imageService.uploadImage(newStore.getId(), EntityType.STORE, image))
-                    .collect(Collectors.toList());
+                .map(
+                    image -> imageService.uploadImage(
+                        newStore.getId(), EntityType.STORE, image
+                    )
+                ).toList();
 
             log.info("가게 이미지 {}개 저장 완료", imageUrls.size());
         }
     }
 
     @Transactional(readOnly = true)
-    public StoreDto getStores(int page, String sortDirection,String name) {
+    public StoreDto getStores(int page, String sortDirection, String name) {
         Sort sort = SortUtils.getSort(sortDirection);
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
@@ -94,7 +96,7 @@ public class StoreService {
                     storeCategoryService.getCategoriesByStore(store).stream().map(
                         categoryMapper::toCategoryDto
                     ).toList(),
-                    imageService.getImageUrlByEntity(store.getId(),EntityType.STORE),
+                    imageService.getImageUrlByEntity(store.getId(), EntityType.STORE),
                     store
                 )
             ).toList(),
@@ -113,7 +115,7 @@ public class StoreService {
             storeCategoryService.getCategoriesByStore(store).stream().map(
                 categoryMapper::toCategoryDto
             ).toList(),
-            imageService.getImageUrlByEntity(store.getId(),EntityType.STORE),
+            imageService.getImageUrlByEntity(store.getId(), EntityType.STORE),
             store
         );
     }
@@ -125,8 +127,9 @@ public class StoreService {
         Category category = categoryService.getCategoryById(categoryId);
 
         List<OnlyStoreDto> storeList = storeCategoryService.getStoresByCategory(pageable, category).stream().map(
-            store -> { return storeMapper.toOnlyStoreDto(store,
-                    imageService.getImageUrlByEntity(store.getId(),EntityType.STORE));
+            store -> {
+                return storeMapper.toOnlyStoreDto(store,
+                    imageService.getImageUrlByEntity(store.getId(), EntityType.STORE));
             }
         ).toList();
 
@@ -154,9 +157,9 @@ public class StoreService {
             storeList.stream().map(
                 store -> storeMapper.toStoreDetailDto(
                     storeCategoryService.getCategoriesByStore(store).stream().map(
-                            categoryMapper::toCategoryDto
+                        categoryMapper::toCategoryDto
                     ).toList(),
-                    imageService.getImageUrlByEntity(store.getId(),EntityType.STORE),
+                    imageService.getImageUrlByEntity(store.getId(), EntityType.STORE),
                     store
                 )
             ).toList(),
@@ -180,7 +183,7 @@ public class StoreService {
         store.update(update);
 
         // 2. 기존 이미지 삭제
-        imageService.deleteAllImagesByEntity(store.getId(),EntityType.STORE);
+        imageService.deleteAllImagesByEntity(store.getId(), EntityType.STORE);
 
         // 3. 새로운 이미지 업로드
         if (imageList != null && !imageList.isEmpty()) {
@@ -223,7 +226,7 @@ public class StoreService {
             throw new BusinessException(ErrorCode.STORE_UNAUTHORIZED);
         }
 
-        // TODO: 완료된 주문이 있을 경우, 가게 삭제 X
+        // TODO: 완료되지 않은 주문이 있을 경우, 가게 삭제 X
 
         // 1. 기존 이미지 삭제
         imageService.deleteAllImagesByEntity(id, EntityType.STORE);

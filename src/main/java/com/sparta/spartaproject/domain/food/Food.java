@@ -1,6 +1,7 @@
 package com.sparta.spartaproject.domain.food;
 
 import com.sparta.spartaproject.domain.BaseEntity;
+import com.sparta.spartaproject.domain.order.OrderHistory;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodStatusRequestDto;
@@ -13,6 +14,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -68,6 +71,9 @@ public class Food extends BaseEntity {
 
     private LocalDateTime deletedAt;
 
+    @OneToMany(mappedBy = "food")
+    private List<OrderHistory> orderHistories = new ArrayList<>();
+
     @PrePersist
     public void prePersist() {
         if (id == null) {
@@ -110,5 +116,4 @@ public class Food extends BaseEntity {
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
     }
-
 }

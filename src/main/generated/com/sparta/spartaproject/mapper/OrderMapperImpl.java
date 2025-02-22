@@ -9,7 +9,6 @@ import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.CreateOrderRequestDto;
 import com.sparta.spartaproject.dto.response.OnlyOrderDto;
 import com.sparta.spartaproject.dto.response.OrderDetailDto;
-import com.sparta.spartaproject.dto.response.OrderDto;
 import com.sparta.spartaproject.dto.response.OrderStatusDto;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

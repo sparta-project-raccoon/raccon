@@ -2,6 +2,7 @@ package com.sparta.spartaproject.domain.pay;
 
 import com.sparta.spartaproject.domain.order.Order;
 import com.sparta.spartaproject.domain.order.OrderRepository;
+import com.sparta.spartaproject.domain.order.PayMethod;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.store.StoreRepository;
 import com.sparta.spartaproject.domain.user.User;
@@ -14,6 +15,7 @@ import com.sparta.spartaproject.dto.response.PayHistoryDto;
 import com.sparta.spartaproject.exception.BusinessException;
 import com.sparta.spartaproject.mapper.PayHistoryMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import static com.sparta.spartaproject.domain.pay.PayStatus.CANCELLED;
 import static com.sparta.spartaproject.domain.pay.PayStatus.COMPLETED;
 import static com.sparta.spartaproject.exception.ErrorCode.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PayHistoryService {
@@ -42,18 +45,18 @@ public class PayHistoryService {
     @Transactional
     public void createPayHistory(CreatePayHistoryRequestDto request) {
         User user = getUser();
-//        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(request.orderId(), user)
-//                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
-//
-//        Store store = storeRepository.findById(request.storeId())
-//                .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
-//
+        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(request.orderId(), user)
+                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+
+        Store store = storeRepository.findById(request.storeId())
+                .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
+
+//        PayHistory payHistory = payHistoryRepository.findByOrderId(request.orderId());
 //        PayHistory payHistory = payHistoryMapper.toPayHistory(request, order, store, user);
 
-        PayHistory payHistory = payHistoryRepository.findByOrderId(request.orderId());
 
-        payHistory.updateStatus(COMPLETED);
-        payHistoryRepository.save(payHistory);
+//        payHistory.updateStatus(COMPLETED);
+//        payHistoryRepository.save(payHistory);
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +64,7 @@ public class PayHistoryService {
         PayHistory payHistory = payHistoryRepository.findById(payHistoryId)
                 .orElseThrow(() -> new BusinessException(PAY_HISTORY_NOT_EXIST));
 
-        return payHistoryMapper.toPayHistoryDetailDto(payHistory, payHistory.getStatus().description, payHistory.getPaymentMethod().getDescription());
+        return payHistoryMapper.toPayHistoryDetailDto(payHistory, payHistory.getStatus().description, payHistory.getPayMethod().getDescription());
     }
 
     @Transactional
@@ -78,7 +81,7 @@ public class PayHistoryService {
         PayHistory payHistory = payHistoryRepository.findById(payHistoryId)
                 .orElseThrow(() -> new BusinessException(PAY_HISTORY_NOT_EXIST));
 
-        payHistory.getOrder().changeOrderStatus(CANCEL);
+        payHistory.getOrder().updateStatus(CANCEL);
 
         payHistory.updateStatus(CANCELLED);
 
@@ -97,7 +100,7 @@ public class PayHistoryService {
         List<OnlyPayHistoryDto> onlyPayHistoryDtoList = payHistoryList.stream()
                 .map(
                         payHistory ->
-                                payHistoryMapper.toOnlyPayHistoryDto(payHistory,payHistory.getStatus().description, payHistory.getPaymentMethod().getDescription())
+                                payHistoryMapper.toOnlyPayHistoryDto(payHistory,payHistory.getStatus().description, payHistory.getPayMethod().getDescription())
                 ).toList();
 
         int totalCount = payHistoryList.size();
@@ -113,5 +116,13 @@ public class PayHistoryService {
 
     private User getUser() {
         return userService.loginUser();
+    }
+
+
+    public void savePayHistory(Order order, Store store, User user, PayMethod payMethod) {
+        PayHistory newPayHistory = payHistoryMapper.toPayHistory(order, store, user, payMethod);
+        payHistoryRepository.save(newPayHistory);
+
+        log.info("결제 내역 저장");
     }
 }

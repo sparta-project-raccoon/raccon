@@ -16,6 +16,7 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND(HttpStatus.BAD_REQUEST, " Entity Not Found"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error"),
     INVALID_TYPE_VALUE(HttpStatus.BAD_REQUEST, " Invalid Type Value"),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다."),
 
 
     //Member Validation
@@ -30,10 +31,13 @@ public enum ErrorCode {
     USER_INVALID_ACCESS(HttpStatus.BAD_REQUEST, "잘못된 접근입니다."),
     ALREADY_ROLE_MANAGER(HttpStatus.BAD_REQUEST, "이미 매니저 권한입니다."),
 
+
     // order
     ORDER_NOT_EXIST(HttpStatus.NOT_FOUND, "주문이 존재하지 않습니다."),
     CAN_NOT_CANCEL_ORDER(HttpStatus.BAD_REQUEST, "주문 취소 가능시간 5분이 지나 취소할 수 없습니다."),
     ORDER_FORBIDDEN(HttpStatus.FORBIDDEN, "주문 상태 변경 권한이 존재하지 않습니다."),
+    SELF_STORE_ORDER_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자신의 가게에는 주문할 수 없습니다."),
+
 
     // pay history
     PAY_HISTORY_NOT_EXIST(HttpStatus.NOT_FOUND, "결제 정보가 존재하지 않습니다."),
@@ -63,6 +67,7 @@ public enum ErrorCode {
     // 음식
     FOOD_FORBIDDEN(HttpStatus.FORBIDDEN, "현재 로그인한 사용자와 업주가 일치하지 않습니다."),
     FOOD_NOT_FOUND(HttpStatus.NOT_FOUND, "음식 정보가 존재하지 않습니다."),
+    FOOD_NOT_IN_STORE(HttpStatus.BAD_REQUEST, "가게에 등록되어 있지 않은 음식입니다."),
 
     // 인증
     MIN_RE_AUTHENTICATION_TIME_NOT_PASSED(HttpStatus.BAD_REQUEST, "3분 내 재인증 요청할 수 없습니다."),

@@ -1,198 +1,209 @@
 package com.sparta.spartaproject.domain.order;
 
+import com.sparta.spartaproject.common.SortUtils;
+import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.food.Food;
-import com.sparta.spartaproject.domain.food.FoodRepository;
-import com.sparta.spartaproject.domain.pay.PayHistory;
-import com.sparta.spartaproject.domain.pay.PayHistoryRepository;
 import com.sparta.spartaproject.domain.store.Store;
-import com.sparta.spartaproject.domain.store.StoreRepository;
+import com.sparta.spartaproject.domain.store.StoreService;
+import com.sparta.spartaproject.domain.user.Role;
 import com.sparta.spartaproject.domain.user.User;
-import com.sparta.spartaproject.domain.user.UserService;
 import com.sparta.spartaproject.dto.request.CreateFoodOrderRequestDto;
 import com.sparta.spartaproject.dto.request.CreateOrderRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateOrderStatusRequestDto;
 import com.sparta.spartaproject.dto.response.OrderDetailDto;
-import com.sparta.spartaproject.dto.response.OnlyOrderDto;
 import com.sparta.spartaproject.dto.response.OrderDto;
-import com.sparta.spartaproject.dto.response.OrderStatusDto;
 import com.sparta.spartaproject.exception.BusinessException;
+import com.sparta.spartaproject.exception.ErrorCode;
+import com.sparta.spartaproject.mapper.FoodMapper;
 import com.sparta.spartaproject.mapper.OrderHistoryMapper;
 import com.sparta.spartaproject.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
-import static com.sparta.spartaproject.domain.order.OrderStatus.*;
-import static com.sparta.spartaproject.exception.ErrorCode.*;
+import static com.sparta.spartaproject.exception.ErrorCode.CAN_NOT_CANCEL_ORDER;
+import static com.sparta.spartaproject.exception.ErrorCode.ORDER_NOT_EXIST;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class OrderService {
-    private final UserService userService;
+    private final FoodMapper foodMapper;
     private final OrderMapper orderMapper;
+    private final StoreService storeService;
+    private final CircularService circularService;
     private final OrderRepository orderRepository;
-    private final StoreRepository storeRepository;
     private final OrderHistoryMapper orderHistoryMapper;
     private final OrderHistoryRepository orderHistoryRepository;
-    private final FoodRepository foodRepository;
 
     private final Integer size = 10;
-    private final PayHistoryRepository payHistoryRepository;
-
-    @Transactional(readOnly = true)
-    public OrderStatusDto getStatus(UUID orderId) {
-        User user = getUser();
-
-        Order findedOrder = orderRepository.findByIdAndUserAndIsDeletedFalse(orderId, user)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
-
-        return orderMapper.toOrderStatusResponseDto(findedOrder);
-    }
-
-    @Transactional
-    public void cancelOrder(UUID orderId) {
-        User user = getUser();
-
-        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(orderId, user)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
-
-        if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(5))) {
-            order.changeOrderStatus(PENDING);
-            throw new BusinessException(CAN_NOT_CANCEL_ORDER);
-        }
-
-        order.changeOrderStatus(CANCEL);
-        order.deleteOrder();
-        orderRepository.save(order);
-    }
-
-    @Transactional
-    public void updateStatus(UpdateOrderStatusRequestDto request) {
-        Order order = getMyStoreOrder(request.orderId());
-
-        order.changeOrderStatus(request.orderStatus());
-    }
-
-    @Transactional
-    public void rejectOrder(UUID orderId) {
-        Order order = getMyStoreOrder(orderId);
-
-        order.changeOrderStatus(REFUSE);
-    }
-
-    @Transactional
-    public void acceptOrder(UUID orderId) {
-        Order order = getMyStoreOrder(orderId);
-
-        order.changeOrderStatus(ACCEPT);
-    }
-
 
     @Transactional
     public void createOrder(CreateOrderRequestDto request) {
-        int totalPrice = 0;
-
         User user = getUser();
-        Store store = storeRepository.findById(request.storeId())
-                .orElseThrow(() -> new BusinessException(STORE_NOT_FOUND));
+        Store store = circularService.getStoreService().getStoreByIdAndIsDeletedIsFalse(request.storeId());
 
-        Order order = orderMapper.toOrder(request, user, store, WAIT);
+        if (store.getOwner().getId().equals(user.getId())) {
+            throw new BusinessException(ErrorCode.SELF_STORE_ORDER_NOT_ALLOWED);
+        }
+
+        Order order = orderMapper.toOrder(request, user, store, request.foods().size());
 
         List<OrderHistory> orderHistoryList = new ArrayList<>();
+        int totalPrice = 0;
 
-        for (CreateFoodOrderRequestDto food : request.foods()) {
-            Food findFood = foodRepository.findById(food.foodId())
-                    .orElseThrow(() -> new BusinessException(FOOD_NOT_FOUND));
+        for (CreateFoodOrderRequestDto foodDto : request.foods()) {
+            Food food = circularService.getFoodService().getFoodById(foodDto.foodId());
+
+            if (!Objects.equals(store.getId(), food.getStore().getId())) {
+                throw new BusinessException(ErrorCode.FOOD_NOT_IN_STORE);
+            }
 
             OrderHistory orderHistory = orderHistoryMapper.toOrderHistory(
-                    order,
-                    store,
-                    findFood,
-                    food.quantity(),
-                    food.quantity() * findFood.getPrice()
+                order, store, food, foodDto.quantity(), foodDto.quantity() * food.getPrice()
             );
 
             orderHistoryList.add(orderHistory);
-            totalPrice += findFood.getPrice() * food.quantity();
+
+            totalPrice += food.getPrice() * foodDto.quantity();
         }
-
-        PayHistory payHistory = PayHistory.builder()
-                .order(order)
-                .store(store)
-                .user(user)
-                .paymentMethod(PaymentMethod.CARD)
-                .build();
-
         order.updateTotalPrice(totalPrice);
-
         orderRepository.save(order);
-        payHistoryRepository.save(payHistory);
-        orderHistoryRepository.saveAll(orderHistoryList);
 
+        circularService.getPayHistoryService().savePayHistory(
+            order, store, user, request.payMethod()
+        );
+
+        orderHistoryRepository.saveAll(orderHistoryList);
     }
 
     @Transactional(readOnly = true)
-    public OrderDto getAllOrders(int page) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+    public Page<OrderDto> getOrders(int page, String sortDirection) {
+        Sort sort = SortUtils.getSort(sortDirection);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
 
-        User user = getUser();
+        Page<Order> orders = orderRepository.findAllWithOrderHistoriesAndFoods(pageable);
 
-        List<Order> orders = orderRepository.findAllByUserAndIsDeletedFalse(pageable, user);
+        List<OrderDto> ordersDto = orders.getContent().stream().map(
+            order -> orderMapper.toOrderDto(
+                order,
+                order.getOrderHistories().stream().map(orderHistory ->
+                    foodMapper.toFoodQtySummaryDto(
+                        orderHistory.getQty(),
+                        foodMapper.toFoodSummaryDto(orderHistory.getFood())
+                    )
+                ).toList()
+            )
+        ).toList();
 
-        int totalOrderCount = orders.size();
+        return new PageImpl<>(ordersDto, pageable, orders.getTotalElements());
+    }
 
-        List<OnlyOrderDto> orderDtoList = orders.stream()
-                .map(
-                        order ->
-                                orderMapper.toOrderOnlyDto(order,
-                                        orderHistoryRepository.findFirstByOrderId(order.getId())
-                                                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST)).getFood().getName(),
-                                        orderHistoryRepository.findByOrderId(order.getId()).stream()
-                                                .mapToInt(OrderHistory::getQty)
-                                                .sum()
-                                ))
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<OrderDto> getOrdersForOwner(UUID storeId, int page, String sortDirection) {
+        Sort sort = SortUtils.getSort(sortDirection);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
 
-        return orderMapper.toOrderDto(orderDtoList, page, (int) Math.ceil((double) totalOrderCount / size), totalOrderCount);
+        User owner = getUser();
+        Store store = storeService.getStoreById(storeId);
+
+        if (!store.getOwner().getId().equals(owner.getId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+
+        Page<Order> orders = orderRepository.findAllWithOrderHistoriesAndFoodsByStoreId(store.getId(), pageable);
+
+        List<OrderDto> ordersDto = orders.getContent().stream().map(
+            order -> orderMapper.toOrderDto(
+                order,
+                order.getOrderHistories().stream().map(orderHistory ->
+                    foodMapper.toFoodQtySummaryDto(
+                        orderHistory.getQty(),
+                        foodMapper.toFoodSummaryDto(orderHistory.getFood())
+                    )
+                ).toList()
+            )
+        ).toList();
+
+        return new PageImpl<>(ordersDto, pageable, orders.getTotalElements());
     }
 
     @Transactional
     public OrderDetailDto getOrderDetail(UUID id) {
-
         User user = getUser();
+        Order order = orderRepository.findByOrderId(id);
 
-        Order order = orderRepository.findByIdAndUserAndIsDeletedFalse(id, user)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+        if (user.getRole() == Role.CUSTOMER && !order.getUser().getId().equals(user.getId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
 
-        return orderMapper.toOrderDetailResponseDto(order);
+        return orderMapper.toOrderDetailResponseDto(
+            order,
+            order.getOrderHistories().stream().map(orderHistory ->
+                foodMapper.toFoodQtySummaryDto(
+                    orderHistory.getQty(),
+                    foodMapper.toFoodSummaryDto(orderHistory.getFood())
+                )
+            ).toList()
+        );
+    }
+
+    @Transactional
+    public void acceptOrder(UUID orderId) {
+        Order order = getOrderById(orderId);
+        order.updateStatus(OrderStatus.ACCEPT);
+
+        log.info("주문: {}, 주문 수락", orderId);
+    }
+
+    @Transactional
+    public void cancelOrder(UUID orderId) {
+        Order order = getOrderById(orderId);
+
+        if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(5))) {
+            order.updateStatus(OrderStatus.PENDING);
+            log.info("주문: {}, 주문 취소 시간 초과로 취소불가", orderId);
+            throw new BusinessException(CAN_NOT_CANCEL_ORDER);
+        }
+
+        order.updateStatus(OrderStatus.CANCEL);
+        order.deleteOrder();
+
+        log.info("주문: {}, 취소 완료", orderId);
+        orderRepository.save(order);
+    }
+
+    @Transactional
+    public void rejectOrder(UUID orderId) {
+        Order order = getOrderById(orderId);
+        order.updateStatus(OrderStatus.REFUSE);
+
+        log.info("주문: {}, 주문 거절", orderId);
+    }
+
+    @Transactional
+    public void updateStatus(UpdateOrderStatusRequestDto update) {
+        Order order = getOrderById(update.orderId());
+        order.updateStatus(update.status());
+
+        log.info("주문: {}, 주문 상태 변경 완료", update.orderId());
     }
 
 
     private User getUser() {
-        return userService.loginUser();
+        return circularService.getUserService().loginUser();
     }
 
-    public Order getOrderByIdAndIsDeletedIsFalse(UUID id) {
-
-        User user = getUser();
-
-        return orderRepository.findByIdAndUserAndIsDeletedFalse(id, user)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
-    }
-
-    private Order getMyStoreOrder(UUID orderId) {
-        User user = getUser();
-
-        return orderRepository.findByIdAndStoreOwnerAndIsDeletedIsFalse(orderId, user)
-                .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
+    public Order getOrderById(UUID orderId) {
+        return orderRepository.findByIdAndIsDeletedIsFalse(orderId)
+            .orElseThrow(() -> new BusinessException(ORDER_NOT_EXIST));
     }
 }
