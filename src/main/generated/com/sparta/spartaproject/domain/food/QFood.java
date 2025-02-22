@@ -44,6 +44,8 @@ public class QFood extends EntityPathBase<Food> {
 
     public final StringPath name = createString("name");
 
+    public final ListPath<com.sparta.spartaproject.domain.order.OrderHistory, com.sparta.spartaproject.domain.order.QOrderHistory> orderHistories = this.<com.sparta.spartaproject.domain.order.OrderHistory, com.sparta.spartaproject.domain.order.QOrderHistory>createList("orderHistories", com.sparta.spartaproject.domain.order.OrderHistory.class, com.sparta.spartaproject.domain.order.QOrderHistory.class, PathInits.DIRECT2);
+
     public final NumberPath<Integer> price = createNumber("price", Integer.class);
 
     public final EnumPath<Status> status = createEnum("status", Status.class);

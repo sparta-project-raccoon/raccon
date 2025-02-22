@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-22T08:50:43+0900",
+    date = "2025-02-22T22:30:15+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Oracle Corporation)"
 )
 @Component
@@ -23,15 +23,11 @@ public class OrderHistoryMapperImpl implements OrderHistoryMapper {
 
         OrderHistory.OrderHistoryBuilder<?, ?> orderHistory = OrderHistory.builder();
 
-        if ( order != null ) {
-            orderHistory.order( order );
-            orderHistory.createdAt( order.getCreatedAt() );
-            orderHistory.updatedAt( order.getUpdatedAt() );
-        }
         if ( food != null ) {
             orderHistory.food( food );
             orderHistory.price( food.getPrice() );
         }
+        orderHistory.order( order );
         orderHistory.store( store );
         orderHistory.qty( qty );
 

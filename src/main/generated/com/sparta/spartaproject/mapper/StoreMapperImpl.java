@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-22T08:50:43+0900",
+    date = "2025-02-22T22:30:15+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Oracle Corporation)"
 )
 @Component
@@ -168,8 +168,8 @@ public class StoreMapperImpl implements StoreMapper {
     }
 
     @Override
-    public Store toStore(CreateStoreRequestDto source, User user) {
-        if ( source == null && user == null ) {
+    public Store toStore(CreateStoreRequestDto source, User user, LocalTime openTime, LocalTime closeTime) {
+        if ( source == null && user == null && openTime == null && closeTime == null ) {
             return null;
         }
 
@@ -181,8 +181,6 @@ public class StoreMapperImpl implements StoreMapper {
             store.status( source.status() );
             store.tel( source.tel() );
             store.description( source.description() );
-            store.openTime( source.openTime() );
-            store.closeTime( source.closeTime() );
             store.closedDays( source.closedDays() );
         }
         if ( user != null ) {
@@ -190,6 +188,8 @@ public class StoreMapperImpl implements StoreMapper {
             store.isDeleted( user.getIsDeleted() );
             store.deletedAt( user.getDeletedAt() );
         }
+        store.openTime( openTime );
+        store.closeTime( closeTime );
 
         return store.build();
     }

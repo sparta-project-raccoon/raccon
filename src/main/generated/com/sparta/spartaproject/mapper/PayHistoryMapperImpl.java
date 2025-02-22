@@ -1,10 +1,10 @@
 package com.sparta.spartaproject.mapper;
 
 import com.sparta.spartaproject.domain.order.Order;
+import com.sparta.spartaproject.domain.order.PayMethod;
 import com.sparta.spartaproject.domain.pay.PayHistory;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
-import com.sparta.spartaproject.dto.request.CreatePayHistoryRequestDto;
 import com.sparta.spartaproject.dto.response.OnlyPayHistoryDto;
 import com.sparta.spartaproject.dto.response.PayHistoryDetailDto;
 import com.sparta.spartaproject.dto.response.PayHistoryDto;
@@ -16,28 +16,26 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-22T08:50:43+0900",
+    date = "2025-02-22T22:30:15+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Oracle Corporation)"
 )
 @Component
 public class PayHistoryMapperImpl implements PayHistoryMapper {
 
     @Override
-    public PayHistory toPayHistory(CreatePayHistoryRequestDto request, Order order, Store store, User user) {
-        if ( request == null && order == null && store == null && user == null ) {
+    public PayHistory toPayHistory(Order order, Store store, User user, PayMethod payMethod) {
+        if ( order == null && store == null && user == null && payMethod == null ) {
             return null;
         }
 
         PayHistory.PayHistoryBuilder<?, ?> payHistory = PayHistory.builder();
 
-        if ( request != null ) {
-            payHistory.paymentMethod( request.paymentMethod() );
-        }
         if ( order != null ) {
             payHistory.order( order );
             payHistory.user( order.getUser() );
         }
         payHistory.store( store );
+        payHistory.payMethod( payMethod );
 
         return payHistory.build();
     }
