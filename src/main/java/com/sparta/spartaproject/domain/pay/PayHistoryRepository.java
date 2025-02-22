@@ -1,15 +1,41 @@
 package com.sparta.spartaproject.domain.pay;
 
-import com.sparta.spartaproject.domain.user.User;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface PayHistoryRepository extends JpaRepository<PayHistory, UUID> {
+    @Query(
+        "SELECT count(ph) " +
+            "FROM PayHistory ph"
+    )
+    Long countPayHistory();
 
-    List<PayHistory> findAllByUser(Pageable pageable, User user);
+    @Query(
+        "SELECT ph " +
+            "FROM PayHistory ph " +
+            "LEFT JOIN FETCH ph.order o " +
+            "LEFT JOIN FETCH ph.store s"
+    )
+    Page<PayHistory> findPayHistoryList(Pageable pageable);
 
-    PayHistory findByOrderId(UUID orderId);
+    @Query(
+        "SELECT count(ph) " +
+            "FROM PayHistory ph " +
+            "WHERE ph.user.id = :userId"
+    )
+    Long countPayHistoryByUserId(@Param("userId") Long userId);
+
+    @Query(
+        "SELECT DISTINCT ph " +
+            "FROM PayHistory ph " +
+            "LEFT JOIN FETCH ph.order o " +
+            "LEFT JOIN FETCH ph.store s " +
+            "WHERE ph.user.id = :userId"
+    )
+    Page<PayHistory> findPayHistoryListByUserId(Pageable pageable, @Param("userId") Long userId);
 }
