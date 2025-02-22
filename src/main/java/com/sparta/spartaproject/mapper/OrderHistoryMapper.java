@@ -9,12 +9,11 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface OrderHistoryMapper {
-
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "food", source = "food")
     @Mapping(target = "order", source = "order")
     @Mapping(target = "store", source = "store")
-    @Mapping(target = "createdAt", source = "order.createdAt")
-    @Mapping(target = "updatedAt", source = "order.updatedAt")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     OrderHistory toOrderHistory(Order order, Store store, Food food, Integer qty, Integer price);
 }

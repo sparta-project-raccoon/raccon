@@ -3,7 +3,7 @@ package com.sparta.spartaproject.dto.request;
 import java.util.UUID;
 
 public record CreateFoodOrderRequestDto(
-        UUID foodId,
-        Integer quantity
+    UUID foodId,
+    Integer quantity
 ) {
 }

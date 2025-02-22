@@ -17,11 +17,10 @@ import java.util.UUID;
 @RequestMapping("/api/pay-history")
 @RequiredArgsConstructor
 public class PayHistoryController {
-
     private final PayHistoryService payHistoryService;
 
     @Description(
-            "결제하기"
+        "결제하기"
     )
     @PutMapping
     public ResponseEntity<Void> createPayHistory(@RequestBody CreatePayHistoryRequestDto request) {
@@ -30,7 +29,7 @@ public class PayHistoryController {
     }
 
     @Description(
-            "결제 상세 확인"
+        "결제 상세 확인"
     )
     @GetMapping("/detail/{id}")
     public ResponseEntity<PayHistoryDetailDto> getPayHistoryDetail(@PathVariable("id") UUID payHistoryId) {
@@ -38,7 +37,7 @@ public class PayHistoryController {
     }
 
     @Description(
-            "결제 내역 리스트 확인"
+        "결제 내역 리스트 확인"
     )
     @GetMapping
     public ResponseEntity<PayHistoryDto> getPayHistoryList(
@@ -48,7 +47,7 @@ public class PayHistoryController {
     }
 
     @Description(
-            "결제 정보 수정"
+        "결제 정보 수정"
     )
     @PatchMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
@@ -60,7 +59,7 @@ public class PayHistoryController {
     }
 
     @Description(
-            "결제 삭제(취소)"
+        "결제 삭제(취소)"
     )
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")

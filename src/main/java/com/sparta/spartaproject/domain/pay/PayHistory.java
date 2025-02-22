@@ -2,7 +2,7 @@ package com.sparta.spartaproject.domain.pay;
 
 import com.sparta.spartaproject.domain.BaseEntity;
 import com.sparta.spartaproject.domain.order.Order;
-import com.sparta.spartaproject.domain.order.PaymentMethod;
+import com.sparta.spartaproject.domain.order.PayMethod;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.UpdatePayHistoryDto;
@@ -25,8 +25,8 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PayHistory extends BaseEntity {
-
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -43,7 +43,7 @@ public class PayHistory extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
-    private PaymentMethod paymentMethod;
+    private PayMethod payMethod;
 
     @Enumerated(EnumType.STRING)
     private PayStatus status;
@@ -55,11 +55,11 @@ public class PayHistory extends BaseEntity {
     private LocalDateTime deletedAt;
 
     public void updatePayHistory(UpdatePayHistoryDto update) {
-        if(update.paymentMethod() != null){
-            this.paymentMethod = update.paymentMethod();
+        if (update.payMethod() != null) {
+            this.payMethod = update.payMethod();
         }
 
-        if(update.totalPrice() != null){
+        if (update.totalPrice() != null) {
             this.order.updateTotalPrice(update.totalPrice());
         }
     }

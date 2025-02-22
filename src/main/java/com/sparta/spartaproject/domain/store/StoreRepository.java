@@ -34,4 +34,6 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
     );
 
     Optional<Store> findByIdAndIsDeletedIsFalse(UUID id);
+
+    Optional<Store> findByOwnerIdAndIsDeletedIsFalse(Long ownerId);
 }
