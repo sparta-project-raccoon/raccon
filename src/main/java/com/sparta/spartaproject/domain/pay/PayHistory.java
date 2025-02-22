@@ -5,7 +5,6 @@ import com.sparta.spartaproject.domain.order.Order;
 import com.sparta.spartaproject.domain.order.PayMethod;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
-import com.sparta.spartaproject.dto.request.UpdatePayHistoryDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,12 +16,12 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
 @Entity
-@Table(name = "p_pay_history")
 @SuperBuilder
 @DynamicInsert
 @DynamicUpdate
-@Getter
+@Table(name = "p_pay_history")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PayHistory extends BaseEntity {
     @Id
@@ -46,7 +45,7 @@ public class PayHistory extends BaseEntity {
     private PayMethod payMethod;
 
     @Enumerated(EnumType.STRING)
-    private PayStatus status;
+    private PayStatus payStatus;
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;
@@ -54,22 +53,7 @@ public class PayHistory extends BaseEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public void updatePayHistory(UpdatePayHistoryDto update) {
-        if (update.payMethod() != null) {
-            this.payMethod = update.payMethod();
-        }
-
-        if (update.totalPrice() != null) {
-            this.order.updateTotalPrice(update.totalPrice());
-        }
-    }
-
-    public void deletePayHistory() {
-        this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
-    }
-
-    public void updateStatus(PayStatus status) {
-        this.status = status;
+    public void updateStatus(PayStatus payStatus) {
+        this.payStatus = payStatus;
     }
 }
