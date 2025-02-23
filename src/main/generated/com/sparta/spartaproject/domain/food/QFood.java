@@ -36,8 +36,6 @@ public class QFood extends EntityPathBase<Food> {
 
     public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
 
-    public final StringPath imagePath = createString("imagePath");
-
     public final BooleanPath isDeleted = createBoolean("isDeleted");
 
     public final BooleanPath isDisplayed = createBoolean("isDisplayed");

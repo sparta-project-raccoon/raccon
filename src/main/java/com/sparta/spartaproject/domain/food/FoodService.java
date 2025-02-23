@@ -38,6 +38,32 @@ public class FoodService {
 
     private final Integer size = 10;
 
+    @Transactional
+    public void createFood(CreateFoodRequestDto request, MultipartFile image) {
+        User user = circularService.getUserService().loginUser();
+        Store store = circularService.getStoreService().getStoreById(request.storeId());
+
+        if (user.getRole() == Role.OWNER) {
+            if (!user.getId().equals(store.getOwner().getId())) {
+                throw new BusinessException(ErrorCode.FOOD_FORBIDDEN);
+            }
+        }
+
+        String descriptionForGemini = circularService.getGeminiService().requestGemini(
+                store.getId(), request.description()
+        );
+
+        Food newFood = foodMapper.toFood(request, store, descriptionForGemini);
+        foodRepository.save(newFood);
+
+        if (image!=null) {
+            String imagePathForFood = imageService.uploadImage(newFood.getId(), EntityType.FOOD, image);
+            log.info("음식 이미지 등록 완료 : {}", imagePathForFood);
+        }
+
+        log.info("가게: {}, 음식 생성 완료", store.getId());
+    }
+
     @Transactional(readOnly = true)
     public FoodDto getAllFoods(int page, String sortDirection) {
         Sort sort = SortUtils.getSort(sortDirection);
@@ -61,19 +87,9 @@ public class FoodService {
     }
 
     @Transactional(readOnly = true)
-    public FoodDetailDto getFood(UUID id) {
-        Food food = getFoodById(id);
-
-        String imageUrl = imageService.getImageUrlByEntity(food.getId(), EntityType.FOOD).get(0);
-        log.info("조회한 food ID: " + food.getId() + " imageUrl: " + imageUrl);
-
-        return foodMapper.toFoodDetailDto(food, imageUrl);
-    }
-
-    @Transactional
-    public void createFood(CreateFoodRequestDto request, MultipartFile image) {
+    public FoodDto getAllFoodsForStoreByOwner(UUID storeId, int page, String sortDirection) {
         User user = circularService.getUserService().loginUser();
-        Store store = circularService.getStoreService().getStoreById(request.storeId());
+        Store store = circularService.getStoreService().getStoreById(storeId);
 
         if (user.getRole() == Role.OWNER) {
             if (!user.getId().equals(store.getOwner().getId())) {
@@ -81,21 +97,22 @@ public class FoodService {
             }
         }
 
-        String imagePathForFood = null;
+        Sort sort = SortUtils.getSort(sortDirection);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
 
-        String descriptionForGemini = circularService.getGeminiService().requestGemini(
-            store.getId(), request.description()
-        );
+        List<Food> foodList = foodRepository.findByStoreAndIsDeletedIsFalse(store, pageable);
 
-        Food newFood = foodMapper.toFood(request, store, descriptionForGemini, imagePathForFood);
-        foodRepository.save(newFood);
+        return getFoodDto(page, foodList);
+    }
 
-        if (image!=null) {
-            imagePathForFood = imageService.uploadImage(newFood.getId(), EntityType.FOOD, image);
-            log.info("음식 이미지 등록 완료 : {}", imagePathForFood);
-        }
+    @Transactional(readOnly = true)
+    public FoodDetailDto getFood(UUID id) {
+        Food food = getFoodById(id);
 
-        log.info("가게: {}, 음식 생성 완료", store.getId());
+        String imageUrl = imageService.getImageUrlByEntity(food.getId(), EntityType.FOOD).get(0);
+        log.info("조회한 food ID: " + food.getId() + " imageUrl: " + imageUrl);
+
+        return foodMapper.toFoodDetailDto(food, imageUrl);
     }
 
     @Transactional
@@ -110,13 +127,13 @@ public class FoodService {
             }
         }
 
+        food.update(update);
+
         imageService.deleteAllImagesByEntity(id, EntityType.FOOD);
+
         if (image!=null){
             imageService.uploadImage(id,EntityType.FOOD, image);
         }
-
-        food.update(update);
-        foodRepository.saveAndFlush(food);
 
         log.info("음식 수정 완료 : {}", food.getName());
     }
@@ -172,8 +189,10 @@ public class FoodService {
         }
 
         food.delete();
-        foodRepository.saveAndFlush(food);
+
         imageService.deleteAllImagesByEntity(food.getId(), EntityType.FOOD);
+
+        log.info("음식: {}, 삭제 완료", id);
     }
 
     public Food getFoodById(UUID id) {

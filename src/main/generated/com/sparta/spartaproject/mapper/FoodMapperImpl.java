@@ -16,15 +16,15 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-22T22:30:15+0900",
+    date = "2025-02-23T11:08:26+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Oracle Corporation)"
 )
 @Component
 public class FoodMapperImpl implements FoodMapper {
 
     @Override
-    public Food toFood(CreateFoodRequestDto source, Store store, String descriptionForGemini, String imagePathForFood) {
-        if ( source == null && store == null && descriptionForGemini == null && imagePathForFood == null ) {
+    public Food toFood(CreateFoodRequestDto source, Store store, String descriptionForGemini) {
+        if ( source == null && store == null && descriptionForGemini == null ) {
             return null;
         }
 
@@ -37,7 +37,8 @@ public class FoodMapperImpl implements FoodMapper {
         }
         food.store( store );
         food.description( descriptionForGemini );
-        food.imagePath( imagePathForFood );
+        food.isDisplayed( Boolean.TRUE );
+        food.isDeleted( Boolean.FALSE );
 
         return food.build();
     }
@@ -74,17 +75,19 @@ public class FoodMapperImpl implements FoodMapper {
         Integer price = null;
         String description = null;
         Status status = null;
+        Boolean isDisplayed = null;
         if ( food != null ) {
             id = food.getId();
             name = food.getName();
             price = food.getPrice();
             description = food.getDescription();
             status = food.getStatus();
+            isDisplayed = food.getIsDisplayed();
         }
         String imagePath = null;
         imagePath = imageUrl;
 
-        FoodDetailDto foodDetailDto = new FoodDetailDto( id, name, price, description, imagePath, status );
+        FoodDetailDto foodDetailDto = new FoodDetailDto( id, name, price, description, imagePath, status, isDisplayed );
 
         return foodDetailDto;
     }
