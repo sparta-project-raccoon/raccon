@@ -52,10 +52,14 @@ public class FoodService {
     public FoodDto getAllFoodsForStore(UUID storeId, int page, String sortDirection) {
         Store store = circularService.getStoreService().getStoreById(storeId);
 
+        log.info("store.getName() : {}", store.getName());
+
         Sort sort = SortUtils.getSort(sortDirection);
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
         List<Food> foodList = foodRepository.findByStoreAndIsDisplayedIsTrueAndIsDeletedIsFalse(store, pageable);
+
+        log.info("foodList.size() : {}", foodList.size());
 
         return getFoodDto(page, foodList);
     }
