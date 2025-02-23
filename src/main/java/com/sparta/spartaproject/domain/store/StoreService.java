@@ -1,6 +1,6 @@
 package com.sparta.spartaproject.domain.store;
 
-import com.sparta.spartaproject.common.SortUtils;
+import com.sparta.spartaproject.common.pageable.SortUtils;
 import com.sparta.spartaproject.domain.category.Category;
 import com.sparta.spartaproject.domain.category.CategoryService;
 import com.sparta.spartaproject.domain.image.EntityType;
@@ -155,7 +155,7 @@ public class StoreService {
         Sort sort = SortUtils.getSort(sortDirection);
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
-        List<Store> storeList = storeRepository.findAllStoreListByOwner(pageable, user);
+        List<Store> storeList = storeRepository.findAllStoreListByOwner(pageable, user.getId());
 
         int totalStoreCount = storeList.size();
 
@@ -245,6 +245,11 @@ public class StoreService {
 
     public Store getStoreByIdAndIsDeletedIsFalse(UUID id) {
         return storeRepository.findByIdAndIsDeletedIsFalse(id)
+            .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+    }
+
+    public Store getStoreByOwnerId(Long ownerId) {
+        return storeRepository.findByOwnerIdAndIsDeletedIsFalse(ownerId)
             .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
     }
 }

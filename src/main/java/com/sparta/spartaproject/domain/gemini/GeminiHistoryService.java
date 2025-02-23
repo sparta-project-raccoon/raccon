@@ -1,6 +1,6 @@
 package com.sparta.spartaproject.domain.gemini;
 
-import com.sparta.spartaproject.common.SortUtils;
+import com.sparta.spartaproject.common.pageable.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
