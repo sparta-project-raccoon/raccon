@@ -5,8 +5,7 @@ import com.sparta.spartaproject.domain.order.OrderStatus;
 import java.util.UUID;
 
 public record UpdateOrderStatusRequestDto(
-        UUID orderId,
-        OrderStatus orderStatus
+    UUID orderId,
+    OrderStatus status
 ) {
-
 }

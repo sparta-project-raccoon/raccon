@@ -94,7 +94,8 @@ public class ReviewService {
             throw new BusinessException(ErrorCode.STORE_OWNER_CANNOT_REVIEW_OWN_STORE);
         }
 
-        Order order = circularService.getOrderService().getOrderByIdAndIsDeletedIsFalse(request.orderId());
+        // 주문 id + 로그인 id -> 주문 id 로 불러오기 - 마스터, 매니저도 쓸 수 있게
+        Order order = circularService.getOrderService().getOrderById(request.orderId());
 
         if (reviewRepository.existsByStoreIdAndOrderIdAndIsDeletedIsFalse(store.getId(), order.getId())) {
             throw new BusinessException(ErrorCode.ALREADY_WRITE_REVIEW);
