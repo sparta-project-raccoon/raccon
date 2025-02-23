@@ -38,9 +38,9 @@ public class QPayHistory extends EntityPathBase<PayHistory> {
 
     public final com.sparta.spartaproject.domain.order.QOrder order;
 
-    public final EnumPath<com.sparta.spartaproject.domain.order.PaymentMethod> paymentMethod = createEnum("paymentMethod", com.sparta.spartaproject.domain.order.PaymentMethod.class);
+    public final EnumPath<com.sparta.spartaproject.domain.order.PayMethod> payMethod = createEnum("payMethod", com.sparta.spartaproject.domain.order.PayMethod.class);
 
-    public final EnumPath<PayStatus> status = createEnum("status", PayStatus.class);
+    public final EnumPath<PayStatus> payStatus = createEnum("payStatus", PayStatus.class);
 
     public final com.sparta.spartaproject.domain.store.QStore store;
 

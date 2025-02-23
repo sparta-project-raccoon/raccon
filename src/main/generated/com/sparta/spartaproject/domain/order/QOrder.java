@@ -38,15 +38,19 @@ public class QOrder extends EntityPathBase<Order> {
 
     public final BooleanPath isDeleted = createBoolean("isDeleted");
 
+    public final ListPath<OrderHistory, QOrderHistory> orderHistories = this.<OrderHistory, QOrderHistory>createList("orderHistories", OrderHistory.class, QOrderHistory.class, PathInits.DIRECT2);
+
     public final EnumPath<OrderMethod> orderMethod = createEnum("orderMethod", OrderMethod.class);
 
-    public final EnumPath<PaymentMethod> payMethod = createEnum("payMethod", PaymentMethod.class);
+    public final EnumPath<PayMethod> payMethod = createEnum("payMethod", PayMethod.class);
 
     public final StringPath request = createString("request");
 
     public final EnumPath<OrderStatus> status = createEnum("status", OrderStatus.class);
 
     public final com.sparta.spartaproject.domain.store.QStore store;
+
+    public final NumberPath<Integer> totalFoodCount = createNumber("totalFoodCount", Integer.class);
 
     public final NumberPath<Integer> totalPrice = createNumber("totalPrice", Integer.class);
 

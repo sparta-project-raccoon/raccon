@@ -40,6 +40,8 @@ public class QStore extends EntityPathBase<Store> {
 
     public final StringPath description = createString("description");
 
+    public final ListPath<com.sparta.spartaproject.domain.food.Food, com.sparta.spartaproject.domain.food.QFood> foods = this.<com.sparta.spartaproject.domain.food.Food, com.sparta.spartaproject.domain.food.QFood>createList("foods", com.sparta.spartaproject.domain.food.Food.class, com.sparta.spartaproject.domain.food.QFood.class, PathInits.DIRECT2);
+
     public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
 
     public final BooleanPath isDeleted = createBoolean("isDeleted");

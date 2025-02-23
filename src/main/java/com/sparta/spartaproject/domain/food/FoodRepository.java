@@ -12,4 +12,6 @@ public interface FoodRepository extends JpaRepository<Food, UUID> {
     Optional<Food> findByIdAndIsDeletedFalse(UUID id);
 
     List<Food> findByStoreAndIsDisplayedIsTrueAndIsDeletedIsFalse(Store store, Pageable pageable);
+
+    List<Food> findByStoreAndIsDeletedIsFalse(Store store, Pageable pageable);
 }

@@ -89,19 +89,20 @@ public class StoreController {
     @Description(
         "음식점 정보 수정하기"
     )
-    @PatchMapping("/{id}")
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> updateStore(
         @PathVariable("id") UUID id,
-        @RequestPart("request") UpdateStoreRequestDto update,
+        @RequestPart("request") String updateJson,
         @RequestPart(value = "imageList", required = false) List<MultipartFile> imageList
-    ) {
+    ) throws JsonProcessingException {
+        UpdateStoreRequestDto update = new ObjectMapper().readValue(updateJson,UpdateStoreRequestDto.class);
         storeService.updateStore(id, update, imageList);
         return ResponseEntity.ok().build();
     }
 
     @Description(
-        "가게 상태 변경하기 - 영업 시작, 영업 종료, 브레이크 타임"
+        "음식점 상태 변경하기 - 영업 시작, 영업 종료, 브레이크 타임"
     )
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
@@ -111,7 +112,7 @@ public class StoreController {
     }
 
     @Description(
-        "가게 삭제하기"
+        "음식점 삭제하기"
     )
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")

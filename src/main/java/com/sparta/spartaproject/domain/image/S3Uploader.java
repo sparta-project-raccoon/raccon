@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Slf4j
@@ -29,7 +31,7 @@ public class S3Uploader {
         try{
             String uuid = UUID.randomUUID().toString();
             String originalFilename = imageFile.getOriginalFilename();
-            String imageFileName = BASE_PATH + "/" + entityType + "/" +uuid + "-" + originalFilename;
+            String imageFileName = BASE_PATH + "/" + entityType + "/" + uuid + "-" + originalFilename;
 
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentLength(imageFile.getSize());
@@ -47,8 +49,11 @@ public class S3Uploader {
     public void deleteImageFile(String imageUrl) {
         try {
             String fileKey = extractKeyFromUrl(imageUrl);
-            amazonS3.deleteObject(new DeleteObjectRequest(bucketName, fileKey));
-            log.info("S3에서 삭제된 파일: {}", fileKey);
+            log.info("파일 키: {}", fileKey);
+            String decodedKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
+            log.info("디코딩된 키: {}", decodedKey);
+            amazonS3.deleteObject(new DeleteObjectRequest(bucketName, decodedKey));
+            log.info("S3에서 삭제된 파일: {}", decodedKey);
         } catch (Exception e) {
             log.error("S3 파일 삭제 실패: {}", imageUrl, e);
             throw new RuntimeException("파일 삭제 실패");

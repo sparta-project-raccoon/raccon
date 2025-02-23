@@ -10,6 +10,7 @@ public record FoodDetailDto(
     Integer price,
     String description,
     String imagePath,
-    Status status
+    Status status,
+    Boolean isDisplayed
 ) {
 }

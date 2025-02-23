@@ -31,6 +31,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -54,7 +56,11 @@ public class StoreService {
     @Transactional
     public void createStore(CreateStoreRequestDto request, List<MultipartFile> imageList) {
         User user = userService.loginUser();
-        Store newStore = storeMapper.toStore(request, user);
+
+        LocalTime openTime = LocalTime.parse(request.openTime(), DateTimeFormatter.ofPattern("HH:mm"));
+        LocalTime closeTime = LocalTime.parse(request.closeTime(), DateTimeFormatter.ofPattern("HH:mm"));
+
+        Store newStore = storeMapper.toStore(request, user, openTime, closeTime);
         storeRepository.save(newStore);
 
         ArrayList<StoreCategory> newStoreCategoryList = new ArrayList<>();
@@ -107,7 +113,7 @@ public class StoreService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "store", key = "#id")
+    @Cacheable(value = "store", key = "#p0")
     public StoreDetailDto getStore(UUID id) {
         Store store = getStoreById(id);
 
@@ -170,7 +176,7 @@ public class StoreService {
     }
 
     @Transactional
-    @CacheEvict(value = "store", key = "#id")
+    @CacheEvict(value = "store", key = "#p0")
     public void updateStore(UUID id, UpdateStoreRequestDto update, List<MultipartFile> imageList) {
         User user = userService.loginUser();
         Store store = getStoreById(id);
@@ -179,13 +185,10 @@ public class StoreService {
             throw new BusinessException(ErrorCode.STORE_UNAUTHORIZED);
         }
 
-        // 1. 음식점 정보 업데이트
         store.update(update);
 
-        // 2. 기존 이미지 삭제
         imageService.deleteAllImagesByEntity(store.getId(), EntityType.STORE);
 
-        // 3. 새로운 이미지 업로드
         if (imageList != null && !imageList.isEmpty()) {
             imageList.forEach(image -> {
                 String imageUrl = imageService.uploadImage(store.getId(), EntityType.STORE, image);
@@ -201,10 +204,9 @@ public class StoreService {
     }
 
     @Transactional
-    @CacheEvict(value = "store", key = "#id")
+    @CacheEvict(value = "store", key = "#p0")
     public void updateStoreStatus(UUID id, UpdateStoreStatusRequestDto update) {
         User user = userService.loginUser();
-
         Store store = getStoreById(id);
 
         if (user.getRole() == Role.OWNER && !user.getId().equals(store.getOwner().getId())) {
@@ -215,7 +217,7 @@ public class StoreService {
         log.info("가게: {}, 상태, {} - 변경 완료", id, update.status());
     }
 
-    @CacheEvict(value = "store", key = "#id")
+    @CacheEvict(value = "store", key = "#p0")
     @Transactional
     public void deleteStore(UUID id) {
         User user = userService.loginUser();
@@ -228,11 +230,10 @@ public class StoreService {
 
         // TODO: 완료되지 않은 주문이 있을 경우, 가게 삭제 X
 
-        // 1. 기존 이미지 삭제
+        store.delete();
+
         imageService.deleteAllImagesByEntity(id, EntityType.STORE);
 
-        // 2. 가게 삭제 처리
-        store.delete();
         log.info("가게: {}, 삭제 완료", id);
     }
 
