@@ -1,6 +1,6 @@
 package com.sparta.spartaproject.domain.order;
 
-import com.sparta.spartaproject.common.SortUtils;
+import com.sparta.spartaproject.common.pageable.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.food.Food;
 import com.sparta.spartaproject.domain.store.Store;

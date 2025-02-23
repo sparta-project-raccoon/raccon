@@ -1,4 +1,4 @@
-package com.sparta.spartaproject.common;
+package com.sparta.spartaproject.common.pageable;
 
 import org.springframework.data.domain.Sort;
 
