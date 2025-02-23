@@ -210,7 +210,6 @@ public class FoodService {
                     .stream()
                     .findFirst()
                     .orElse(null);
-
                 log.info("Image url: {}", imageUrl);
                 return foodMapper.toFoodDetailDto(food, imageUrl);
             }).toList(),
