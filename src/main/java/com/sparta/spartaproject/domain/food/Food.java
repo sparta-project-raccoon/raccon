@@ -50,11 +50,6 @@ public class Food extends BaseEntity {
     private String description;
 
     @Column(
-        columnDefinition = "TEXT"
-    )
-    private String imagePath;
-
-    @Column(
         nullable = false
     )
     @Enumerated(EnumType.STRING)
@@ -107,12 +102,7 @@ public class Food extends BaseEntity {
         this.isDisplayed = !this.isDisplayed;
     }
 
-    public void updateImagePath(String newImagePath) {
-        this.imagePath = newImagePath;
-    }
-
     public void delete() {
-        this.imagePath = null;
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
     }

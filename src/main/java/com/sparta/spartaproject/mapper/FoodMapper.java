@@ -18,16 +18,15 @@ public interface FoodMapper {
     @Mapping(target = "store", source = "store")
     @Mapping(target = "name", source = "source.name")
     @Mapping(target = "description", source = "descriptionForGemini")
-    @Mapping(target = "imagePath", source = "imagePathForFood")
     @Mapping(target = "status", source = "source.status")
-    @Mapping(target = "isDisplayed", ignore = true)
-    @Mapping(target = "isDeleted", ignore = true)
+    @Mapping(target = "isDisplayed", expression = "java(Boolean.TRUE)")
+    @Mapping(target = "isDeleted", expression = "java(Boolean.FALSE)")
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
-    Food toFood(CreateFoodRequestDto source, Store store, String descriptionForGemini, String imagePathForFood);
+    Food toFood(CreateFoodRequestDto source, Store store, String descriptionForGemini);
 
     @Mapping(target = "foods", source = "foods")
     @Mapping(target = "currentPage", source = "page")

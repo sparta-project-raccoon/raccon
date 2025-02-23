@@ -1,5 +1,7 @@
 package com.sparta.spartaproject.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.spartaproject.domain.food.FoodService;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
@@ -23,6 +25,20 @@ public class FoodController {
     private final FoodService foodService;
 
     @Description(
+        "음식 등록"
+    )
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
+    public ResponseEntity<Void> createFood(
+            @RequestPart(value = "request") String requestJson,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws JsonProcessingException {
+        CreateFoodRequestDto request = new ObjectMapper().readValue(requestJson, CreateFoodRequestDto.class);
+        foodService.createFood(request, image);
+        return ResponseEntity.ok().build();
+    }
+
+    @Description(
         "음식 전체 조회 (관리자, 운영자)"
     )
     @GetMapping
@@ -35,7 +51,7 @@ public class FoodController {
     }
 
     @Description(
-        "음식점 별 음식 조회"
+        "음식점 별 음식 조회 (고객용)"
     )
     @GetMapping("/stores/{storeId}")
     public ResponseEntity<FoodDto> getAllFoodsForStore(
@@ -44,6 +60,18 @@ public class FoodController {
         @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
     ) {
         return ResponseEntity.ok(foodService.getAllFoodsForStore(storeId, page, sortDirection));
+    }
+
+    @Description(
+        "업주 - 음식점 별 음식 조회 "
+    )
+    @GetMapping("/my/stores/{storeId}")
+    public ResponseEntity<FoodDto> getAllFoodsForStoreByOwner(
+            @PathVariable("storeId") UUID storeId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+    ) {
+        return ResponseEntity.ok(foodService.getAllFoodsForStoreByOwner(storeId, page, sortDirection));
     }
 
     @Description(
@@ -57,28 +85,16 @@ public class FoodController {
     }
 
     @Description(
-        "음식 등록"
-    )
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<Void> createFood(
-        @RequestPart(value = "request") CreateFoodRequestDto request,
-        @RequestPart(value = "image", required = false) MultipartFile image
-    ) {
-        foodService.createFood(request, image);
-        return ResponseEntity.ok().build();
-    }
-
-    @Description(
         "음식 수정"
     )
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> updateFood(
         @PathVariable("id") UUID id,
-        @RequestPart(value = "request") UpdateFoodRequestDto update,
+        @RequestPart(value = "request") String updateJson,
         @RequestPart(value = "image", required = false) MultipartFile image
-    ) {
+    ) throws JsonProcessingException {
+        UpdateFoodRequestDto update = new ObjectMapper().readValue(updateJson, UpdateFoodRequestDto.class);
         foodService.updateFood(id, update, image);
         return ResponseEntity.ok().build();
     }

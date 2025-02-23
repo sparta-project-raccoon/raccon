@@ -15,6 +15,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -111,11 +112,11 @@ public class Store extends BaseEntity {
         }
 
         if (update.openTime() != null) {
-            this.openTime = update.openTime();
+            this.openTime = LocalTime.parse(update.openTime(), DateTimeFormatter.ofPattern("HH:mm"));
         }
 
         if (update.closeTime() != null) {
-            this.closeTime = update.closeTime();
+            this.closeTime = LocalTime.parse(update.closeTime(), DateTimeFormatter.ofPattern("HH:mm"));
         }
 
         if (update.closedDays() != null) {
