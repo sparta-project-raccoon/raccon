@@ -16,7 +16,7 @@ public interface PayHistoryRepository extends JpaRepository<PayHistory, UUID> {
     Long countPayHistory();
 
     @Query(
-        "SELECT ph " +
+        "SELECT DISTINCT ph " +
             "FROM PayHistory ph " +
             "LEFT JOIN FETCH ph.order o " +
             "LEFT JOIN FETCH ph.store s"
@@ -38,4 +38,20 @@ public interface PayHistoryRepository extends JpaRepository<PayHistory, UUID> {
             "WHERE ph.user.id = :userId"
     )
     Page<PayHistory> findPayHistoryListByUserId(Pageable pageable, @Param("userId") Long userId);
+
+    @Query(
+        "SELECT count(ph) " +
+            "FROM PayHistory ph " +
+            "WHERE ph.store.id = :storeId"
+    )
+    Long countPayHistoryByStoreId(@Param("storeId") UUID storeId);
+
+    @Query(
+        "SELECT DISTINCT ph " +
+            "FROM PayHistory ph " +
+            "LEFT JOIN FETCH ph.order o " +
+            "LEFT JOIN FETCH ph.store s " +
+            "WHERE ph.store.id = :storeId"
+    )
+    Page<PayHistory> findPayHistoryListByStoreId(Pageable pageable, @Param("storeId") UUID storeId);
 }
