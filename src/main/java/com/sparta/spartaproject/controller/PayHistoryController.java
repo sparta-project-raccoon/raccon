@@ -1,11 +1,13 @@
 package com.sparta.spartaproject.controller;
 
+import com.sparta.spartaproject.common.pageable.PageableConfig;
 import com.sparta.spartaproject.domain.pay.PayHistoryService;
 import com.sparta.spartaproject.dto.request.CreatePayHistoryRequestDto;
 import com.sparta.spartaproject.dto.response.PayHistoryDetailDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PayHistoryController {
     private final PayHistoryService payHistoryService;
+    private final PageableConfig pageableConfig;
 
     @Description(
         "결제 내역 전체 조회"
@@ -24,10 +27,12 @@ public class PayHistoryController {
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<Page<PayHistoryDetailDto>> getPayHistories(
-        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+        @RequestParam(required = false, defaultValue = "1") Integer page,
+        @RequestParam(required = false) Integer size,
+        @RequestParam(required = false) String sortDirection
     ) {
-        return ResponseEntity.ok(payHistoryService.getPayHistories(page, sortDirection));
+        Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
+        return ResponseEntity.ok(payHistoryService.getPayHistories(customPageable));
     }
 
     @Description(
@@ -43,10 +48,25 @@ public class PayHistoryController {
     )
     @GetMapping("/me")
     public ResponseEntity<Page<PayHistoryDetailDto>> getMyPayHistories(
-        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+        @RequestParam(required = false, defaultValue = "1") Integer page,
+        @RequestParam(required = false) Integer size,
+        @RequestParam(required = false) String sortDirection
     ) {
-        return ResponseEntity.ok(payHistoryService.getMyPayHistories(page, sortDirection));
+        Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
+        return ResponseEntity.ok(payHistoryService.getMyPayHistories(customPageable));
+    }
+
+    @Description(
+        "owner - 내 가게 결제 내역 조회하기"
+    )
+    @GetMapping("/owner")
+    public ResponseEntity<Page<PayHistoryDetailDto>> getPayHistoriesForOwner(
+        @RequestParam(required = false, defaultValue = "1") Integer page,
+        @RequestParam(required = false) Integer size,
+        @RequestParam(required = false) String sortDirection
+    ) {
+        Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
+        return ResponseEntity.ok(payHistoryService.getPayHistoriesForOwner(customPageable));
     }
 
     @Description(

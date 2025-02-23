@@ -1,10 +1,10 @@
 package com.sparta.spartaproject.domain.pay;
 
-import com.sparta.spartaproject.common.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.order.Order;
 import com.sparta.spartaproject.domain.order.PayMethod;
 import com.sparta.spartaproject.domain.store.Store;
+import com.sparta.spartaproject.domain.store.StoreService;
 import com.sparta.spartaproject.domain.user.Role;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.domain.user.UserService;
@@ -14,7 +14,9 @@ import com.sparta.spartaproject.exception.BusinessException;
 import com.sparta.spartaproject.mapper.PayHistoryMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,19 +39,17 @@ public class PayHistoryService {
     private final PayHistoryRepository payHistoryRepository;
 
     private final Integer size = 10;
+    private final StoreService storeService;
 
     @Transactional(readOnly = true)
-    public Page<PayHistoryDetailDto> getPayHistories(int page, String sortDirection) {
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+    public Page<PayHistoryDetailDto> getPayHistories(Pageable customPageable) {
+        Page<PayHistory> payHistories = payHistoryRepository.findPayHistoryList(customPageable);
 
-        Page<PayHistory> payhistories = payHistoryRepository.findPayHistoryList(pageable);
-
-        List<PayHistoryDetailDto> dtos = payhistories.stream().map(
+        List<PayHistoryDetailDto> dtos = payHistories.stream().map(
             payHistoryMapper::toPayHistoryDetailDto
         ).toList();
 
-        return new PageImpl<>(dtos, pageable, payhistories.getTotalElements());
+        return new PageImpl<>(dtos, customPageable, payHistories.getTotalElements());
     }
 
     @Transactional(readOnly = true)
@@ -60,22 +60,38 @@ public class PayHistoryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PayHistoryDetailDto> getMyPayHistories(int page, String sortDirection) {
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
-
+    public Page<PayHistoryDetailDto> getMyPayHistories(Pageable customPageable) {
         User user = getUser();
+
         if (user.getRole() != Role.CUSTOMER) {
             throw new BusinessException(FORBIDDEN);
         }
 
-        Page<PayHistory> payhistories = payHistoryRepository.findPayHistoryListByUserId(pageable, user.getId());
+        Page<PayHistory> payHistories = payHistoryRepository.findPayHistoryListByUserId(customPageable, user.getId());
 
-        List<PayHistoryDetailDto> dtos = payhistories.stream().map(
+        List<PayHistoryDetailDto> payHistoryDetailDtoList = payHistories.stream().map(
             payHistoryMapper::toPayHistoryDetailDto
         ).toList();
 
-        return new PageImpl<>(dtos, pageable, payhistories.getTotalElements());
+        return new PageImpl<>(payHistoryDetailDtoList, customPageable, payHistories.getTotalElements());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PayHistoryDetailDto> getPayHistoriesForOwner(Pageable customPageable) {
+        User user = getUser();
+        Store store = storeService.getStoreByOwnerId(user.getId());
+
+        if (user.getRole() != Role.OWNER) {
+            throw new BusinessException(FORBIDDEN);
+        }
+
+        Page<PayHistory> payHistories = payHistoryRepository.findPayHistoryListByStoreId(customPageable, store.getId());
+
+        List<PayHistoryDetailDto> payHistoryDetailDtoList = payHistories.stream().map(
+            payHistoryMapper::toPayHistoryDetailDto
+        ).toList();
+
+        return new PageImpl<>(payHistoryDetailDtoList, customPageable, payHistories.getTotalElements());
     }
 
     @Transactional
