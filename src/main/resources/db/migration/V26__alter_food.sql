@@ -1,0 +1,2 @@
+ALTER TABLE dev.p_food
+ALTER COLUMN price TYPE INT;
