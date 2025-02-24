@@ -15,9 +15,7 @@ import com.sparta.spartaproject.exception.ErrorCode;
 import com.sparta.spartaproject.mapper.ReviewMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,36 +35,38 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ImageService imageService;
 
-    private final Integer size = 10;
+//    private final Integer size = 10;
 
     @Transactional(readOnly = true)
-    public List<ReviewDto> getReviews(int page, String sortDirection) {
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+    public Page<ReviewDto> getReviews(Pageable customPageable) {
+        Page<Review> reviews = reviewRepository.findAllByIsDeletedIsFalse(customPageable);
 
-        return reviewRepository.findAllByIsDeletedIsFalse(pageable).stream().map(
+        List<ReviewDto> dtos = reviews.stream().map(
             review -> {
                 List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
                 log.info("리뷰 이미지 url - {}", imageUrlList);
                 return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
             }
         ).toList();
+
+        return new PageImpl<>(dtos, customPageable, reviews.getTotalElements());
     }
 
     @Transactional(readOnly = true)
-    public List<ReviewDto> getMyReviews(int page, String sortDirection) {
+    public Page<ReviewDto> getMyReviews(Pageable customPageable) {
         User user = circularService.getUserService().loginUser();
 
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        Page<Review> reviews = reviewRepository.findAllByUserIdAndIsDeletedIsFalse(customPageable, user.getId());
 
-        return reviewRepository.findAllByUserIdAndIsDeletedIsFalse(pageable, user.getId()).stream().map(
+        List<ReviewDto> dtos = reviews.stream().map(
             review -> {
                 List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
                 log.info("리뷰 이미지 개수 - {}", imageUrlList.size());
                 return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
             }
         ).toList();
+
+        return new PageImpl<>(dtos, customPageable, reviews.getTotalElements());
     }
 
     @Transactional(readOnly = true)
@@ -146,25 +146,25 @@ public class ReviewService {
         imageService.deleteAllImagesByEntity(id, EntityType.REVIEW);
 
         review.delete();
-        reviewRepository.saveAndFlush(review);
+//        reviewRepository.saveAndFlush(review);
         log.info("리뷰: {}, 삭제 완료", id);
     }
 
     @Transactional
-    public List<ReviewDto> getReviewsForStore(UUID storeId, int page, String sortDirection) {
+    public Page<ReviewDto> getReviewsForStore(UUID storeId, Pageable customPageable) {
         Store store = circularService.getStoreService().getStoreByIdAndIsDeletedIsFalse(storeId);
 
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        Page<Review> reviews = reviewRepository.findAllByStoreIdAndIsDeletedIsFalse(customPageable, store.getId());
 
-        return reviewRepository.findAllByStoreIdAndIsDeletedIsFalse(pageable, store.getId()).stream().map(
+        List<ReviewDto> dtos = reviews.stream().map(
             review -> {
-                log.info("리뷰 id : {}", review.getId());
                 List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
                 log.info("리뷰 이미지 url - {}", imageUrlList);
                 return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
             }
         ).toList();
+
+        return new PageImpl<>(dtos, customPageable, reviews.getTotalElements());
     }
 
 
