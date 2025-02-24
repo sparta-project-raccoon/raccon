@@ -36,8 +36,8 @@ public class FoodController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Void> createFood(
-            @RequestPart(value = "request") String requestJson,
-            @RequestPart(value = "image", required = false) MultipartFile image
+        @RequestPart(value = "request") String requestJson,
+        @RequestPart(value = "image", required = false) MultipartFile image
     ) throws JsonProcessingException {
         CreateFoodRequestDto request = new ObjectMapper().readValue(requestJson, CreateFoodRequestDto.class);
         foodService.createFood(request, image);
@@ -80,11 +80,11 @@ public class FoodController {
     @GetMapping("/my/stores/{storeId}")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
     public ResponseEntity<Page<FoodDetailDto>> getAllFoodsForStoreByOwner(
-            @PathVariable("storeId") UUID storeId,
-            @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.")
-            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-            @RequestParam(value = "size", required = false) Integer size,
-            @RequestParam(value = "sortDirection", required = false) String sortDirection
+        @PathVariable("storeId") UUID storeId,
+        @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.")
+        @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+        @RequestParam(value = "size", required = false) Integer size,
+        @RequestParam(value = "sortDirection", required = false) String sortDirection
     ) {
         Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
         return ResponseEntity.ok(foodService.getAllFoodsForStoreByOwner(storeId, customPageable));

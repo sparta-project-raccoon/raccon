@@ -1,5 +1,6 @@
 package com.sparta.spartaproject.controller;
 
+import com.sparta.spartaproject.common.pageable.PageableConfig;
 import com.sparta.spartaproject.domain.order.OrderService;
 import com.sparta.spartaproject.dto.request.CreateOrderRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateOrderStatusRequestDto;
@@ -9,6 +10,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +24,7 @@ import java.util.UUID;
 @Validated
 public class OrderController {
     private final OrderService orderService;
+    private final PageableConfig pageableConfig;
 
     @Description(
         "주문하기"
@@ -38,10 +41,13 @@ public class OrderController {
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<Page<OrderDto>> getOrders(
-        @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.") @RequestParam(required = false, defaultValue = "1") int page,
-        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+        @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.")
+        @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+        @RequestParam(value = "size", required = false) Integer size,
+        @RequestParam(value = "sortDirection", required = false) String sortDirection
     ) {
-        return ResponseEntity.ok(orderService.getOrders(page, sortDirection));
+        Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
+        return ResponseEntity.ok(orderService.getOrders(customPageable));
     }
 
     @Description(
@@ -51,10 +57,13 @@ public class OrderController {
     @PreAuthorize("hasAuthority('OWNER')")
     public ResponseEntity<Page<OrderDto>> getOrdersForOwner(
         @PathVariable UUID storeId,
-        @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.") @RequestParam(required = false, defaultValue = "1") int page,
-        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+        @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.")
+        @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+        @RequestParam(value = "size", required = false) Integer size,
+        @RequestParam(value = "sortDirection", required = false) String sortDirection
     ) {
-        return ResponseEntity.ok(orderService.getOrdersForOwner(storeId, page, sortDirection));
+        Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
+        return ResponseEntity.ok(orderService.getOrdersForOwner(storeId, customPageable));
     }
 
     @Description(

@@ -30,16 +30,10 @@ public class GeminiHistoryService {
     private final GeminiMapper geminiMapper;
     private final CircularService circularService;
 
-    private final Integer size = 10;
 
     @Transactional(readOnly = true)
-    public List<GeminiHistoryResponseDto> getGeminiHistories(int page, String sortDirection) {
-        log.info("{}", sortDirection);
-
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
-
-        return geminiHistoryRepository.findAllBySort(pageable).stream().map(
+    public List<GeminiHistoryResponseDto> getGeminiHistories(Pageable customPageable) {
+        return geminiHistoryRepository.findAllBySort(customPageable).stream().map(
             geminiMapper::toGeminiHistoryResponseDto
         ).toList();
     }
