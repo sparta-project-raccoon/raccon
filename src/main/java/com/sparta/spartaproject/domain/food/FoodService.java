@@ -1,5 +1,6 @@
 package com.sparta.spartaproject.domain.food;
 
+import com.sparta.spartaproject.common.pageable.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.image.EntityType;
 import com.sparta.spartaproject.domain.image.ImageService;
@@ -72,7 +73,11 @@ public class FoodService {
     public Page<FoodDetailDto> getAllFoodsForStore(UUID storeId, Pageable customPageable) {
         Store store = circularService.getStoreService().getStoreById(storeId);
 
+        log.info("store.getName() : {}", store.getName());
+
         Page<Food> foodList = foodRepository.findByStoreAndIsDisplayedIsTrueAndIsDeletedIsFalse(store, customPageable);
+
+        log.info("foodList.size() : {}", foodList.getTotalElements());
 
         return getFoodDetailDtos(customPageable, foodList);
     }

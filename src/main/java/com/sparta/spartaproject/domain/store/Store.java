@@ -81,6 +81,12 @@ public class Store extends BaseEntity {
 
     private LocalDateTime deletedAt;
 
+    @Column(
+        nullable = false,
+        columnDefinition = "bool default false"
+    )
+    private Boolean isConfirmed;
+
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<StoreCategory> storeCategories = new ArrayList<>();
 
@@ -131,5 +137,9 @@ public class Store extends BaseEntity {
     public void delete() {
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void confirm() {
+        this.isConfirmed = true;
     }
 }

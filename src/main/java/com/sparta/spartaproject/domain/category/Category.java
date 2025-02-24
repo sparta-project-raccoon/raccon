@@ -1,6 +1,7 @@
 package com.sparta.spartaproject.domain.category;
 
 import com.sparta.spartaproject.domain.BaseTimeEntity;
+import com.sparta.spartaproject.domain.store.StoreCategory;
 import com.sparta.spartaproject.dto.request.UpdateCategoryRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,6 +11,8 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -30,6 +33,9 @@ public class Category extends BaseTimeEntity {
         nullable = false
     )
     private String name;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<StoreCategory> storeCategories = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

@@ -8,6 +8,7 @@ import com.sparta.spartaproject.domain.image.ImageService;
 import com.sparta.spartaproject.domain.user.Role;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.domain.user.UserService;
+import com.sparta.spartaproject.dto.request.ConfirmStoreRequestDto;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
@@ -24,9 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -235,6 +234,38 @@ public class StoreService {
         imageService.deleteAllImagesByEntity(id, EntityType.STORE);
 
         log.info("가게: {}, 삭제 완료", id);
+    }
+
+    @Transactional
+    public Page<StoreDetailDto> getUnconfirmedStores(Pageable customPageable, String name) {
+        Page<Store> unconfirmedStoreList = storeRepository.findAllByUnConfirmed(customPageable);
+
+        List<StoreDetailDto> storeDetailDtoList = unconfirmedStoreList.stream().map(
+            store -> storeMapper.toStoreDetailDto(
+                store.getStoreCategories().stream().map(
+                    storeCategory -> categoryMapper.toCategoryDto(
+                        storeCategory.getCategory()
+                    )
+                ).toList(),
+                imageService.getImageUrlByEntity(store.getId(), EntityType.STORE),
+                store
+            )
+        ).toList();
+
+        return new PageImpl<>(storeDetailDtoList, customPageable, unconfirmedStoreList.getTotalElements());
+    }
+
+    @Transactional
+    public void confirmedStore(ConfirmStoreRequestDto update) {
+        Store store = getStoreById(update.storeId());
+
+        if (store.getIsConfirmed() == Boolean.TRUE) {
+            throw new BusinessException(ErrorCode.ALREADY_IS_TRUE);
+        }
+
+        store.confirm();
+
+        log.info("가계: {}, 승인 완료", update.storeId());
     }
 
 

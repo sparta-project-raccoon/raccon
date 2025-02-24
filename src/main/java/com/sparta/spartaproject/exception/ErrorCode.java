@@ -18,6 +18,7 @@ public enum ErrorCode {
     INVALID_TYPE_VALUE(HttpStatus.BAD_REQUEST, " Invalid Type Value"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다."),
     PAGE_NOT_DOWN_ZERO(HttpStatus.BAD_REQUEST, "페이지 번호는 0보다 작을 수 없습니다."),
+    NOT_MATCH_ENUM_TYPE(HttpStatus.BAD_REQUEST, "올바르지 않은 Enum 타입입니다."),
 
 
     //Member Validation
@@ -59,6 +60,7 @@ public enum ErrorCode {
     // 가게
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "가게 정보가 존재하지 않습니다."),
     STORE_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "가게 정보에 대한 권한이 존재하지 않습니다."),
+    ALREADY_IS_TRUE(HttpStatus.BAD_REQUEST, "이미 허가된 가게입니다."),
 
     // 카테고리
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리 정보가 존재하지 않습니다."),
@@ -83,6 +85,7 @@ public enum ErrorCode {
 
     // 이미지
     IMAGE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "이미지 업로드에 실패하였습니다.");
+
 
     private final HttpStatus status; // http 상태코드
     private final String message;//에러메시지
