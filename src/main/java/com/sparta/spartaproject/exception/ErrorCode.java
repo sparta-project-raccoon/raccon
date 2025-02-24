@@ -17,6 +17,7 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Server Error"),
     INVALID_TYPE_VALUE(HttpStatus.BAD_REQUEST, " Invalid Type Value"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다."),
+    PAGE_NOT_DOWN_ZERO(HttpStatus.BAD_REQUEST, "페이지 번호는 0보다 작을 수 없습니다."),
 
 
     //Member Validation

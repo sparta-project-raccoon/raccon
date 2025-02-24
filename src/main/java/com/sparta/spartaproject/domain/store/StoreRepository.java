@@ -1,6 +1,5 @@
 package com.sparta.spartaproject.domain.store;
 
-import com.sparta.spartaproject.domain.user.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,11 +25,11 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
         "SELECT s " +
             "FROM Store s " +
             "WHERE s.isDeleted IS FALSE " +
-            "AND s.owner = :owner"
+            "AND s.owner.id = :ownerId"
     )
     List<Store> findAllStoreListByOwner(
         Pageable pageable,
-        @Param("owner") User owner
+        @Param("ownerId") Long ownerId
     );
 
     Optional<Store> findByIdAndIsDeletedIsFalse(UUID id);
