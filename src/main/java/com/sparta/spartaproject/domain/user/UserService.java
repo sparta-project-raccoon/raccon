@@ -39,6 +39,9 @@ public class UserService {
     @Value("${code.manager}")
     private String managerCode;
 
+    @Value("${code.owner}")
+    private String ownerCode;
+
     public User loginUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.valueOf(authentication.getName());
@@ -180,6 +183,38 @@ public class UserService {
         }
 
         user.updateRole(Role.MASTER);
+        userRepository.save(user);
+
+        refreshCacheForLoginUser(user);
+    }
+
+    @Transactional
+    public void updateRoleOwner(UpdateRoleOwnerRequestDto update) {
+        User user = this.loginUser();
+
+        if (!Objects.equals(update.ownerCode(), ownerCode)) {
+            throw new BusinessException(ErrorCode.USER_INVALID_ACCESS);
+        }
+
+        if (user.getRole() == Role.OWNER) {
+            throw new BusinessException(ErrorCode.ALREADY_ROLE_OWNER);
+        }
+
+        user.updateRole(Role.OWNER);
+        userRepository.save(user);
+
+        refreshCacheForLoginUser(user);
+    }
+
+    @Transactional
+    public void updateRoleOwnerByBusinessNum(VarifyBusinessNumRequestDto request) {
+        User user = this.loginUser();
+
+        String businessNum = request.businessNum();
+
+        // 외부 API를 통해 사업자 등록 번호 검증 (API가 유료여서 기능 구현 불가..)
+
+        user.updateRole(Role.OWNER);
         userRepository.save(user);
 
         refreshCacheForLoginUser(user);
