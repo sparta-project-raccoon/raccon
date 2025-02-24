@@ -7,20 +7,22 @@ import com.sparta.spartaproject.domain.review.ReviewService;
 import com.sparta.spartaproject.dto.request.CreateReviewRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateReviewRequestDto;
 import com.sparta.spartaproject.dto.response.ReviewDto;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/reviews")
@@ -34,6 +36,7 @@ public class ReviewController {
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<Page<ReviewDto>> getReviews(
+        @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.")
         @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
         @RequestParam(value = "size", required = false) Integer size,
         @RequestParam(value = "sortDirection", required = false) String sortDirection
@@ -47,6 +50,7 @@ public class ReviewController {
     )
     @GetMapping("/my")
     public ResponseEntity<Page<ReviewDto>> getMyReviews(
+        @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.")
         @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
         @RequestParam(value = "size", required = false) Integer size,
         @RequestParam(value = "sortDirection", required = false) String sortDirection
@@ -105,6 +109,7 @@ public class ReviewController {
     @GetMapping("/stores/{storeId}")
     public ResponseEntity<Page<ReviewDto>> getReviewsForStore(
         @PathVariable("storeId") UUID storeId,
+        @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.")
         @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
         @RequestParam(value = "size", required = false) Integer size,
         @RequestParam(value = "sortDirection", required = false) String sortDirection
