@@ -10,6 +10,7 @@ import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
 import com.sparta.spartaproject.dto.response.StoreByCategoryDto;
 import com.sparta.spartaproject.dto.response.StoreDetailDto;
+import com.sparta.spartaproject.dto.response.StoreDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
@@ -85,11 +86,7 @@ public class StoreController {
     )
     @GetMapping("/my")
     @PreAuthorize("hasAuthority('OWNER')")
-    public ResponseEntity<StoreDetailDto> getMyStores(
-        @RequestParam(required = false, defaultValue = "1") Integer page,
-        @RequestParam(required = false) Integer size,
-        @RequestParam(required = false) String sortDirection
-    ) {
+    public ResponseEntity<StoreDetailDto> getMyStores() {
         return ResponseEntity.ok(storeService.getMyStores());
     }
 
@@ -138,7 +135,7 @@ public class StoreController {
         @RequestParam(required = false) String sortDirection
     ) {
         Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
-        return ResponseEntity.ok(storeService.getUnconfirmedStores(customPageable));
+        return ResponseEntity.ok(storeService.getUnconfirmedStores(customPageable, name));
     }
 
     @Description(

@@ -36,7 +36,6 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ImageService imageService;
 
-//    private final Integer size = 10;
 
     @Transactional(readOnly = true)
     public Page<ReviewDto> getReviews(Pageable customPageable) {
@@ -80,9 +79,7 @@ public class ReviewService {
         }
 
         List<String> imageUrlList = imageService.getImageUrlByEntity(review.getId(), EntityType.REVIEW);
-        imageUrlList.forEach(image -> {
-            log.info("리뷰의 이미지 url : {}", image);
-        });
+        imageUrlList.forEach(image -> log.info("리뷰의 이미지 url : {}", image));
         return reviewMapper.toReviewDtoWithImages(review, imageUrlList);
     }
 

@@ -5,7 +5,6 @@ import com.sparta.spartaproject.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,8 +41,6 @@ public class ImageService {
         }
     }
 
-
-
     /**
      * 특정 엔티티의 모든 이미지 삭제 (s3 영구 삭제, DB 영구 삭제)
      */
@@ -72,5 +69,16 @@ public class ImageService {
                 .collect(Collectors.toList());
     }
 
+    public void uploadImageByManager(UUID entityId, EntityType entityType, List<MultipartFile> imageList) {
+        imageList.forEach(image -> {
+            uploadImage(entityId, entityType, image);
+        });
+    }
 
+    public void updateImagesByEntityByManager(UUID entityId, EntityType entityType, List<MultipartFile> imageList) {
+        deleteAllImagesByEntity(entityId, entityType);
+        imageList.forEach(image -> {
+            uploadImage(entityId, entityType, image);
+        });
+    }
 }

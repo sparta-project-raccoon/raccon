@@ -85,4 +85,22 @@ public class UserController {
         userService.updateRoleMaster(request);
         return ResponseEntity.ok().build();
     }
+
+    @Description(
+        "사장 계정 등록하기"
+    )
+    @PostMapping("/role/owner")
+    public ResponseEntity<Void> updateRoleOwner(@RequestBody UpdateRoleOwnerRequestDto request) {
+        userService.updateRoleOwner(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Description(
+        "사업자 등록 번호로 사장 계정 인증 받기 (사업자 등록 번호 조회 API 사용)"
+    )
+    @PostMapping("/role/owner/business-num")
+    public ResponseEntity<Void> updateRoleOwnerByBusinessNum(@RequestBody VarifyBusinessNumRequestDto request) {
+        userService.updateRoleOwnerByBusinessNum(request);
+        return ResponseEntity.ok().build();
+    }
 }

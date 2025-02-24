@@ -31,9 +31,7 @@ public class LikeController {
         "찜 상세 조회"
     )
     @GetMapping("/likes/{id}")
-    public ResponseEntity<LikeDto> getLike(@PathVariable UUID id) {
-        return ResponseEntity.ok(likeService.getLike(id));
-    }
+    public ResponseEntity<LikeDto> getLike(@PathVariable("id") UUID id) { return ResponseEntity.ok(likeService.getLike(id)); }
 
     @Description(
         "찜 하기 - 토글 방식"
@@ -49,7 +47,7 @@ public class LikeController {
     )
     @DeleteMapping("/likes/{id}")
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<Void> deleteLike(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteLike(@PathVariable("id") UUID id) {
         likeService.deleteLike(id);
         return ResponseEntity.ok().build();
     }

@@ -5,18 +5,15 @@ import com.sparta.spartaproject.domain.food.Status;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.response.FoodDetailDto;
-import com.sparta.spartaproject.dto.response.FoodDto;
 import com.sparta.spartaproject.dto.response.FoodQtySummaryDto;
 import com.sparta.spartaproject.dto.response.FoodSummaryDto;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-24T08:47:52+0900",
+    date = "2025-02-24T14:45:38+0900",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Oracle Corporation)"
 )
 @Component
@@ -41,27 +38,6 @@ public class FoodMapperImpl implements FoodMapper {
         food.isDeleted( Boolean.FALSE );
 
         return food.build();
-    }
-
-    @Override
-    public FoodDto toFoodDto(List<FoodDetailDto> foods, Integer page, Integer totalPages) {
-        if ( foods == null && page == null && totalPages == null ) {
-            return null;
-        }
-
-        List<FoodDetailDto> foods1 = null;
-        List<FoodDetailDto> list = foods;
-        if ( list != null ) {
-            foods1 = new ArrayList<FoodDetailDto>( list );
-        }
-        Integer currentPage = null;
-        currentPage = page;
-        Integer totalPages1 = null;
-        totalPages1 = totalPages;
-
-        FoodDto foodDto = new FoodDto( foods1, currentPage, totalPages1 );
-
-        return foodDto;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.sparta.spartaproject.domain.gemini;
 
-import com.sparta.spartaproject.common.pageable.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.domain.user.User;
@@ -12,9 +11,7 @@ import com.sparta.spartaproject.exception.ErrorCode;
 import com.sparta.spartaproject.mapper.GeminiMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,16 +27,10 @@ public class GeminiHistoryService {
     private final GeminiMapper geminiMapper;
     private final CircularService circularService;
 
-    private final Integer size = 10;
 
     @Transactional(readOnly = true)
-    public List<GeminiHistoryResponseDto> getGeminiHistories(int page, String sortDirection) {
-        log.info("{}", sortDirection);
-
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
-
-        return geminiHistoryRepository.findAllBySort(pageable).stream().map(
+    public List<GeminiHistoryResponseDto> getGeminiHistories(Pageable customPageable) {
+        return geminiHistoryRepository.findAllBySort(customPageable).stream().map(
             geminiMapper::toGeminiHistoryResponseDto
         ).toList();
     }
