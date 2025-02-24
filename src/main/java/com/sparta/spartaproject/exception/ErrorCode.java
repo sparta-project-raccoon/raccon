@@ -32,6 +32,7 @@ public enum ErrorCode {
     ALREADY_ROLE_MASTER(HttpStatus.BAD_REQUEST, "이미 마스터 권한입니다."),
     USER_INVALID_ACCESS(HttpStatus.BAD_REQUEST, "잘못된 접근입니다."),
     ALREADY_ROLE_MANAGER(HttpStatus.BAD_REQUEST, "이미 매니저 권한입니다."),
+    ALREADY_ROLE_OWNER(HttpStatus.BAD_REQUEST, "이미 사장 권한입니다."),
 
 
     // order

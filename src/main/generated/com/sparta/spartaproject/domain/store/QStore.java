@@ -44,6 +44,8 @@ public class QStore extends EntityPathBase<Store> {
 
     public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
 
+    public final BooleanPath isConfirmed = createBoolean("isConfirmed");
+
     public final BooleanPath isDeleted = createBoolean("isDeleted");
 
     public final StringPath name = createString("name");

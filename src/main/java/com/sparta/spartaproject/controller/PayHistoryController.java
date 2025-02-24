@@ -27,9 +27,9 @@ public class PayHistoryController {
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<Page<PayHistoryDetailDto>> getPayHistories(
-        @RequestParam(required = false, defaultValue = "1") Integer page,
-        @RequestParam(required = false) Integer size,
-        @RequestParam(required = false) String sortDirection
+        @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+        @RequestParam(value = "size", required = false) Integer size,
+        @RequestParam(value = "sortDirection", required = false) String sortDirection
     ) {
         Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
         return ResponseEntity.ok(payHistoryService.getPayHistories(customPageable));
@@ -39,7 +39,7 @@ public class PayHistoryController {
         "결제 상세 확인"
     )
     @GetMapping("/{id}")
-    public ResponseEntity<PayHistoryDetailDto> getPayHistory(@PathVariable UUID id) {
+    public ResponseEntity<PayHistoryDetailDto> getPayHistory(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(payHistoryService.getPayHistory(id));
     }
 
@@ -48,9 +48,9 @@ public class PayHistoryController {
     )
     @GetMapping("/me")
     public ResponseEntity<Page<PayHistoryDetailDto>> getMyPayHistories(
-        @RequestParam(required = false, defaultValue = "1") Integer page,
-        @RequestParam(required = false) Integer size,
-        @RequestParam(required = false) String sortDirection
+        @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+        @RequestParam(value = "size", required = false) Integer size,
+        @RequestParam(value = "sortDirection", required = false) String sortDirection
     ) {
         Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
         return ResponseEntity.ok(payHistoryService.getMyPayHistories(customPageable));
@@ -61,9 +61,9 @@ public class PayHistoryController {
     )
     @GetMapping("/owner")
     public ResponseEntity<Page<PayHistoryDetailDto>> getPayHistoriesForOwner(
-        @RequestParam(required = false, defaultValue = "1") Integer page,
-        @RequestParam(required = false) Integer size,
-        @RequestParam(required = false) String sortDirection
+        @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+        @RequestParam(value = "size", required = false) Integer size,
+        @RequestParam(value = "sortDirection", required = false) String sortDirection
     ) {
         Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
         return ResponseEntity.ok(payHistoryService.getPayHistoriesForOwner(customPageable));
@@ -82,7 +82,7 @@ public class PayHistoryController {
         "결제하기 - 완료"
     )
     @PatchMapping("/{id}/completed")
-    public ResponseEntity<Void> completedPayHistory(@PathVariable UUID id) {
+    public ResponseEntity<Void> completedPayHistory(@PathVariable("id") UUID id) {
         payHistoryService.completedPayHistory(id);
         return ResponseEntity.ok().build();
     }
@@ -92,7 +92,7 @@ public class PayHistoryController {
     )
     @PatchMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
-    public ResponseEntity<Void> cancelledPayHistory(@PathVariable UUID id) {
+    public ResponseEntity<Void> cancelledPayHistory(@PathVariable("id") UUID id) {
         payHistoryService.cancelledPayHistory(id);
         return ResponseEntity.ok().build();
     }

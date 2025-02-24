@@ -49,9 +49,7 @@ public class S3Uploader {
     public void deleteImageFile(String imageUrl) {
         try {
             String fileKey = extractKeyFromUrl(imageUrl);
-            log.info("파일 키: {}", fileKey);
             String decodedKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
-            log.info("디코딩된 키: {}", decodedKey);
             amazonS3.deleteObject(new DeleteObjectRequest(bucketName, decodedKey));
             log.info("S3에서 삭제된 파일: {}", decodedKey);
         } catch (Exception e) {

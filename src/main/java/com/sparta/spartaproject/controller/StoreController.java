@@ -129,9 +129,9 @@ public class StoreController {
     )
     @GetMapping("/unconfirmed")
     public ResponseEntity<Page<StoreDetailDto>> getUnconfirmedStores(
-        @RequestParam(required = false, defaultValue = "1") Integer page,
-        @RequestParam(required = false) Integer size,
-        @RequestParam(required = false) String sortDirection,
+        @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+        @RequestParam(value = "size", required = false) Integer size,
+        @RequestParam(value = "sortDirection", required = false) String sortDirection,
         @RequestParam(value = "name", required = false, defaultValue = "") String name
     ) {
         Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);

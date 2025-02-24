@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -27,6 +28,8 @@ public class QCategory extends EntityPathBase<Category> {
     public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
 
     public final StringPath name = createString("name");
+
+    public final ListPath<com.sparta.spartaproject.domain.store.StoreCategory, com.sparta.spartaproject.domain.store.QStoreCategory> storeCategories = this.<com.sparta.spartaproject.domain.store.StoreCategory, com.sparta.spartaproject.domain.store.QStoreCategory>createList("storeCategories", com.sparta.spartaproject.domain.store.StoreCategory.class, com.sparta.spartaproject.domain.store.QStoreCategory.class, PathInits.DIRECT2);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;

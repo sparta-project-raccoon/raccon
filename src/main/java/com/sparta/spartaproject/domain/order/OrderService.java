@@ -1,6 +1,5 @@
 package com.sparta.spartaproject.domain.order;
 
-import com.sparta.spartaproject.common.pageable.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.food.Food;
 import com.sparta.spartaproject.domain.store.Store;
@@ -19,7 +18,9 @@ import com.sparta.spartaproject.mapper.OrderHistoryMapper;
 import com.sparta.spartaproject.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +44,6 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderHistoryMapper orderHistoryMapper;
     private final OrderHistoryRepository orderHistoryRepository;
-
-    private final Integer size = 10;
 
     @Transactional
     public void createOrder(CreateOrderRequestDto request) {
@@ -86,11 +85,9 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderDto> getOrders(int page, String sortDirection) {
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+    public Page<OrderDto> getOrders(Pageable customPageable) {
 
-        Page<Order> orders = orderRepository.findAllWithOrderHistoriesAndFoods(pageable);
+        Page<Order> orders = orderRepository.findAllWithOrderHistoriesAndFoods(customPageable);
 
         List<OrderDto> ordersDto = orders.getContent().stream().map(
             order -> orderMapper.toOrderDto(
@@ -104,14 +101,11 @@ public class OrderService {
             )
         ).toList();
 
-        return new PageImpl<>(ordersDto, pageable, orders.getTotalElements());
+        return new PageImpl<>(ordersDto, customPageable, orders.getTotalElements());
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderDto> getOrdersForOwner(UUID storeId, int page, String sortDirection) {
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
-
+    public Page<OrderDto> getOrdersForOwner(UUID storeId, Pageable customPageable) {
         User owner = getUser();
         Store store = storeService.getStoreById(storeId);
 
@@ -119,7 +113,7 @@ public class OrderService {
             throw new BusinessException(ErrorCode.FORBIDDEN);
         }
 
-        Page<Order> orders = orderRepository.findAllWithOrderHistoriesAndFoodsByStoreId(store.getId(), pageable);
+        Page<Order> orders = orderRepository.findAllWithOrderHistoriesAndFoodsByStoreId(store.getId(), customPageable);
 
         List<OrderDto> ordersDto = orders.getContent().stream().map(
             order -> orderMapper.toOrderDto(
@@ -133,7 +127,7 @@ public class OrderService {
             )
         ).toList();
 
-        return new PageImpl<>(ordersDto, pageable, orders.getTotalElements());
+        return new PageImpl<>(ordersDto, customPageable, orders.getTotalElements());
     }
 
     @Transactional

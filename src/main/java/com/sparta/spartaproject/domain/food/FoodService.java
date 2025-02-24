@@ -1,6 +1,5 @@
 package com.sparta.spartaproject.domain.food;
 
-import com.sparta.spartaproject.common.pageable.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.image.EntityType;
 import com.sparta.spartaproject.domain.image.ImageService;
@@ -11,15 +10,14 @@ import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateFoodStatusRequestDto;
 import com.sparta.spartaproject.dto.response.FoodDetailDto;
-import com.sparta.spartaproject.dto.response.FoodDto;
 import com.sparta.spartaproject.exception.BusinessException;
 import com.sparta.spartaproject.exception.ErrorCode;
 import com.sparta.spartaproject.mapper.FoodMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +34,6 @@ public class FoodService {
     private final FoodRepository foodRepository;
     private final CircularService circularService;
 
-    private final Integer size = 10;
 
     @Transactional
     public void createFood(CreateFoodRequestDto request, MultipartFile image) {
@@ -65,33 +62,27 @@ public class FoodService {
     }
 
     @Transactional(readOnly = true)
-    public FoodDto getAllFoods(int page, String sortDirection) {
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+    public Page<FoodDetailDto> getAllFoods(Pageable customPageable) {
+        Page<Food> foodList = foodRepository.findAll(customPageable);
 
-        List<Food> foodList = foodRepository.findAll(pageable).getContent();
-
-        return getFoodDto(page, foodList);
+        return getFoodDetailDtos(customPageable, foodList);
     }
 
     @Transactional(readOnly = true)
-    public FoodDto getAllFoodsForStore(UUID storeId, int page, String sortDirection) {
+    public Page<FoodDetailDto> getAllFoodsForStore(UUID storeId, Pageable customPageable) {
         Store store = circularService.getStoreService().getStoreById(storeId);
 
         log.info("store.getName() : {}", store.getName());
 
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        Page<Food> foodList = foodRepository.findByStoreAndIsDisplayedIsTrueAndIsDeletedIsFalse(store, customPageable);
 
-        List<Food> foodList = foodRepository.findByStoreAndIsDisplayedIsTrueAndIsDeletedIsFalse(store, pageable);
+        log.info("foodList.size() : {}", foodList.getTotalElements());
 
-        log.info("foodList.size() : {}", foodList.size());
-
-        return getFoodDto(page, foodList);
+        return getFoodDetailDtos(customPageable, foodList);
     }
 
     @Transactional(readOnly = true)
-    public FoodDto getAllFoodsForStoreByOwner(UUID storeId, int page, String sortDirection) {
+    public Page<FoodDetailDto> getAllFoodsForStoreByOwner(UUID storeId, Pageable customPageable) {
         User user = circularService.getUserService().loginUser();
         Store store = circularService.getStoreService().getStoreById(storeId);
 
@@ -101,12 +92,9 @@ public class FoodService {
             }
         }
 
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        Page<Food> foodList = foodRepository.findByStoreAndIsDeletedIsFalse(store, customPageable);
 
-        List<Food> foodList = foodRepository.findByStoreAndIsDeletedIsFalse(store, pageable);
-
-        return getFoodDto(page, foodList);
+        return getFoodDetailDtos(customPageable, foodList);
     }
 
     @Transactional(readOnly = true)
@@ -179,7 +167,6 @@ public class FoodService {
         food.toggleIsDisplayed();
     }
 
-    // 음식 삭제
     @Transactional
     public void deleteFood(UUID id) {
         User user = circularService.getUserService().loginUser();
@@ -204,22 +191,18 @@ public class FoodService {
             .orElseThrow(() -> new BusinessException(ErrorCode.FOOD_NOT_FOUND));
     }
 
-    private FoodDto getFoodDto(int page, List<Food> foodList) {
-        Integer totalPages = (int) Math.ceil((double) foodList.size() / size);
-
-        return foodMapper.toFoodDto(
-            foodList.stream().map(
+    private Page<FoodDetailDto> getFoodDetailDtos(Pageable customPageable, Page<Food> foodList) {
+        List<FoodDetailDto> dtos = foodList.stream().map(
             food -> {
                 String imageUrl = imageService.getImageUrlByEntity(food.getId(), EntityType.FOOD)
-                    .stream()
-                    .findFirst()
-                    .orElse(null);
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
                 log.info("Image url: {}", imageUrl);
                 return foodMapper.toFoodDetailDto(food, imageUrl);
-            }).toList(),
-            page,
-            totalPages
-        );
+            }
+        ).toList();
+        return new PageImpl<>(dtos, customPageable, foodList.getTotalElements());
     }
 
 }
