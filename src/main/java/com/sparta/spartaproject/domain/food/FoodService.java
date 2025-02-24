@@ -1,6 +1,5 @@
 package com.sparta.spartaproject.domain.food;
 
-import com.sparta.spartaproject.common.pageable.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.image.EntityType;
 import com.sparta.spartaproject.domain.image.ImageService;

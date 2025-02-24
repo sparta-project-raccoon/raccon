@@ -1,6 +1,5 @@
 package com.sparta.spartaproject.domain.order;
 
-import com.sparta.spartaproject.common.pageable.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.food.Food;
 import com.sparta.spartaproject.domain.store.Store;
@@ -19,7 +18,9 @@ import com.sparta.spartaproject.mapper.OrderHistoryMapper;
 import com.sparta.spartaproject.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
