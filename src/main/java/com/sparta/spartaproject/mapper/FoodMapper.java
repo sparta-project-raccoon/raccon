@@ -4,13 +4,10 @@ import com.sparta.spartaproject.domain.food.Food;
 import com.sparta.spartaproject.domain.store.Store;
 import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
 import com.sparta.spartaproject.dto.response.FoodDetailDto;
-import com.sparta.spartaproject.dto.response.FoodDto;
 import com.sparta.spartaproject.dto.response.FoodQtySummaryDto;
 import com.sparta.spartaproject.dto.response.FoodSummaryDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface FoodMapper {
