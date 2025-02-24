@@ -2,16 +2,19 @@ package com.sparta.spartaproject.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.spartaproject.domain.store.Status;
-import com.sparta.spartaproject.domain.store.StoreImageService;
+import com.sparta.spartaproject.common.pageable.PageableConfig;
 import com.sparta.spartaproject.domain.store.StoreService;
-import com.sparta.spartaproject.dto.request.CreateFoodRequestDto;
+import com.sparta.spartaproject.dto.request.ConfirmStoreRequestDto;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
-import com.sparta.spartaproject.dto.response.*;
+import com.sparta.spartaproject.dto.response.StoreByCategoryDto;
+import com.sparta.spartaproject.dto.response.StoreDetailDto;
+import com.sparta.spartaproject.dto.response.StoreDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,7 +29,7 @@ import java.util.UUID;
 @RequestMapping("/api/stores")
 public class StoreController {
     private final StoreService storeService;
-    private final StoreImageService storeImageService;
+    private final PageableConfig pageableConfig;
 
     @Description(
         "음식점 생성하기"
@@ -96,7 +99,7 @@ public class StoreController {
         @RequestPart("request") String updateJson,
         @RequestPart(value = "imageList", required = false) List<MultipartFile> imageList
     ) throws JsonProcessingException {
-        UpdateStoreRequestDto update = new ObjectMapper().readValue(updateJson,UpdateStoreRequestDto.class);
+        UpdateStoreRequestDto update = new ObjectMapper().readValue(updateJson, UpdateStoreRequestDto.class);
         storeService.updateStore(id, update, imageList);
         return ResponseEntity.ok().build();
     }
@@ -121,6 +124,26 @@ public class StoreController {
         return ResponseEntity.ok().build();
     }
 
+    @Description(
+        "Master, Manager - 승인되지 않은 가게 전체 조회하기"
+    )
+    @GetMapping("/unconfirmed")
+    public ResponseEntity<Page<StoreDetailDto>> getUnconfirmedStores(
+        @RequestParam(required = false, defaultValue = "1") Integer page,
+        @RequestParam(required = false) Integer size,
+        @RequestParam(required = false) String sortDirection,
+        @RequestParam(value = "name", required = false, defaultValue = "") String name
+    ) {
+        Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
+        return ResponseEntity.ok(storeService.getUnconfirmedStores(customPageable, name));
+    }
 
-
+    @Description(
+        "Master, Manager - 가게 승인하기"
+    )
+    @PatchMapping("/confirmed")
+    public ResponseEntity<Void> confirmedStore(@RequestBody ConfirmStoreRequestDto update) {
+        storeService.confirmedStore(update);
+        return ResponseEntity.ok().build();
+    }
 }

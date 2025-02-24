@@ -15,7 +15,7 @@ public interface StoreMapper {
     @Mapping(target = "id", source = "store.id")
     @Mapping(target = "categories", source = "categories")
     @Mapping(target = "imageUrls", source = "imageUrls")
-    StoreDetailDto toStoreDetailDto(List<CategoryDto> categories, List<String> imageUrls,Store store);
+    StoreDetailDto toStoreDetailDto(List<CategoryDto> categories, List<String> imageUrls, Store store);
 
     @Mapping(target = "imageUrls", source = "imageUrls")
     OnlyStoreDto toOnlyStoreDto(Store store, List<String> imageUrls);
