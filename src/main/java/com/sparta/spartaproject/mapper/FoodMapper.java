@@ -28,11 +28,6 @@ public interface FoodMapper {
     @Mapping(target = "updatedBy", ignore = true)
     Food toFood(CreateFoodRequestDto source, Store store, String descriptionForGemini);
 
-    @Mapping(target = "foods", source = "foods")
-    @Mapping(target = "currentPage", source = "page")
-    @Mapping(target = "totalPages", source = "totalPages")
-    FoodDto toFoodDto(List<FoodDetailDto> foods, Integer page, Integer totalPages);
-
     @Mapping(target = "imagePath", source = "imageUrl")
     FoodDetailDto toFoodDetailDto(Food food, String imageUrl);
 
