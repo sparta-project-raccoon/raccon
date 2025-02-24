@@ -43,7 +43,7 @@ public class GeminiHistoryController {
     )
     @GetMapping("/histories/{id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
-    public ResponseEntity<GeminiHistoryResponseDto> getGeminiHistory(@PathVariable UUID id) {
+    public ResponseEntity<GeminiHistoryResponseDto> getGeminiHistory(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(geminiHistoryService.getGeminiHistory(id));
     }
 
@@ -62,7 +62,7 @@ public class GeminiHistoryController {
     )
     @PatchMapping("/histories/{id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
-    public ResponseEntity<Void> updateGeminiHistory(@PathVariable UUID id, @RequestBody UpdateGeminiHistoryRequestDto update) {
+    public ResponseEntity<Void> updateGeminiHistory(@PathVariable("id") UUID id, @RequestBody UpdateGeminiHistoryRequestDto update) {
         geminiHistoryService.updateGeminiHistory(id, update);
         return ResponseEntity.ok().build();
     }
@@ -72,7 +72,7 @@ public class GeminiHistoryController {
     )
     @DeleteMapping("/histories/{id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
-    public ResponseEntity<Void> deleteGeminiHistory(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteGeminiHistory(@PathVariable("id") UUID id) {
         geminiHistoryService.deleteGeminiHistory(id);
         return ResponseEntity.ok().build();
     }

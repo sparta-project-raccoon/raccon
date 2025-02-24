@@ -33,7 +33,7 @@ public class CategoryController {
     )
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
-    public ResponseEntity<CategoryDto> getCategory(@PathVariable UUID id) {
+    public ResponseEntity<CategoryDto> getCategory(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(categoryService.getCategory(id));
     }
 
@@ -52,7 +52,7 @@ public class CategoryController {
     )
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
-    public ResponseEntity<Void> updateCategory(@PathVariable UUID id, @RequestBody UpdateCategoryRequestDto update) {
+    public ResponseEntity<Void> updateCategory(@PathVariable("id") UUID id, @RequestBody UpdateCategoryRequestDto update) {
         categoryService.updateCategory(id, update);
         return ResponseEntity.ok().build();
     }
@@ -62,7 +62,7 @@ public class CategoryController {
     )
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
-    public ResponseEntity<Void> deleteCategory(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable("id") UUID id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.ok().build();
     }
