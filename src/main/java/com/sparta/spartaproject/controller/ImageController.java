@@ -3,6 +3,7 @@ package com.sparta.spartaproject.controller;
 import com.sparta.spartaproject.domain.image.EntityType;
 import com.sparta.spartaproject.domain.image.ImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Description;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,9 @@ public class ImageController {
 
     private final ImageService imageService;
 
+    @Description(
+        "관리자 - 이미지 등록"
+    )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<Void> uploadImage(
@@ -30,6 +34,9 @@ public class ImageController {
         return ResponseEntity.ok().build();
     }
 
+    @Description(
+        "관리자 - 이미지 등록"
+    )
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<Void> updateImagesByManager(
@@ -41,6 +48,9 @@ public class ImageController {
         return ResponseEntity.ok().build();
     }
 
+    @Description(
+        "관리자 - 이미지 삭제"
+    )
     @DeleteMapping
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<Void> deleteImagesByManager(
