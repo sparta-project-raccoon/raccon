@@ -18,6 +18,7 @@ public enum ErrorCode {
     INVALID_TYPE_VALUE(HttpStatus.BAD_REQUEST, " Invalid Type Value"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다."),
     PAGE_NOT_DOWN_ZERO(HttpStatus.BAD_REQUEST, "페이지 번호는 0보다 작을 수 없습니다."),
+    NOT_MATCH_ENUM_TYPE(HttpStatus.BAD_REQUEST, "올바르지 않은 Enum 타입입니다."),
 
 
     //Member Validation
@@ -82,10 +83,8 @@ public enum ErrorCode {
     GEMINI_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "Gemini 내역이 존재하지 않습니다."),
 
     // 이미지
-    IMAGE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "이미지 업로드에 실패하였습니다."),
+    IMAGE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "이미지 업로드에 실패하였습니다.");
 
-    // 페이징
-    INVALID_PAGE_REQUEST(HttpStatus.BAD_REQUEST, "페이지 번호는 1 이상이어야 합니다.");
 
     private final HttpStatus status; // http 상태코드
     private final String message;//에러메시지

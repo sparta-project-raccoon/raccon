@@ -29,25 +29,13 @@ public class GlobalExceptionHandler {
     }
 
     /*
-    @Valid
-    또는 @Validated로 binding error 발생시 발생하는 예외
-     */
-    @ExceptionHandler(ConstraintViolationException.class)
-    protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
-            ConstraintViolationException e) {
-        log.warn("ConstraintViolationException : {}", e.getMessage());
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.valueOf(e.getMessage()));
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
-    }
-
-    /*
     enum type이 일치하지 않아 binding 못할경우 발생
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
-        MethodArgumentTypeMismatchException e) {
+            MethodArgumentTypeMismatchException e) {
         log.error("handleMethodArgumentTypeMismatchException : {}", e.getMessage());
-        final ErrorResponse response = ErrorResponse.of(e);
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_MATCH_ENUM_TYPE);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -56,7 +44,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
-        HttpRequestMethodNotSupportedException e) {
+            HttpRequestMethodNotSupportedException e) {
         log.error("handleHttpRequestMethodNotSupportedException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
@@ -71,13 +59,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
-    @ExceptionHandler(InvalidPageException.class)
-    protected ResponseEntity<ErrorResponse> handleInvalidPageException(InvalidPageException e) {
-        log.warn("잘못된 페이지 요청 : {}", e.getMessage());
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_PAGE_REQUEST);
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ErrorResponse> handleConstraintViolationException(
+            ConstraintViolationException e) {
+        log.warn("handleConstraintViolationException : {}", e.getMessage());
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.PAGE_NOT_DOWN_ZERO);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
 
     @ExceptionHandler(Exception.class) // 위의 예외들에서 걸러지지않은 나머지 예외들에 대한 처리
     protected ResponseEntity<ErrorResponse> handleException(Exception e) {
