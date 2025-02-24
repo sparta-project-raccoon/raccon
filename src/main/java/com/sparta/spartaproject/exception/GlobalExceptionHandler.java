@@ -2,13 +2,13 @@ package com.sparta.spartaproject.exception;
 
 import com.sparta.spartaproject.domain.slack.SlackService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -28,26 +28,13 @@ public class GlobalExceptionHandler {
     }
 
     /*
-    @Valid
-    또는 @Validated로 binding error 발생시 발생하는 예외
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException e) {
-        log.warn("handleMethodArgumentNotValidException : {}", e.getMessage());
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE,
-            e.getBindingResult());
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
-    }
-
-    /*
     enum type이 일치하지 않아 binding 못할경우 발생
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
-        MethodArgumentTypeMismatchException e) {
+            MethodArgumentTypeMismatchException e) {
         log.error("handleMethodArgumentTypeMismatchException : {}", e.getMessage());
-        final ErrorResponse response = ErrorResponse.of(e);
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_MATCH_ENUM_TYPE);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -56,7 +43,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
-        HttpRequestMethodNotSupportedException e) {
+            HttpRequestMethodNotSupportedException e) {
         log.error("handleHttpRequestMethodNotSupportedException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
@@ -71,6 +58,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ErrorResponse> handleConstraintViolationException(
+            ConstraintViolationException e) {
+        log.warn("handleConstraintViolationException : {}", e.getMessage());
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.PAGE_NOT_DOWN_ZERO);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(Exception.class) // 위의 예외들에서 걸러지지않은 나머지 예외들에 대한 처리
     protected ResponseEntity<ErrorResponse> handleException(Exception e) {
