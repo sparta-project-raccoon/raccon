@@ -2,6 +2,7 @@ package com.sparta.spartaproject.exception;
 
 import com.sparta.spartaproject.domain.slack.SlackService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,12 +32,11 @@ public class GlobalExceptionHandler {
     @Valid
     또는 @Validated로 binding error 발생시 발생하는 예외
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException e) {
-        log.warn("handleMethodArgumentNotValidException : {}", e.getMessage());
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE,
-            e.getBindingResult());
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
+            ConstraintViolationException e) {
+        log.warn("ConstraintViolationException : {}", e.getMessage());
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.valueOf(e.getMessage()));
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -68,6 +68,13 @@ public class GlobalExceptionHandler {
         final ErrorCode code = e.getErrorCode();
         final ErrorResponse response = ErrorResponse.of(code);
         slackService.sendMessage(e, request);
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
+    @ExceptionHandler(InvalidPageException.class)
+    protected ResponseEntity<ErrorResponse> handleInvalidPageException(InvalidPageException e) {
+        log.warn("잘못된 페이지 요청 : {}", e.getMessage());
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_PAGE_REQUEST);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 

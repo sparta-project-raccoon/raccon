@@ -5,11 +5,13 @@ import com.sparta.spartaproject.dto.request.CreateOrderRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateOrderStatusRequestDto;
 import com.sparta.spartaproject.dto.response.OrderDetailDto;
 import com.sparta.spartaproject.dto.response.OrderDto;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/orders")
+@Validated
 public class OrderController {
     private final OrderService orderService;
 
@@ -35,7 +38,7 @@ public class OrderController {
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<Page<OrderDto>> getOrders(
-        @RequestParam(required = false, defaultValue = "1") int page,
+        @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.") @RequestParam(required = false, defaultValue = "1") int page,
         @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
     ) {
         return ResponseEntity.ok(orderService.getOrders(page, sortDirection));
@@ -48,7 +51,7 @@ public class OrderController {
     @PreAuthorize("hasAuthority('OWNER')")
     public ResponseEntity<Page<OrderDto>> getOrdersForOwner(
         @PathVariable UUID storeId,
-        @RequestParam(required = false, defaultValue = "1") int page,
+        @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.") @RequestParam(required = false, defaultValue = "1") int page,
         @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
     ) {
         return ResponseEntity.ok(orderService.getOrdersForOwner(storeId, page, sortDirection));
