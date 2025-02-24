@@ -146,7 +146,6 @@ public class ReviewService {
         imageService.deleteAllImagesByEntity(id, EntityType.REVIEW);
 
         review.delete();
-//        reviewRepository.saveAndFlush(review);
         log.info("리뷰: {}, 삭제 완료", id);
     }
 
