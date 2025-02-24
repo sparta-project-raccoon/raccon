@@ -135,7 +135,7 @@ public class StoreController {
         @RequestParam(required = false) String sortDirection
     ) {
         Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
-        return ResponseEntity.ok(storeService.getUnconfirmedStores(customPageable, name));
+        return ResponseEntity.ok(storeService.getUnconfirmedStores(customPageable));
     }
 
     @Description(
