@@ -47,7 +47,7 @@ public class OrderController {
     @GetMapping("/owner/stores/{storeId}")
     @PreAuthorize("hasAuthority('OWNER')")
     public ResponseEntity<Page<OrderDto>> getOrdersForOwner(
-        @PathVariable UUID storeId,
+        @PathVariable("storeId") UUID storeId,
         @RequestParam(required = false, defaultValue = "1") int page,
         @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
     ) {
@@ -58,7 +58,7 @@ public class OrderController {
         "주문 내역 상세 조회"
     )
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDetailDto> getOrderDetail(@PathVariable UUID id) {
+    public ResponseEntity<OrderDetailDto> getOrderDetail(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(orderService.getOrderDetail(id));
     }
 
@@ -67,7 +67,7 @@ public class OrderController {
     )
     @PatchMapping("/{id}/accept")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<Void> acceptOrder(@PathVariable UUID id) {
+    public ResponseEntity<Void> acceptOrder(@PathVariable("id") UUID id) {
         orderService.acceptOrder(id);
         return ResponseEntity.ok().build();
     }
@@ -76,7 +76,7 @@ public class OrderController {
         "주문 취소"
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelOrder(@PathVariable UUID id) {
+    public ResponseEntity<Void> cancelOrder(@PathVariable("id") UUID id) {
         orderService.cancelOrder(id);
         return ResponseEntity.ok().build();
     }
@@ -86,7 +86,7 @@ public class OrderController {
     )
     @PatchMapping("/{id}/reject")
     @PreAuthorize("hasAnyAuthority('OWNER', 'MASTER', 'MANAGER')")
-    public ResponseEntity<Void> rejectOrder(@PathVariable UUID id) {
+    public ResponseEntity<Void> rejectOrder(@PathVariable("id") UUID id) {
         orderService.rejectOrder(id);
         return ResponseEntity.ok().build();
     }

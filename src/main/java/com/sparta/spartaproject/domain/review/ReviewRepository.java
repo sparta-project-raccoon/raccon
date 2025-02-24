@@ -1,5 +1,6 @@
 package com.sparta.spartaproject.domain.review;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -8,13 +9,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ReviewRepository extends JpaRepository<Review, UUID> {
-    List<Review> findAllByUserIdAndIsDeletedIsFalse(Pageable pageable, Long userId);
+    Page<Review> findAllByUserIdAndIsDeletedIsFalse(Pageable pageable, Long userId);
 
-    List<Review> findAllByIsDeletedIsFalse(Pageable pageable);
+    Page<Review> findAllByIsDeletedIsFalse(Pageable pageable);
 
     Optional<Review> findByIdAndIsDeletedIsFalse(UUID id);
 
-    List<Review> findAllByStoreIdAndIsDeletedIsFalse(Pageable pageable, UUID storeId);
+    Page<Review> findAllByStoreIdAndIsDeletedIsFalse(Pageable pageable, UUID storeId);
 
     Boolean existsByStoreIdAndOrderIdAndIsDeletedIsFalse(UUID storeId, UUID orderId);
 }
