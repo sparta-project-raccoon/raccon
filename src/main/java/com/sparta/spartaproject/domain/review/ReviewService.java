@@ -1,6 +1,5 @@
 package com.sparta.spartaproject.domain.review;
 
-import com.sparta.spartaproject.common.pageable.SortUtils;
 import com.sparta.spartaproject.domain.CircularService;
 import com.sparta.spartaproject.domain.image.EntityType;
 import com.sparta.spartaproject.domain.image.ImageService;
@@ -15,7 +14,9 @@ import com.sparta.spartaproject.exception.ErrorCode;
 import com.sparta.spartaproject.mapper.ReviewMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -170,5 +171,9 @@ public class ReviewService {
     public Review getReviewByIdAndIsDeletedIsFalse(UUID id) {
         return reviewRepository.findByIdAndIsDeletedIsFalse(id)
             .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
+    }
+
+    public Long countByStoreId(UUID storeId) {
+        return reviewRepository.countByStoreIdAndIsDeletedIsFalse(storeId);
     }
 }
