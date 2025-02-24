@@ -1,6 +1,5 @@
 package com.sparta.spartaproject.domain.store;
 
-import com.sparta.spartaproject.common.pageable.SortUtils;
 import com.sparta.spartaproject.domain.category.Category;
 import com.sparta.spartaproject.domain.category.CategoryService;
 import com.sparta.spartaproject.domain.image.EntityType;
@@ -12,10 +11,8 @@ import com.sparta.spartaproject.dto.request.ConfirmStoreRequestDto;
 import com.sparta.spartaproject.dto.request.CreateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
-import com.sparta.spartaproject.dto.response.OnlyStoreDto;
 import com.sparta.spartaproject.dto.response.StoreByCategoryDto;
 import com.sparta.spartaproject.dto.response.StoreDetailDto;
-import com.sparta.spartaproject.dto.response.StoreDto;
 import com.sparta.spartaproject.exception.BusinessException;
 import com.sparta.spartaproject.exception.ErrorCode;
 import com.sparta.spartaproject.mapper.CategoryMapper;
@@ -25,7 +22,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,8 +48,6 @@ public class StoreService {
     private final StoreCategoryService storeCategoryService;
     private final StoreCategoryRepository storeCategoryRepository;
     private final ImageService imageService;
-
-    private final Integer size = 10;
 
     @Transactional
     public void createStore(CreateStoreRequestDto request, List<MultipartFile> imageList) {
@@ -87,38 +84,34 @@ public class StoreService {
     }
 
     @Transactional(readOnly = true)
-    public StoreDto getStores(int page, String sortDirection, String name) {
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+    public Page<StoreDetailDto> getStores(Pageable customPageable, String name) {
+        Page<Store> storeList = storeRepository.findAllStoreList(customPageable, name);
 
-        List<Store> storeList = storeRepository.findAllStoreList(pageable, name);
+        List<StoreDetailDto> storeDetailDtoList = storeList.stream().map(
+            store -> storeMapper.toStoreDetailDto(
+                store.getStoreCategories().stream().map(
+                    storeCategory -> categoryMapper.toCategoryDto(
+                        storeCategory.getCategory()
+                    )
+                ).toList(),
+                imageService.getImageUrlByEntity(store.getId(), EntityType.STORE),
+                store
+            )
+        ).toList();
 
-        int totalStoreCount = storeList.size();
-
-        return storeMapper.toStoreDto(
-            storeList.stream().map(
-                store -> storeMapper.toStoreDetailDto(
-                    storeCategoryService.getCategoriesByStore(store).stream().map(
-                        categoryMapper::toCategoryDto
-                    ).toList(),
-                    imageService.getImageUrlByEntity(store.getId(), EntityType.STORE),
-                    store
-                )
-            ).toList(),
-            page,
-            (int) Math.ceil((double) totalStoreCount / size),
-            totalStoreCount
-        );
+        return new PageImpl<>(storeDetailDtoList, customPageable, storeList.getTotalElements());
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "store", key = "#p0")
+    @Cacheable(value = "store", key = "#id")
     public StoreDetailDto getStore(UUID id) {
-        Store store = getStoreById(id);
+        Store store = storeRepository.getStoreById(id);
 
         return storeMapper.toStoreDetailDto(
-            storeCategoryService.getCategoriesByStore(store).stream().map(
-                categoryMapper::toCategoryDto
+            store.getStoreCategories().stream().map(
+                storeCategory -> categoryMapper.toCategoryDto(
+                    storeCategory.getCategory()
+                )
             ).toList(),
             imageService.getImageUrlByEntity(store.getId(), EntityType.STORE),
             store
@@ -126,51 +119,34 @@ public class StoreService {
     }
 
     @Transactional(readOnly = true)
-    public StoreByCategoryDto getStoresByCategory(int page, String sortDirection, UUID categoryId) {
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+    public Page<StoreByCategoryDto> getStoresByCategory(Pageable customPageable, UUID categoryId) {
         Category category = categoryService.getCategoryById(categoryId);
 
-        List<OnlyStoreDto> storeList = storeCategoryService.getStoresByCategory(pageable, category).stream().map(
-            store -> {
-                return storeMapper.toOnlyStoreDto(store,
-                    imageService.getImageUrlByEntity(store.getId(), EntityType.STORE));
-            }
+        Page<Store> storeListByCategoryId = storeRepository.getStoreListByCategoryId(customPageable, category.getId());
+
+        List<StoreByCategoryDto> storeByCategoryDtoList = storeListByCategoryId.stream().map(
+            store -> storeMapper.toStoreByCategoryDto(
+                categoryMapper.toCategoryDto(category),
+                imageService.getImageUrlByEntity(store.getId(), EntityType.STORE),
+                store
+            )
         ).toList();
 
-        int totalStoreCount = storeList.size();
-
-        return storeMapper.toStoreByCategoryDto(
-            storeList,
-            page,
-            (int) Math.ceil((double) totalStoreCount / size),
-            totalStoreCount
-        );
+        return new PageImpl<>(storeByCategoryDtoList, customPageable, storeListByCategoryId.getTotalElements());
     }
 
     @Transactional(readOnly = true)
-    public StoreDto getMyStores(int page, String sortDirection) {
+    public StoreDetailDto getMyStores() {
         User user = userService.loginUser();
-        Sort sort = SortUtils.getSort(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
 
-        List<Store> storeList = storeRepository.findAllStoreListByOwner(pageable, user.getId());
+        Store store = storeRepository.findStoreListByOwner(user.getId());
 
-        int totalStoreCount = storeList.size();
-
-        return storeMapper.toStoreDto(
-            storeList.stream().map(
-                store -> storeMapper.toStoreDetailDto(
-                    storeCategoryService.getCategoriesByStore(store).stream().map(
-                        categoryMapper::toCategoryDto
-                    ).toList(),
-                    imageService.getImageUrlByEntity(store.getId(), EntityType.STORE),
-                    store
-                )
+        return storeMapper.toStoreDetailDto(
+            store.getStoreCategories().stream().map(
+                storeCategory -> categoryMapper.toCategoryDto(storeCategory.getCategory())
             ).toList(),
-            page,
-            (int) Math.ceil((double) totalStoreCount / size),
-            totalStoreCount
+            imageService.getImageUrlByEntity(store.getId(), EntityType.STORE),
+            store
         );
     }
 
@@ -237,7 +213,7 @@ public class StoreService {
     }
 
     @Transactional
-    public Page<StoreDetailDto> getUnconfirmedStores(Pageable customPageable, String name) {
+    public Page<StoreDetailDto> getUnconfirmedStores(Pageable customPageable) {
         Page<Store> unconfirmedStoreList = storeRepository.findAllByUnConfirmed(customPageable);
 
         List<StoreDetailDto> storeDetailDtoList = unconfirmedStoreList.stream().map(

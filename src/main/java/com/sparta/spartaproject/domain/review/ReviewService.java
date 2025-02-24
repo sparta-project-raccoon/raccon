@@ -169,4 +169,8 @@ public class ReviewService {
         return reviewRepository.findByIdAndIsDeletedIsFalse(id)
             .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
     }
+
+    public Long countByStoreId(UUID storeId) {
+        return reviewRepository.countByStoreIdAndIsDeletedIsFalse(storeId);
+    }
 }

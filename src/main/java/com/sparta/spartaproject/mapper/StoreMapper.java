@@ -23,12 +23,10 @@ public interface StoreMapper {
     @Mapping(target = "stores", source = "source")
     StoreDto toStoreDto(List<StoreDetailDto> source, Integer currentPage, Integer totalPages, Integer totalElements);
 
-    StoreByCategoryDto toStoreByCategoryDto(
-        List<OnlyStoreDto> stores,
-        Integer currentPage,
-        Integer totalPages,
-        Integer totalElements
-    );
+    @Mapping(target = "id", source = "store.id")
+    @Mapping(target = "name", source = "store.name")
+    @Mapping(target = "category", source = "categoryDto")
+    StoreByCategoryDto toStoreByCategoryDto(CategoryDto categoryDto, List<String> imageUrls, Store store);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "owner", source = "user")

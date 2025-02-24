@@ -49,12 +49,14 @@ public class StoreController {
         "음식점 전체 조회하기"
     )
     @GetMapping
-    public ResponseEntity<StoreDto> getStores(
-        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
+    public ResponseEntity<Page<StoreDetailDto>> getStores(
+        @RequestParam(required = false, defaultValue = "1") Integer page,
+        @RequestParam(required = false) Integer size,
+        @RequestParam(required = false) String sortDirection,
         @RequestParam(value = "name", required = false, defaultValue = "") String name
     ) {
-        return ResponseEntity.ok(storeService.getStores(page, sortDirection, name));
+        Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
+        return ResponseEntity.ok(storeService.getStores(customPageable, name));
     }
 
     @Description(
@@ -69,12 +71,14 @@ public class StoreController {
         "카테고리별 음식점 조회하기"
     )
     @GetMapping("/categories/{categoryId}")
-    public ResponseEntity<StoreByCategoryDto> getStoresByCategory(
+    public ResponseEntity<Page<StoreByCategoryDto>> getStoresByCategory(
         @PathVariable("categoryId") UUID categoryId,
-        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
+        @RequestParam(required = false, defaultValue = "1") Integer page,
+        @RequestParam(required = false) Integer size,
+        @RequestParam(required = false) String sortDirection
     ) {
-        return ResponseEntity.ok(storeService.getStoresByCategory(page, sortDirection, categoryId));
+        Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
+        return ResponseEntity.ok(storeService.getStoresByCategory(customPageable, categoryId));
     }
 
     @Description(
@@ -82,11 +86,8 @@ public class StoreController {
     )
     @GetMapping("/my")
     @PreAuthorize("hasAuthority('OWNER')")
-    public ResponseEntity<StoreDto> getMyStores(
-        @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-        @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection
-    ) {
-        return ResponseEntity.ok(storeService.getMyStores(page, sortDirection));
+    public ResponseEntity<StoreDetailDto> getMyStores() {
+        return ResponseEntity.ok(storeService.getMyStores());
     }
 
     @Description(
@@ -129,10 +130,9 @@ public class StoreController {
     )
     @GetMapping("/unconfirmed")
     public ResponseEntity<Page<StoreDetailDto>> getUnconfirmedStores(
-        @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-        @RequestParam(value = "size", required = false) Integer size,
-        @RequestParam(value = "sortDirection", required = false) String sortDirection,
-        @RequestParam(value = "name", required = false, defaultValue = "") String name
+        @RequestParam(required = false, defaultValue = "1") Integer page,
+        @RequestParam(required = false) Integer size,
+        @RequestParam(required = false) String sortDirection
     ) {
         Pageable customPageable = pageableConfig.customPageable(page, size, sortDirection);
         return ResponseEntity.ok(storeService.getUnconfirmedStores(customPageable, name));

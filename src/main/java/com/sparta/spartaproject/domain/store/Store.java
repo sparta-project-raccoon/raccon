@@ -2,6 +2,8 @@ package com.sparta.spartaproject.domain.store;
 
 import com.sparta.spartaproject.domain.BaseEntity;
 import com.sparta.spartaproject.domain.food.Food;
+import com.sparta.spartaproject.domain.image.Image;
+import com.sparta.spartaproject.domain.review.Review;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.dto.request.UpdateStoreRequestDto;
 import com.sparta.spartaproject.dto.request.UpdateStoreStatusRequestDto;
@@ -92,6 +94,12 @@ public class Store extends BaseEntity {
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Food> foods = new ArrayList<>();
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "entityId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Image> images = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
