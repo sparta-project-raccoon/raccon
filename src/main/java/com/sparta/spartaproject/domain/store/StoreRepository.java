@@ -1,5 +1,6 @@
 package com.sparta.spartaproject.domain.store;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -35,4 +36,20 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
     Optional<Store> findByIdAndIsDeletedIsFalse(UUID id);
 
     Optional<Store> findByOwnerIdAndIsDeletedIsFalse(Long ownerId);
+
+    @Query(
+        "SELECT count(DISTINCT s) " +
+            "FROM Store  s " +
+            "WHERE s.isConfirmed IS FALSE"
+    )
+    Long countUnconfirmed();
+
+    @Query(
+        "SELECT DISTINCT s " +
+            "FROM Store  s " +
+            "LEFT JOIN FETCH s.storeCategories sc " +
+            "LEFT JOIN FETCH sc.category c " +
+            "WHERE s.isConfirmed IS FALSE"
+    )
+    Page<Store> findAllByUnConfirmed(Pageable pageable);
 }
