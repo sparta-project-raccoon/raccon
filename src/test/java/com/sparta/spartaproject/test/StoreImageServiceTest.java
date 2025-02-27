@@ -1,10 +1,8 @@
-package com.sparta.spartaproject.storeTest;
+package com.sparta.spartaproject.test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.spartaproject.domain.store.*;
 import com.sparta.spartaproject.domain.user.User;
 import com.sparta.spartaproject.domain.user.UserRepository;
-import com.sparta.spartaproject.domain.user.UserService;
 import com.sparta.spartaproject.dto.response.ImageInfoDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,12 +41,6 @@ class StoreImageServiceTest {
 
     @Autowired
     private StoreImageService storeImageService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private StoreImageRepository storeImageRepository;
